@@ -1,0 +1,5 @@
+[
+  { "id": "brush_gpen_2026_07", "type": "brush", "name": "Gペン(硬め)", "desc": "2026年7月配信。入り抜き強めの硬質ペン", "data": { "size": 6, "min": 0.05, "opacity": 1, "soft": 0 } },
+  { "id": "brush_wc_2026_07", "type": "brush", "name": "水彩にじみ", "desc": "淡い塗り重ね向けのやわらかブラシ", "data": { "size": 24, "min": 0.4, "opacity": 0.35, "soft": 0.8 } },
+  { "id": "pose_run_2026_07", "type": "pose", "name": "走りポーズ集", "desc": "走り8コマ分の3Dポーズプリセット", "data": {} }
+]

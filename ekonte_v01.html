@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — 絵コンテ v0.1</title>
+<style>
+:root{--bg:#0f0f14;--panel:#17171f;--panel2:#1f1f2a;--line:#2b2b38;--text:#e9e9f0;--sub:#9a9aab;--accent:#4c8dff;--accent2:#845ef7;--ok:#2f9e44;--warn:#f59f00;--danger:#e5484d;--r:12px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.danger{color:var(--danger)}
+button.mini{padding:2px 8px;font-size:12px}
+button.tool.active{border-color:var(--accent);color:var(--accent);background:rgba(76,141,255,.12)}
+input,select,textarea{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--accent)}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.5px}.logo b{color:var(--accent)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.spacer{flex:1}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:15}
+.toolbar .sep{width:1px;height:22px;background:var(--line)}
+main{max-width:1100px;margin:0 auto;padding:16px 16px 90px}
+.stats{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--sub);margin-bottom:14px;align-items:center}
+.stats b{color:var(--text);font-size:15px}
+.cut{display:grid;grid-template-columns:356px 1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
+@media(max-width:760px){.cut{grid-template-columns:1fr}}
+canvas.thumb{width:100%;max-width:340px;background:#fff;border:1px solid var(--line);border-radius:8px;display:block;touch-action:none;cursor:crosshair}
+.no{font-weight:700;color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.cut textarea{width:100%;min-height:52px;resize:vertical;font-size:13px}
+.ops{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.hint{font-size:12px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:12px 0}
+#overlay{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:40;flex-direction:column;gap:10px;padding:16px}
+#overlay.show{display:flex}
+#animCv{max-width:min(960px,95vw);width:100%;border-radius:8px;background:#000}
+#animInfo{color:#fff;font-size:13px}
+#animBar{width:min(960px,95vw);height:6px;background:#333;border-radius:99px;overflow:hidden}
+#animBar i{display:block;height:100%;background:var(--accent);width:0%}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div><div class="tag">絵コンテ v0.1</div>
+  <input id="projName" style="flex:1;min-width:150px;font-weight:600" placeholder="作品タイトル">
+  <label style="font-size:12px;color:var(--sub)">目標尺 <select id="targetMin"><option value="10">10分</option><option value="15">15分</option><option value="20">20分</option></select></label>
+  <div class="spacer"></div>
+  <button class="mini" id="btnExport">JSON書き出し</button>
+  <button class="mini" id="btnImport">読み込み</button>
+  <input type="file" id="fileImport" accept=".json" class="hidden">
+</header>
+<div class="toolbar">
+  <button class="tool active" data-tool="pen">✏️ ペン</button>
+  <button class="tool" data-tool="red">🔴 赤(カメラ指示)</button>
+  <button class="tool" data-tool="eraser">⬜ 消しゴム</button>
+  <label style="font-size:12px;color:var(--sub)">太さ <input type="range" id="size" min="1" max="10" value="3" style="width:90px;padding:0"></label>
+  <button class="mini" id="btnUndo">↩︎ 戻す</button>
+  <div class="sep"></div>
+  <button class="primary mini" id="btnAdd">+ カット</button>
+  <button class="mini" id="btnPlay">▶ アニマティック</button>
+  <button class="mini" id="btnSheet">🖼 コンテ表PNG</button>
+  <button class="mini" id="btnSend">📤 コースへ送信</button>
+</div>
+<main>
+  <div class="stats">
+    <span>カット <b id="stCuts">0</b></span>
+    <span>合計尺 <b id="stLen">0:00</b> / <span id="stTarget">10:00</span></span>
+    <span style="font-size:11.5px">コマに直接描けます。赤ペンはカメラ指示(矢印・フレーム)用。</span>
+  </div>
+  <div id="list"></div>
+  <button class="primary" id="btnAdd2">+ カットを追加</button>
+  <div class="hint">💡 コンテは「伝わる最低限」でOK(棒人間+矢印)。尺はセリフを声に出して読みながら決めると精度が上がります。<b>「📤 コースへ送信」</b>を押すと、撮影アプリの「絵コンテから取り込み」でカット構成・尺・コンテ画をそのまま参照できます(往復ゼロ)。</div>
+</main>
+<div id="overlay">
+  <canvas id="animCv" width="960" height="540"></canvas>
+  <div id="animBar"><i></i></div>
+  <div id="animInfo"></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <label style="color:#fff;font-size:12px">速度 <select id="animSpd"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select></label>
+    <button id="btnStop">■ 停止</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+"use strict";
+const KEY="editone_ekonte_v01",PIPE="editone_pipe_v01",BRIDGE="editone_bridge_v01";
+const CAMS=["FIX","PAN →","PAN ←","T.U(ズームイン)","T.B(ズームアウト)","FOLLOW(追い)","手ブレ"];
+const TRANS=["カット","O.L","F.I","F.O"];
+function $(id){return document.getElementById(id)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._m);t._m=setTimeout(()=>t.classList.remove("show"),2600)}
+function fmt(s){s=Math.round(s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+let db=load()||{v:1,app:"ekonte",project:{name:"新規アニメ作品",targetMin:10,cuts:[]}};
+let seq=db.project.cuts.reduce((m,c)=>Math.max(m,c.id||0),0);
+let saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast("自動保存が容量超過です。JSON書き出しでバックアップしてください")}},500)}
+const tool={type:"pen",size:3};
+const undoStack=[];const canvasMap=new Map();
+function newCut(){seq++;return{id:seq,title:"",sec:4,cam:"FIX",camNote:"",trans:"カット",dialog:"",thumb:null}}
+function applyStyle(ctx){ctx.lineCap="round";ctx.lineJoin="round";if(tool.type==="eraser"){ctx.strokeStyle="#ffffff";ctx.lineWidth=tool.size*8}else if(tool.type==="red"){ctx.strokeStyle="#e5484d";ctx.lineWidth=tool.size*1.6}else{ctx.strokeStyle="#15151a";ctx.lineWidth=tool.size*2}}
+function setupCanvas(cv,cut){const ctx=cv.getContext("2d");
+function repaint(){ctx.fillStyle="#fff";ctx.fillRect(0,0,cv.width,cv.height);if(cut.thumb){const im=new Image();im.onload=()=>ctx.drawImage(im,0,0,cv.width,cv.height);im.src=cut.thumb}}
+repaint();canvasMap.set(cut.id,{cv,ctx,repaint});
+let down=false;
+function pos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height}}
+cv.addEventListener("pointerdown",e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);down=true;undoStack.push({id:cut.id,cut,data:cv.toDataURL()});if(undoStack.length>30)undoStack.shift();applyStyle(ctx);const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+0.01,p.y+0.01);ctx.stroke()});
+cv.addEventListener("pointermove",e=>{if(!down)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()});
+function up(){if(!down)return;down=false;cut.thumb=cv.toDataURL("image/png");save()}
+cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up)}
+$("btnUndo").onclick=()=>{const u=undoStack.pop();if(!u){toast("戻す操作がありません");return}u.cut.thumb=u.data;const c=canvasMap.get(u.id);if(c){const im=new Image();im.onload=()=>{c.ctx.fillStyle="#fff";c.ctx.fillRect(0,0,c.cv.width,c.cv.height);c.ctx.drawImage(im,0,0)};im.src=u.data}save()};
+document.querySelectorAll(".tool").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tool").forEach(x=>x.classList.remove("active"));b.classList.add("active");tool.type=b.dataset.tool});
+$("size").addEventListener("input",e=>tool.size=Number(e.target.value));
+function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el}
+function mkBtn(label,fn,cls){const b=mk("button","mini"+(cls?" "+cls:""),label);b.onclick=fn;return b}
+function renderStats(){const cuts=db.project.cuts;const total=cuts.reduce((s,c)=>s+(Number(c.sec)||0),0);$("stCuts").textContent=cuts.length;$("stLen").textContent=fmt(total);$("stTarget").textContent=fmt(db.project.targetMin*60);$("stLen").style.color=total>db.project.targetMin*60?"var(--warn)":"var(--text)"}
+function renderList(){const list=$("list");list.innerHTML="";canvasMap.clear();
+db.project.cuts.forEach((cut,idx)=>{
+const card=mk("div","cut");
+const left=mk("div");const cv=document.createElement("canvas");cv.width=640;cv.height=360;cv.className="thumb";left.appendChild(cv);setupCanvas(cv,cut);
+const right=mk("div");
+const r1=mk("div","row");
+r1.appendChild(mk("span","no","C"+String(idx+1).padStart(3,"0")));
+const ti=document.createElement("input");ti.placeholder="カット内容";ti.value=cut.title;ti.style.cssText="flex:1;min-width:120px";ti.addEventListener("input",()=>{cut.title=ti.value;save()});r1.appendChild(ti);
+const se=document.createElement("input");se.type="number";se.min="0.5";se.step="0.5";se.value=cut.sec;se.style.width="76px";se.addEventListener("input",()=>{cut.sec=Number(se.value)||0;save();renderStats()});r1.appendChild(se);r1.appendChild(mk("span",null,"秒"));
+const r2=mk("div","row");
+const cam=document.createElement("select");CAMS.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;cam.appendChild(o)});cam.value=cut.cam;cam.addEventListener("change",()=>{cut.cam=cam.value;save()});r2.appendChild(cam);
+const cn=document.createElement("input");cn.placeholder="カメラ指示メモ";cn.value=cut.camNote;cn.style.cssText="flex:1;min-width:110px";cn.addEventListener("input",()=>{cut.camNote=cn.value;save()});r2.appendChild(cn);
+const tr=document.createElement("select");TRANS.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent="繋ぎ:"+c;tr.appendChild(o)});tr.value=cut.trans;tr.addEventListener("change",()=>{cut.trans=tr.value;save()});r2.appendChild(tr);
+const dg=document.createElement("textarea");dg.placeholder="セリフ・アクション・音";dg.value=cut.dialog;dg.addEventListener("input",()=>{cut.dialog=dg.value;save()});
+const ops=mk("div","ops");
+ops.appendChild(mkBtn("コマをクリア",()=>{undoStack.push({id:cut.id,cut,data:cv.toDataURL()});cut.thumb=null;const c=canvasMap.get(cut.id);if(c)c.repaint();save()}));
+ops.appendChild(mkBtn("▲",()=>{const a=db.project.cuts;if(idx>0){a.splice(idx-1,0,a.splice(idx,1)[0]);save();renderList()}}));
+ops.appendChild(mkBtn("▼",()=>{const a=db.project.cuts;if(idx<a.length-1){a.splice(idx+1,0,a.splice(idx,1)[0]);save();renderList()}}));
+ops.appendChild(mkBtn("複製",()=>{const cp=JSON.parse(JSON.stringify(cut));cp.id=++seq;db.project.cuts.splice(idx+1,0,cp);save();renderList();renderStats()}));
+ops.appendChild(mkBtn("削除",()=>{if(confirm("C"+String(idx+1).padStart(3,"0")+" を削除しますか?")){db.project.cuts.splice(idx,1);save();renderList();renderStats()}},"danger"));
+right.appendChild(r1);right.appendChild(r2);right.appendChild(dg);right.appendChild(ops);
+card.appendChild(left);card.appendChild(right);list.appendChild(card)})}
+function renderAll(){$("projName").value=db.project.name;$("targetMin").value=String(db.project.targetMin);renderStats();renderList()}
+let anim=null;
+function preloadThumbs(cuts){const map=new Map();return Promise.all(cuts.map(c=>new Promise(res=>{if(!c.thumb){res();return}const im=new Image();im.onload=()=>{map.set(c.id,im);res()};im.onerror=()=>res();im.src=c.thumb}))).then(()=>map)}
+$("btnPlay").onclick=async()=>{const cuts=db.project.cuts;if(!cuts.length){toast("カットがありません");return}
+const imgs=await preloadThumbs(cuts);$("overlay").classList.add("show");
+const total=cuts.reduce((s,c)=>s+(Number(c.sec)||0),0);
+anim={i:0,t:0,last:performance.now(),on:true};
+const cvA=$("animCv"),ax=cvA.getContext("2d");
+function step(now){if(!anim||!anim.on)return;
+const spd=Number($("animSpd").value);anim.t+=(now-anim.last)/1000*spd;anim.last=now;
+let cut=cuts[anim.i];
+while(anim.t>=(Number(cut.sec)||0.1)){anim.t-=(Number(cut.sec)||0.1);anim.i++;if(anim.i>=cuts.length){stopAnim();return}cut=cuts[anim.i]}
+ax.fillStyle="#000";ax.fillRect(0,0,960,540);
+const im=imgs.get(cut.id);
+if(im){ax.drawImage(im,0,0,960,540)}else{ax.fillStyle="#1c1c22";ax.fillRect(0,0,960,540);ax.fillStyle="#777";ax.font="26px sans-serif";ax.fillText("(コンテ画なし)",390,274)}
+if(cut.trans==="F.I"&&anim.t<0.5){ax.fillStyle="rgba(0,0,0,"+(1-anim.t/0.5)+")";ax.fillRect(0,0,960,540)}
+if(cut.trans==="F.O"&&anim.t>cut.sec-0.5){ax.fillStyle="rgba(0,0,0,"+Math.min(1,(anim.t-(cut.sec-0.5))/0.5)+")";ax.fillRect(0,0,960,540)}
+ax.fillStyle="rgba(0,0,0,.55)";ax.fillRect(0,500,960,40);ax.fillStyle="#fff";ax.font="16px sans-serif";
+ax.fillText("C"+String(anim.i+1).padStart(3,"0")+"  "+cut.sec+"s  "+cut.cam+(cut.camNote?" "+cut.camNote:""),12,526);
+if(cut.dialog)ax.fillText(cut.dialog.split("\n")[0].slice(0,38),420,526);
+const done=cuts.slice(0,anim.i).reduce((s,c)=>s+(Number(c.sec)||0),0)+anim.t;
+document.querySelector("#animBar i").style.width=(done/total*100)+"%";
+$("animInfo").textContent=fmt(done)+" / "+fmt(total);
+requestAnimationFrame(step)}
+requestAnimationFrame(t=>{anim.last=t;step(t)})};
+function stopAnim(){if(anim)anim.on=false;$("overlay").classList.remove("show")}
+$("btnStop").onclick=stopAnim;
+function wrapText(cx,text,x,y,maxW,lh,maxLines){let line="",lines=0;for(const ch of String(text).replace(/\n/g," / ")){if(cx.measureText(line+ch).width>maxW){cx.fillText(line,x,y+lines*lh);lines++;line=ch;if(lines>=maxLines)return}else line+=ch}if(line)cx.fillText(line,x,y+lines*lh)}
+$("btnSheet").onclick=async()=>{const cuts=db.project.cuts;if(!cuts.length){toast("カットがありません");return}
+const rowH=170,W2=1000,headH=64,H2=headH+rowH*cuts.length;
+if(H2>15600){toast("カットが多すぎます(1枚あたり約90カットまで)");return}
+const imgs=await preloadThumbs(cuts);
+const cv=document.createElement("canvas");cv.width=W2;cv.height=H2;const cx=cv.getContext("2d");
+cx.fillStyle="#fff";cx.fillRect(0,0,W2,H2);
+cx.fillStyle="#111";cx.font="bold 24px sans-serif";cx.fillText(db.project.name||"(無題)",20,38);
+const total=cuts.reduce((s,c)=>s+(Number(c.sec)||0),0);
+cx.font="14px sans-serif";cx.fillStyle="#555";cx.fillText("全"+cuts.length+"カット / 合計 "+fmt(total)+" / "+new Date().toLocaleDateString(),20,58);
+cuts.forEach((cut,i)=>{const y=headH+i*rowH;
+cx.strokeStyle="#ccc";cx.beginPath();cx.moveTo(0,y);cx.lineTo(W2,y);cx.stroke();
+const im=imgs.get(cut.id);
+if(im){cx.drawImage(im,16,y+8,272,153)}else{cx.fillStyle="#eee";cx.fillRect(16,y+8,272,153);cx.fillStyle="#999";cx.font="13px sans-serif";cx.fillText("コンテ画なし",110,y+90)}
+cx.strokeStyle="#999";cx.strokeRect(16,y+8,272,153);
+cx.fillStyle="#111";cx.font="bold 17px sans-serif";
+cx.fillText("C"+String(i+1).padStart(3,"0")+"   "+cut.sec+"s   "+cut.cam+(cut.camNote?" ("+cut.camNote+")":"")+"   繋ぎ:"+cut.trans,308,y+34);
+cx.font="14px sans-serif";cx.fillStyle="#333";
+wrapText(cx,(cut.title?"【"+cut.title+"】 ":"")+(cut.dialog||""),308,y+62,660,22,4)});
+const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=(db.project.name||"konte")+"_sheet.png";a.click();toast("コンテ表PNGを書き出しました")};
+function shrink(dataUrl){return new Promise(res=>{if(!dataUrl){res(null);return}const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=320;c.height=180;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,320,180);g.drawImage(im,0,0,320,180);res(c.toDataURL("image/jpeg",0.6))};im.onerror=()=>res(null);im.src=dataUrl})}
+$("btnSend").onclick=async()=>{const cuts=db.project.cuts;if(!cuts.length){toast("カットがありません");return}
+const thumbs=await Promise.all(cuts.map(c=>shrink(c.thumb)));
+const payload={from:"ekonte",ts:Date.now(),project:db.project.name,targetMin:db.project.targetMin,cuts:cuts.map((c,i)=>({id:c.id,no:i+1,title:c.title,sec:Number(c.sec)||0,cam:c.cam+(c.camNote?" "+c.camNote:""),trans:c.trans,dialog:c.dialog,thumb:thumbs[i]}))};
+try{localStorage.setItem(PIPE,JSON.stringify(payload));toast("コースへ送信しました。撮影アプリの「絵コンテから取り込み」で反映できます")}catch(e){toast("送信データが大きすぎます。JSON書き出しで受け渡してください")}};
+$("projName").addEventListener("input",e=>{db.project.name=e.target.value;save()});
+$("targetMin").addEventListener("change",e=>{db.project.targetMin=Number(e.target.value);save();renderStats()});
+$("btnAdd").onclick=$("btnAdd2").onclick=()=>{db.project.cuts.push(newCut());save();renderAll()};
+$("btnExport").onclick=()=>{const blob=new Blob([JSON.stringify(db,null,1)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(db.project.name||"ekonte")+"_konte.json";a.click();URL.revokeObjectURL(a.href);toast("JSONを書き出しました")};
+$("btnImport").onclick=()=>$("fileImport").click();
+$("fileImport").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!d.project||!Array.isArray(d.project.cuts))throw 0;db=d;seq=db.project.cuts.reduce((m,c)=>Math.max(m,c.id||0),0);save();renderAll();toast("読み込みました:"+(db.project.name||""))}catch(err){toast("読み込みに失敗しました(JSON形式を確認してください)")}};
+r.readAsText(f);e.target.value=""});
+try{const b=JSON.parse(localStorage.getItem(BRIDGE));if(b&&b.from==="hub"&&Date.now()-b.ts<600000){if(b.project&&!db.project.cuts.length)db.project.name=b.project;toast("ハブから接続:"+(b.project||""))}}catch(e){}
+renderAll();
+</script>
+</body>
+</html>

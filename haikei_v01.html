@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>EDIT ONE 背景 v0.1</title>
+<style>
+:root{--bg:#0f0f14;--panel:#17171f;--panel2:#1f1f2a;--line:#2b2b38;--text:#e9e9f0;--sub:#9a9aab;--accent:#4c8dff;--accent2:#845ef7;--ok:#2f9e44;--warn:#f59f00;--danger:#e5484d;--r:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:15px;margin-right:4px}
+input[type=text]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:6px 8px;font-size:13px}
+select{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px}
+button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.on{background:var(--accent);border-color:var(--accent)}
+.primary{background:var(--accent);border-color:var(--accent)}
+.mini{padding:4px 8px;font-size:12px}
+.sub{color:var(--sub);font-size:12px}
+.spacer2{flex:1}
+main{flex:1;display:flex;min-height:0}
+#side{width:250px;background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y}
+.panel{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px}
+.panel h2{font-size:12px;color:var(--sub)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.lrow{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.layerRow{display:flex;align-items:center;gap:6px;padding:5px;border:1px solid var(--line);border-radius:8px}
+.layerRow.sel{border-color:var(--accent)}
+.layerRow .nm{flex:1;cursor:pointer;font-size:13px}
+.layerRow input[type=range]{width:70px}
+#stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a0a0e}
+#wrap{position:relative;touch-action:none;background:repeating-conic-gradient(#23232e 0 25%,#1b1b24 0 50%) 0 0/24px 24px;box-shadow:0 0 0 1px var(--line)}
+#wrap canvas,#filterDiv{position:absolute;left:0;top:0;width:100%;height:100%}
+#filterDiv,#cOver{pointer-events:none}
+input[type=range]{width:100%}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:70;max-width:90%}
+#guide{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:60}
+.gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;max-width:420px;width:90%;display:flex;flex-direction:column;gap:10px}
+.grow{display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<header>
+ <h1>🏞 背景</h1>
+ <input type="text" id="projName" placeholder="プロジェクト名" style="width:120px">
+ <button class="mini" id="tAir">🌫 エア</button>
+ <button class="mini" id="tPen">🖌 丸筆</button>
+ <button class="mini" id="tGrad">🌈 グラデ</button>
+ <button class="mini" id="tEraser">🧽 消し</button>
+ <button class="mini" id="btnUndo">↩ 戻す</button>
+ <button class="mini" id="btnSnap">📐 スナップ</button>
+ <button class="mini" id="btnVp">📍 VP設定</button>
+ <span class="spacer2"></span>
+ <select id="timeSel">
+  <option value="none">時間帯:なし</option>
+  <option value="morning">朝</option>
+  <option value="dusk">夕焼け</option>
+  <option value="night">夜</option>
+ </select>
+ <button class="mini" id="btnPng">🖼 PNG</button>
+ <button class="primary mini" id="btnSend">📤 撮影へ送る</button>
+</header>
+<main>
+ <div id="side">
+  <div class="panel">
+   <h2>レイヤー</h2>
+   <div id="layerList"></div>
+   <div class="sub">名前をタップで描画先を選択</div>
+  </div>
+  <div class="panel">
+   <h2>ブラシ</h2>
+   <div class="lrow"><span class="sub">色</span><input type="color" id="col" value="#7fb2e8"></div>
+   <div class="lrow"><span class="sub">サイズ</span><span class="sub" id="sizeV">60</span></div>
+   <input type="range" id="size" min="4" max="240" value="60">
+   <div class="lrow"><span class="sub">濃さ</span><span class="sub" id="flowV">60</span></div>
+   <input type="range" id="flow" min="5" max="100" value="60">
+  </div>
+  <div class="panel">
+   <h2>ワンタップ空(空レイヤーに生成)</h2>
+   <div class="row">
+    <button class="mini" id="qDay">☀ 昼空</button>
+    <button class="mini" id="qDusk">🌇 夕空</button>
+    <button class="mini" id="qNight">🌌 夜空</button>
+   </div>
+  </div>
+  <div class="panel">
+   <h2>パース定規</h2>
+   <div class="sub" id="vpInfo">消失点:未設定</div>
+   <div class="sub">「📍 VP設定」→画面をタップで消失点を設定。「📐 スナップ」ONでストロークが消失点方向に吸着します(建物や道路に)</div>
+  </div>
+ </div>
+ <div id="stage"><div id="wrap">
+  <canvas id="cSky"></canvas>
+  <canvas id="cFar"></canvas>
+  <canvas id="cNear"></canvas>
+  <div id="filterDiv"></div>
+  <canvas id="cOver"></canvas>
+ </div></div>
+</main>
+<div id="toast"></div>
+<div id="guide"><div class="gcard"><h2 id="gTitle"></h2><p id="gBody" class="sub"></p><div class="grow"><span id="gStep" class="sub"></span><span class="spacer2"></span><button class="mini" id="gSkip">スキップ</button><button class="primary mini" id="gNext">次へ</button></div></div></div>
+<script>
+"use strict";
+const KEY="editone_haikei_v01",CELL="editone_cell_v01";
+const $=id=>document.getElementById(id);
+const W=1280,H=720;
+const LAYERS=[{id:"sky",name:"空"},{id:"far",name:"遠景"},{id:"near",name:"近景"}];
+const C={sky:$("cSky"),far:$("cFar"),near:$("cNear")},X={};
+LAYERS.forEach(l=>{C[l.id].width=W;C[l.id].height=H;X[l.id]=C[l.id].getContext("2d",{willReadFrequently:true})});
+const cO=$("cOver");cO.width=W;cO.height=H;const ox=cO.getContext("2d");
+let cfg={v:1,project:"",time:"none",vp:null,snapOn:false,active:"near",layers:{sky:{vis:true,op:1},far:{vis:true,op:1},near:{vis:true,op:1}}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.v===1)cfg=s;}catch(e){}
+$("projName").value=cfg.project||"";$("timeSel").value=cfg.time;
+const TIMES={none:null,morning:{c:"255,227,179",op:.25,m:"soft-light"},dusk:{c:"255,138,80",op:.38,m:"multiply"},night:{c:"24,38,92",op:.5,m:"multiply"}};
+let tool="air",vpMode=false,drawing=false,start=null,last=null,gradA=null,gradB=null,undoStack=[];
+function fit(){const st=$("stage"),s=Math.min((st.clientWidth-20)/W,(st.clientHeight-20)/H);const w=$("wrap");w.style.width=W*s+"px";w.style.height=H*s+"px"}
+addEventListener("resize",fit);
+function toast(m){const t=$("toast");t.textContent=m;t.style.opacity=1;clearTimeout(t._h);t._h=setTimeout(()=>t.style.opacity=0,2400)}
+function store(){cfg.project=$("projName").value;try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}}
+function storeImg(){try{localStorage.setItem(KEY+"_img",JSON.stringify({sky:C.sky.toDataURL(),far:C.far.toDataURL(),near:C.near.toDataURL()}))}catch(e){}}
+function restoreImg(){try{const s=JSON.parse(localStorage.getItem(KEY+"_img")||"null");if(!s)return;LAYERS.forEach(l=>{if(!s[l.id])return;const im=new Image();im.onload=()=>X[l.id].drawImage(im,0,0);im.src=s[l.id]})}catch(e){}}
+[["size","sizeV"],["flow","flowV"]].forEach(p=>{$(p[0]).addEventListener("input",()=>$(p[1]).textContent=$(p[0]).value)});
+function setTool(t){tool=t;[["air","tAir"],["pen","tPen"],["grad","tGrad"],["eraser","tEraser"]].forEach(p=>$(p[1]).classList.toggle("on",p[0]===t))}
+$("tAir").onclick=()=>setTool("air");$("tPen").onclick=()=>setTool("pen");$("tGrad").onclick=()=>setTool("grad");$("tEraser").onclick=()=>setTool("eraser");
+$("btnSnap").onclick=()=>{if(!cfg.vp){toast("先に「📍 VP設定」で消失点を設定してください");return}cfg.snapOn=!cfg.snapOn;$("btnSnap").classList.toggle("on",cfg.snapOn);drawGuides();store()};
+$("btnVp").onclick=()=>{vpMode=true;toast("画面をタップして消失点を設定してください")};
+function vpInfo(){$("vpInfo").textContent=cfg.vp?"消失点:x="+Math.round(cfg.vp.x)+", y="+Math.round(cfg.vp.y):"消失点:未設定"}
+function drawGuides(){ox.clearRect(0,0,W,H);if(!cfg.vp||!cfg.snapOn)return;const v=cfg.vp;ox.save();ox.strokeStyle="rgba(132,94,247,.5)";ox.lineWidth=1;ox.setLineDash([6,6]);
+ ox.beginPath();ox.moveTo(0,v.y);ox.lineTo(W,v.y);ox.stroke();
+ ox.setLineDash([]);ox.strokeStyle="rgba(132,94,247,.25)";
+ for(let a=0;a<360;a+=15){const r=a*Math.PI/180;ox.beginPath();ox.moveTo(v.x,v.y);ox.lineTo(v.x+Math.cos(r)*2200,v.y+Math.sin(r)*2200);ox.stroke()}
+ ox.fillStyle="#845ef7";ox.beginPath();ox.arc(v.x,v.y,6,0,7);ox.fill();ox.restore()}
+function renderLayers(){const el=$("layerList");el.innerHTML="";
+ for(let i=LAYERS.length-1;i>=0;i--){const l=LAYERS[i],st=cfg.layers[l.id];
+  const row=document.createElement("div");row.className="layerRow"+(cfg.active===l.id?" sel":"");
+  const nm=document.createElement("span");nm.className="nm";nm.textContent=l.name;nm.onclick=()=>{cfg.active=l.id;renderLayers();store()};
+  const eye=document.createElement("button");eye.className="mini";eye.textContent=st.vis?"👁":"–";eye.onclick=()=>{st.vis=!st.vis;applyLayers();renderLayers();store()};
+  const op=document.createElement("input");op.type="range";op.min=10;op.max=100;op.value=st.op*100;op.oninput=()=>{st.op=op.value/100;applyLayers();store()};
+  row.append(nm,eye,op);el.appendChild(row)}}
+function applyLayers(){LAYERS.forEach(l=>{const st=cfg.layers[l.id];C[l.id].style.display=st.vis?"block":"none";C[l.id].style.opacity=st.op})}
+function applyTime(){const t=TIMES[cfg.time],fd=$("filterDiv");if(!t){fd.style.background="none";fd.style.mixBlendMode="normal"}else{fd.style.background="rgba("+t.c+","+t.op+")";fd.style.mixBlendMode=t.m}}
+$("timeSel").onchange=()=>{cfg.time=$("timeSel").value;applyTime();store()};
+function snap0(){const l=cfg.active;undoStack.push({l:l,d:X[l].getImageData(0,0,W,H)});if(undoStack.length>12)undoStack.shift()}
+$("btnUndo").onclick=()=>{const s=undoStack.pop();if(!s){toast("これ以上戻せません");return}X[s.l].putImageData(s.d,0,0);storeImg()};
+function hexA(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return"rgba("+r+","+g+","+b+","+a+")"}
+function pos(e){const r=$("wrap").getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}}
+function ctx(){return X[cfg.active]}
+function flow(){return +$("flow").value/100}
+function stamp(p){const c=ctx(),sz=+$("size").value,col=$("col").value;c.save();
+ if(tool==="eraser"){c.globalCompositeOperation="destination-out";c.globalAlpha=flow();c.beginPath();c.arc(p.x,p.y,sz/2,0,7);c.fill()}
+ else if(tool==="air"){const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,sz/2);g.addColorStop(0,hexA(col,flow()*.28));g.addColorStop(1,hexA(col,0));c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,sz/2,0,7);c.fill()}
+ else{c.globalAlpha=flow();c.fillStyle=col;c.beginPath();c.arc(p.x,p.y,sz/2,0,7);c.fill()}
+ c.restore()}
+function strokeTo(p){const sz=+$("size").value,sp=Math.max(2,sz/(tool==="air"?3:4));const d=Math.hypot(p.x-last.x,p.y-last.y),n=Math.max(1,Math.ceil(d/sp));for(let i=1;i<=n;i++)stamp({x:last.x+(p.x-last.x)*i/n,y:last.y+(p.y-last.y)*i/n});last=p}
+function snapPt(p){const v=cfg.vp;let ux=start.x-v.x,uy=start.y-v.y;const L=Math.hypot(ux,uy)||1;ux/=L;uy/=L;const d=(p.x-v.x)*ux+(p.y-v.y)*uy;return{x:v.x+ux*d,y:v.y+uy*d}}
+$("wrap").addEventListener("pointerdown",e=>{e.preventDefault();const p=pos(e);
+ if(vpMode){cfg.vp=p;vpMode=false;if(!cfg.snapOn){cfg.snapOn=true;$("btnSnap").classList.add("on")}vpInfo();drawGuides();store();toast("消失点を設定しました");return}
+ if(!cfg.layers[cfg.active].vis){toast("非表示レイヤーには描けません(👁で表示してください)");return}
+ snap0();drawing=true;start=p;last=p;
+ if(tool==="grad"){gradA=p;gradB=p;return}
+ stamp(p)});
+addEventListener("pointermove",e=>{if(!drawing)return;const p0=pos(e);
+ if(tool==="grad"){gradB=p0;drawGuides();ox.save();ox.strokeStyle="#4c8dff";ox.lineWidth=2;ox.setLineDash([8,6]);ox.beginPath();ox.moveTo(gradA.x,gradA.y);ox.lineTo(gradB.x,gradB.y);ox.stroke();ox.restore();return}
+ const p=(cfg.snapOn&&cfg.vp&&tool!=="eraser")?snapPt(p0):p0;strokeTo(p)});
+addEventListener("pointerup",()=>{if(!drawing)return;drawing=false;
+ if(tool==="grad"&&gradA&&gradB){const c=ctx(),col=$("col").value;const g=c.createLinearGradient(gradA.x,gradA.y,gradB.x,gradB.y);g.addColorStop(0,hexA(col,flow()));g.addColorStop(1,hexA(col,0));c.fillStyle=g;c.fillRect(0,0,W,H);gradA=gradB=null;drawGuides()}
+ storeImg()});
+const QUICK={day:["#4f8fe8","#cfe8ff"],dusk:["#2e2a5e","#ff9a5c"],night:["#070d24","#31406e"]};
+function quick(k){undoStack.push({l:"sky",d:X.sky.getImageData(0,0,W,H)});if(undoStack.length>12)undoStack.shift();const c=X.sky,q=QUICK[k];const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,q[0]);g.addColorStop(1,q[1]);c.clearRect(0,0,W,H);c.fillStyle=g;c.fillRect(0,0,W,H);storeImg();toast("空レイヤーに生成しました")}
+$("qDay").onclick=()=>quick("day");$("qDusk").onclick=()=>quick("dusk");$("qNight").onclick=()=>quick("night");
+function composite(){const t=document.createElement("canvas");t.width=W;t.height=H;const tx=t.getContext("2d");
+ LAYERS.forEach(l=>{const st=cfg.layers[l.id];if(!st.vis)return;tx.globalAlpha=st.op;tx.drawImage(C[l.id],0,0)});tx.globalAlpha=1;
+ const tm=TIMES[cfg.time];
+ if(tm){const t2=document.createElement("canvas");t2.width=W;t2.height=H;t2.getContext("2d").drawImage(t,0,0);
+  tx.globalCompositeOperation=tm.m;tx.fillStyle="rgba("+tm.c+","+tm.op+")";tx.fillRect(0,0,W,H);
+  tx.globalCompositeOperation="destination-in";tx.drawImage(t2,0,0);tx.globalCompositeOperation="source-over"}
+ return t}
+$("btnPng").onclick=()=>{const a=document.createElement("a");a.download="BG_"+($("projName").value||"haikei")+".png";a.href=composite().toDataURL("image/png");a.click()};
+$("btnSend").onclick=()=>{let pl=null;try{pl=JSON.parse(localStorage.getItem(CELL)||"null")}catch(e){}
+ if(!pl||!pl.cells)pl={from:"sakuga",ts:0,project:$("projName").value,cells:[]};
+ const name="BG_"+($("projName").value||"背景");
+ const png=composite().toDataURL("image/png");
+ const i=pl.cells.findIndex(c=>c.name===name);
+ if(i>=0)pl.cells[i]={name:name,png:png};else pl.cells.push({name:name,png:png});
+ pl.ts=Date.now();pl.via="haikei";
+ try{localStorage.setItem(CELL,JSON.stringify(pl));toast("撮影へ送りました:"+name)}catch(e){toast("容量オーバーで送れません。PNG書き出しをご利用ください")}};
+const GSTEPS=[["ようこそ 🏞","背景アプリは、シーンの背景美術を描く専用アプリです。空・遠景・近景の3レイヤーで、奥行きのある背景が描けます。"],["まずはワンタップ空","左の「☀ 昼空」などをタップすると、空レイヤーにグラデーションが一発生成。そこに雲や山を描き足すだけで背景が始まります。"],["背景向けブラシ","🌫 エアブラシは空気遠近や雲に、🌈 グラデはドラッグ方向に色→透明。レイヤー名をタップして描き込む先を切り替えます。"],["パース定規","「📍 VP設定」で消失点をタップ→ストロークが消失点方向の直線に吸着します。建物や道路が狂わず描けます。"],["時間帯フィルタと書き出し","右上の時間帯で同じ背景を朝・夕・夜に変換。「📤 撮影へ送る」で撮影アプリのセル取り込みに「BG_○○」として並びます。"]];
+let gi=0;
+function gShow(){$("guide").style.display="flex";const st=GSTEPS[gi];$("gTitle").textContent=st[0];$("gBody").textContent=st[1];$("gStep").textContent=(gi+1)+" / "+GSTEPS.length;$("gNext").textContent=gi===GSTEPS.length-1?"はじめる":"次へ"}
+function gEnd(){$("guide").style.display="none";localStorage.setItem(KEY+"_guided","1")}
+$("gNext").onclick=()=>{gi++;if(gi>=GSTEPS.length)gEnd();else gShow()};
+$("gSkip").onclick=gEnd;
+$("projName").addEventListener("input",store);
+setTool("air");renderLayers();applyLayers();applyTime();vpInfo();$("btnSnap").classList.toggle("on",!!cfg.snapOn);fit();restoreImg();drawGuides();
+if(!localStorage.getItem(KEY+"_guided"))gShow();
+</script>
+</body>
+</html>

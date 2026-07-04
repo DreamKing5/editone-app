@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — 編集 v0.1</title>
+<style>
+:root{--bg:#0f0f14;--panel:#17171f;--panel2:#1f1f2a;--line:#2b2b38;--text:#e9e9f0;--sub:#9a9aab;--accent:#4c8dff;--accent2:#845ef7;--ok:#2f9e44;--warn:#f59f00;--danger:#e5484d;--r:12px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.danger{color:var(--danger)}
+button.mini{padding:2px 8px;font-size:12px}
+input,select{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+input[type=range]{padding:0}
+input[type=color]{padding:1px;width:34px;height:28px}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.5px}.logo b{color:var(--accent)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.spacer{flex:1}
+.wrap{display:grid;grid-template-columns:1fr 300px;gap:12px;padding:12px 16px;max-width:1480px;margin:0 auto}
+@media(max-width:1000px){.wrap{grid-template-columns:1fr}}
+#stage{width:100%;background:#000;border:1px solid var(--line);border-radius:8px;display:block}
+.transport{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;font-size:12px;color:var(--sub)}
+#clipStrip{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:4px}
+.cl{border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap;background:var(--panel)}
+.cl.sel{border-color:var(--accent);background:rgba(76,141,255,.12)}
+.cl i{color:var(--sub);font-style:normal;font-size:11px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.panel h3{margin:0 0 8px;font-size:12.5px;color:var(--sub);letter-spacing:.3px}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;font-size:12px}
+.row label{color:var(--sub)}
+.row input[type=number]{width:70px}
+.lrow{display:flex;gap:4px;align-items:center;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:12px}
+.lrow.sel{background:rgba(76,141,255,.14)}
+.lrow span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.sub{font-size:12px;color:var(--sub);white-space:pre-wrap}
+#guide{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+#guide.show{display:flex}
+.gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);max-width:440px;width:100%;padding:18px}
+.gcard h2{margin:0 0 8px;font-size:16px}
+.gcard p{margin:0 0 14px;color:var(--sub);font-size:13px;white-space:pre-wrap}
+.grow{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--sub)}
+.grow .spacer2{flex:1}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div><div class="tag">編集 v0.1</div>
+  <input id="projName" style="flex:1;min-width:150px;font-weight:600" placeholder="作品タイトル">
+  <div class="spacer"></div>
+  <button class="mini" id="btnRecCut">🎞 選択クリップのみ</button>
+  <button class="primary" id="btnRecAll">🎬 動画書き出し(全体)</button>
+</header>
+<div class="wrap">
+  <section>
+    <canvas id="stage" width="1280" height="720"></canvas>
+    <div class="transport">
+      <button id="btnPlay">▶ 再生</button>
+      <input type="range" id="tSlider" min="0" max="10" step="0.01" value="0" style="flex:1;min-width:120px">
+      <span id="tLabel">0.00 / 0.0s</span>
+    </div>
+    <div id="clipStrip"></div>
+  </section>
+  <aside>
+    <div class="panel"><h3>クリップ</h3>
+      <button style="width:100%;margin-bottom:6px" id="btnAddVid">+ 映像クリップ(撮影の書き出し)</button>
+      <input type="file" id="fileVid" accept="video/*" multiple class="hidden">
+      <button style="width:100%" id="btnAddCard">+ タイトルカード(OP/ED/黒み)</button>
+    </div>
+    <div class="panel"><h3>選択クリップ</h3>
+      <div class="sub" id="cInfo">下のクリップ列をタップで選択</div>
+      <div id="vidProps" class="hidden">
+        <div class="row"><label>IN</label><input id="iIn" type="number" min="0" step="0.1">秒 <label>OUT</label><input id="iOut" type="number" min="0" step="0.1">秒</div>
+      </div>
+      <div id="cardProps" class="hidden">
+        <div class="row"><input id="iCardText" placeholder="メインテキスト" style="flex:1"></div>
+        <div class="row"><input id="iCardSub" placeholder="サブテキスト" style="flex:1"></div>
+        <div class="row"><label>背景</label><input id="iCardBg" type="color"><label>文字</label><input id="iCardFg" type="color"><label>秒数</label><input id="iCardDur" type="number" min="0.5" step="0.5"></div>
+      </div>
+      <div class="row" style="margin-top:6px"><button class="mini" id="btnL">← 前へ</button><button class="mini" id="btnR">後へ →</button><div class="spacer"></div><button class="mini danger" id="btnDelClip">削除</button></div>
+    </div>
+    <div class="panel"><h3>テロップ</h3>
+      <button class="mini" id="btnAddTelop">+ テロップ追加(再生位置に)</button>
+      <div id="telopList" style="margin-top:6px"></div>
+      <div id="telProps" class="hidden">
+        <div class="row"><input id="iTText" placeholder="テロップ文字" style="flex:1"></div>
+        <div class="row"><label>開始</label><input id="iTStart" type="number" min="0" step="0.1">秒 <label>長さ</label><input id="iTDur" type="number" min="0.2" step="0.1">秒</div>
+        <div class="row"><label>サイズ</label><input id="iTSize" type="number" min="12" step="2"> <label>色</label><input id="iTColor" type="color"></div>
+        <div class="row"><label>上下位置</label><input id="iTY" type="range" min="0.1" max="0.95" step="0.01" style="flex:1"></div>
+        <button class="mini danger" id="btnDelTelop">テロップを削除</button>
+      </div>
+    </div>
+    <div class="panel"><h3>ミックス音声</h3>
+      <button style="width:100%" id="btnAddAud">+ 音声読み込み(音響のWAV等)</button>
+      <input type="file" id="fileAud" accept="audio/*" class="hidden">
+      <div class="sub" id="aName" style="margin:6px 0">未読み込み</div>
+      <div class="row"><label>開始位置</label><input id="iAOff" type="number" step="0.1" value="0">秒</div>
+      <div class="row"><label>音量</label><input id="iAVol" type="range" min="0" max="1" step="0.01" value="1" style="flex:1"></div>
+    </div>
+  </aside>
+</div>
+<div id="guide"><div class="gcard"><h2 id="gTitle"></h2><p id="gBody"></p><div class="grow"><span id="gStep"></span><span class="spacer2"></span><button class="mini" id="gSkip">スキップ</button><button class="primary mini" id="gNext">次へ</button></div></div></div>
+<div id="toast"></div>
+<script>
+"use strict";
+const KEY="editone_henshu_v01",BRIDGE="editone_bridge_v01";
+function $(id){return document.getElementById(id)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._m);t._m=setTimeout(()=>t.classList.remove("show"),3200)}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+const meta=load()||{v:1,app:"henshu",project:{name:"新規編集"},telops:[],cards:[]};
+let clips=[],telops=meta.telops||[],seqC=0,seqT=telops.reduce((m,t)=>Math.max(m,t.id||0),0),selC=null,selT=null;
+(meta.cards||[]).forEach(c=>{seqC=Math.max(seqC,c.id||0);clips.push(c)});
+let saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify({v:1,app:"henshu",project:{name:$("projName").value},telops,cards:clips.filter(c=>c.type==="card")}))}catch(e){}},400)}
+const W=1280,H=720,stage=$("stage"),ctx=stage.getContext("2d");
+const audioEl=new Audio();let audOn=false,audSrcMade=false,audAC=null,audDest=null;
+function cdur(c){return c.type==="card"?c.dur:Math.max(.1,c.out-c.in)}
+function total(){return clips.reduce((t,c)=>t+cdur(c),0)}
+function cstart(c){let t=0;for(const x of clips){if(x===c)return t;t+=cdur(x)}return 0}
+function clipAt(t){let a=0;for(const c of clips){const d=cdur(c);if(t<a+d)return{c,local:t-a};a+=d}return null}
+function telop(t){telops.forEach(tp=>{if(t>=tp.start&&t<tp.start+tp.dur){ctx.textAlign="center";ctx.font="bold "+tp.size+"px sans-serif";
+ctx.lineWidth=Math.max(4,tp.size/8);ctx.strokeStyle="#000";const y=H*tp.y;
+ctx.strokeText(tp.text,W/2,y);ctx.fillStyle=tp.color;ctx.fillText(tp.text,W/2,y);ctx.textAlign="left"}})}
+function drawCard(c){ctx.fillStyle=c.bg;ctx.fillRect(0,0,W,H);ctx.fillStyle=c.fg;ctx.textAlign="center";
+ctx.font="bold 72px sans-serif";ctx.fillText(c.text,W/2,H/2-10);
+if(c.sub){ctx.font="32px sans-serif";ctx.fillText(c.sub,W/2,H/2+56)}ctx.textAlign="left"}
+function drawVid(c){const el=c.el;const s=Math.min(W/(el.videoWidth||W),H/(el.videoHeight||H))||1;
+const w=(el.videoWidth||W)*s,h=(el.videoHeight||H)*s;
+ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.drawImage(el,(W-w)/2,(H-h)/2,w,h)}
+function drawAt(t){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);const hit=clipAt(t);
+if(hit){if(hit.c.type==="card"){drawCard(hit.c);telop(t)}
+else{const el=hit.c.el,tt=hit.c.in+hit.local;
+if(Math.abs(el.currentTime-tt)>.2&&el.paused){el.currentTime=tt;el.onseeked=()=>{el.onseeked=null;drawVid(hit.c);telop(t)}}
+else{drawVid(hit.c);telop(t)}}}
+else telop(t);
+$("tSlider").max=Math.max(1,total());$("tLabel").textContent=t.toFixed(2)+" / "+total().toFixed(1)+"s"}
+let PL=null;
+function stopPlay(){if(!PL)return;PL.on=false;cancelAnimationFrame(PL.raf);
+clips.forEach(c=>{if(c.type==="video")c.el.pause()});audioEl.pause();PL=null;$("btnPlay").textContent="▶ 再生"}
+function startPlay(from,to,onDone){stopPlay();if(!clips.length){toast("クリップを追加してください");return}
+const T=total();to=to==null?T:Math.min(to,T);if(from>=to)return;
+PL={from,to,onDone,t0:performance.now(),cur:null,on:true,raf:0};
+$("btnPlay").textContent="■ 停止";
+const aOff=Number($("iAOff").value)||0;
+if(audOn){audioEl.volume=Number($("iAVol").value);
+if(from>=aOff){audioEl.currentTime=from-aOff;audioEl.play().catch(()=>{})}else audioEl.pause()}
+const loop=()=>{if(!PL||!PL.on)return;
+const t=PL.from+(performance.now()-PL.t0)/1000;
+if(t>=PL.to){const f=PL.onDone;drawAt(PL.to-.01);stopPlay();if(f)f();return}
+const hit=clipAt(t);
+if(hit&&hit.c.type==="video"){const el=hit.c.el,tt=hit.c.in+hit.local;
+if(PL.cur!==hit.c){if(PL.cur&&PL.cur.type==="video")PL.cur.el.pause();PL.cur=hit.c;el.muted=true;el.currentTime=tt;el.play().catch(()=>{})}
+else if(Math.abs(el.currentTime-tt)>.35)el.currentTime=tt;
+drawVid(hit.c);telop(t)}
+else if(hit){if(PL.cur&&PL.cur.type==="video")PL.cur.el.pause();PL.cur=hit.c;drawCard(hit.c);telop(t)}
+if(audOn&&t>=aOff&&audioEl.paused){audioEl.currentTime=t-aOff;audioEl.play().catch(()=>{})}
+$("tSlider").value=t;$("tLabel").textContent=t.toFixed(2)+" / "+total().toFixed(1)+"s";
+PL.raf=requestAnimationFrame(loop)};loop()}
+$("btnPlay").onclick=()=>{if(PL){stopPlay();return}startPlay(Number($("tSlider").value)||0,null,null)};
+$("tSlider").addEventListener("input",e=>{if(PL)stopPlay();drawAt(Number(e.target.value))});
+$("btnAddVid").onclick=()=>$("fileVid").click();
+$("fileVid").addEventListener("change",async e=>{for(const f of e.target.files){
+const el=document.createElement("video");el.src=URL.createObjectURL(f);el.playsInline=true;el.muted=true;
+await new Promise(res=>{el.onloadedmetadata=res;el.onerror=res});
+if(el.duration===Infinity){el.currentTime=1e9;await new Promise(r=>{el.ondurationchange=()=>{if(isFinite(el.duration))r()};setTimeout(r,2000)});el.currentTime=0}
+if(!isFinite(el.duration)||!el.duration){toast("読み込めない動画です:"+f.name);continue}
+seqC++;clips.push({id:seqC,type:"video",name:f.name.replace(/\.[^.]+$/,""),el,in:0,out:Math.round(el.duration*100)/100})}
+selC=clips[clips.length-1]||null;renderStrip();renderClip();if(selC)drawAt(cstart(selC));e.target.value=""});
+$("btnAddCard").onclick=()=>{seqC++;clips.push({id:seqC,type:"card",name:"カード"+seqC,text:"タイトル",sub:"",bg:"#000000",fg:"#ffffff",dur:3});
+selC=clips[clips.length-1];save();renderStrip();renderClip();drawAt(cstart(selC))};
+function renderStrip(){const el=$("clipStrip");el.innerHTML="";clips.forEach((c,i)=>{const d=document.createElement("div");d.className="cl"+(c===selC?" sel":"");
+d.innerHTML="<b>"+(i+1)+"</b> "+(c.type==="card"?"🎬":"🎞")+" "+c.name.replace(/</g,"&lt;")+" <i>"+cdur(c).toFixed(1)+"s</i>";
+d.onclick=()=>{selC=c;renderStrip();renderClip();if(!PL)drawAt(cstart(c))};el.appendChild(d)})}
+function renderClip(){const c=selC;$("vidProps").classList.add("hidden");$("cardProps").classList.add("hidden");
+if(!c){$("cInfo").textContent="下のクリップ列をタップで選択";return}
+$("cInfo").textContent=c.name+" ("+cdur(c).toFixed(1)+"s)";
+if(c.type==="video"){$("vidProps").classList.remove("hidden");$("iIn").value=c.in;$("iOut").value=c.out}
+else{$("cardProps").classList.remove("hidden");$("iCardText").value=c.text;$("iCardSub").value=c.sub;$("iCardBg").value=c.bg;$("iCardFg").value=c.fg;$("iCardDur").value=c.dur}}
+$("iIn").addEventListener("input",e=>{if(selC&&selC.type==="video"){selC.in=Math.max(0,Math.min(Number(e.target.value)||0,selC.out-.1));renderStrip();renderClip()}});
+$("iOut").addEventListener("input",e=>{if(selC&&selC.type==="video"){selC.out=Math.max(selC.in+.1,Math.min(Number(e.target.value)||0,selC.el.duration));renderStrip();renderClip()}});
+$("iCardText").addEventListener("input",e=>{if(selC){selC.text=e.target.value;save();drawAt(cstart(selC))}});
+$("iCardSub").addEventListener("input",e=>{if(selC){selC.sub=e.target.value;save();drawAt(cstart(selC))}});
+$("iCardBg").addEventListener("input",e=>{if(selC){selC.bg=e.target.value;save();drawAt(cstart(selC))}});
+$("iCardFg").addEventListener("input",e=>{if(selC){selC.fg=e.target.value;save();drawAt(cstart(selC))}});
+$("iCardDur").addEventListener("input",e=>{if(selC){selC.dur=Math.max(.5,Number(e.target.value)||3);save();renderStrip();renderClip()}});
+$("btnL").onclick=()=>{const i=clips.indexOf(selC);if(i>0){clips.splice(i-1,0,clips.splice(i,1)[0]);save();renderStrip()}};
+$("btnR").onclick=()=>{const i=clips.indexOf(selC);if(i>=0&&i<clips.length-1){clips.splice(i+1,0,clips.splice(i,1)[0]);save();renderStrip()}};
+$("btnDelClip").onclick=()=>{const i=clips.indexOf(selC);if(i<0)return;clips.splice(i,1);selC=clips[Math.min(i,clips.length-1)]||null;save();renderStrip();renderClip();drawAt(0)};
+function renderTelops(){const el=$("telopList");el.innerHTML="";telops.forEach(tp=>{const d=document.createElement("div");d.className="lrow"+(tp===selT?" sel":"");
+const s=document.createElement("span");s.textContent=tp.start.toFixed(1)+"s 「"+tp.text+"」";d.appendChild(s);
+d.onclick=()=>{selT=tp;renderTelops();renderTelop();if(!PL)drawAt(tp.start+.01)};el.appendChild(d)});
+$("telProps").classList.toggle("hidden",!selT)}
+function renderTelop(){if(!selT)return;$("iTText").value=selT.text;$("iTStart").value=selT.start;$("iTDur").value=selT.dur;$("iTSize").value=selT.size;$("iTY").value=selT.y;$("iTColor").value=selT.color}
+$("btnAddTelop").onclick=()=>{seqT++;const tp={id:seqT,text:"テロップ",start:Math.round((Number($("tSlider").value)||0)*10)/10,dur:3,size:44,y:.88,color:"#ffffff"};
+telops.push(tp);selT=tp;save();renderTelops();renderTelop();drawAt(tp.start+.01)};
+[["iTText","text",v=>v],["iTStart","start",v=>Math.max(0,Number(v)||0)],["iTDur","dur",v=>Math.max(.2,Number(v)||3)],["iTSize","size",v=>Math.max(12,Number(v)||44)],["iTY","y",v=>Number(v)],["iTColor","color",v=>v]].forEach(([id,k,fn])=>{
+$(id).addEventListener("input",e=>{if(selT){selT[k]=fn(e.target.value);save();renderTelops();if(!PL)drawAt(selT.start+.01)}})});
+$("btnDelTelop").onclick=()=>{const i=telops.indexOf(selT);if(i<0)return;telops.splice(i,1);selT=null;save();renderTelops();drawAt(Number($("tSlider").value)||0)};
+$("btnAddAud").onclick=()=>$("fileAud").click();
+$("fileAud").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;
+audioEl.src=URL.createObjectURL(f);audOn=true;$("aName").textContent="🎵 "+f.name;e.target.value="";toast("音声を読み込みました(書き出しにも合成されます)")});
+$("iAVol").addEventListener("input",e=>{audioEl.volume=Number(e.target.value)});
+function mimePick(){const m=["video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm"];
+return m.find(x=>{try{return MediaRecorder.isTypeSupported(x)}catch(e){return false}})}
+async function record(from,to,label){if(!clips.length){toast("クリップがありません");return}
+if(!stage.captureStream||!window.MediaRecorder){toast("この環境は動画書き出しに未対応です");return}
+const mime=mimePick();if(!mime){toast("対応する動画形式がありません");return}
+const cs=stage.captureStream(30);
+if(audOn){if(!audSrcMade){audAC=new (window.AudioContext||window.webkitAudioContext)();
+const src=audAC.createMediaElementSource(audioEl);audDest=audAC.createMediaStreamDestination();
+src.connect(audDest);src.connect(audAC.destination);audSrcMade=true}
+if(audAC.resume)audAC.resume();audDest.stream.getAudioTracks().forEach(t=>cs.addTrack(t))}
+const rec=new MediaRecorder(cs,{mimeType:mime,videoBitsPerSecond:8000000});const chunks=[];
+rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+rec.onstop=()=>{const ext=mime.indexOf("mp4")>=0?"mp4":"webm";const blob=new Blob(chunks,{type:mime});
+const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=($("projName").value||"henshu")+label+"."+ext;a.click();URL.revokeObjectURL(a.href);
+toast("動画を書き出しました("+ext+")")};
+rec.start(200);toast("実時間で書き出し中…(再生終了で自動保存)");
+startPlay(from,to,()=>rec.stop())}
+$("btnRecAll").onclick=()=>record(0,null,"");
+$("btnRecCut").onclick=()=>{if(!selC){toast("クリップを選択してください");return}const s=cstart(selC);record(s,s+cdur(selC),"_"+selC.name)};
+$("projName").value=meta.project.name;
+$("projName").addEventListener("input",save);
+const GSTEPS=[["🎞 編集アプリへようこそ","カットを繋ぎ、テロップと音を乗せて一本の動画に書き出す最終工程です。おすすめの手順を30秒で紹介します。"],["① クリップを並べる","「+ 映像クリップ」で撮影アプリの動画を読み込み。下のクリップ列で選択し、IN/OUTでトリム、←→で並べ替えできます。"],["② タイトルとテロップ","「+ タイトルカード」でOP/ED/黒みを追加。「+ テロップ追加」で再生位置に字幕を置けます。"],["③ ミックス音声を乗せる","音響アプリで書き出したWAVを「+ 音声読み込み」で追加。書き出しにも合成されます。"],["④ 動画書き出し","「🎬 動画書き出し(全体)」で実時間録画して保存(録画中は他のタブを触らない)。カット単位の書き出しも可能。動画・音声は再起動後に再読み込みが必要です。"]];
+let gi=0;function gShow(){const g=$("guide");if(gi>=GSTEPS.length){g.classList.remove("show");try{localStorage.setItem(KEY+"_guided","1")}catch(e){}return}
+g.classList.add("show");$("gTitle").textContent=GSTEPS[gi][0];$("gBody").textContent=GSTEPS[gi][1];$("gStep").textContent=(gi+1)+" / "+GSTEPS.length;$("gNext").textContent=gi===GSTEPS.length-1?"はじめる":"次へ"}
+$("gNext").onclick=()=>{gi++;gShow()};$("gSkip").onclick=()=>{gi=GSTEPS.length;gShow()};
+if(!localStorage.getItem(KEY+"_guided"))gShow();
+try{const b=JSON.parse(localStorage.getItem(BRIDGE));if(b&&b.from==="hub"&&Date.now()-b.ts<600000)toast("ハブから接続:"+(b.project||""))}catch(e){}
+renderStrip();renderClip();renderTelops();drawAt(0);
+</script>
+</body>
+</html>

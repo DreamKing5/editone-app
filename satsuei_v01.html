@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — 撮影 v0.1</title>
+<style>
+:root{--bg:#0f0f14;--panel:#17171f;--panel2:#1f1f2a;--line:#2b2b38;--text:#e9e9f0;--sub:#9a9aab;--accent:#4c8dff;--accent2:#845ef7;--ok:#2f9e44;--warn:#f59f00;--danger:#e5484d;--r:12px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.danger{color:var(--danger)}
+button.mini{padding:2px 8px;font-size:12px}
+input,select{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+input:focus,select:focus{outline:1px solid var(--accent)}
+input[type=range]{padding:0}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.5px}.logo b{color:var(--accent)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.spacer{flex:1}
+.wrap{display:grid;grid-template-columns:216px 1fr 292px;gap:12px;padding:12px 16px;max-width:1520px;margin:0 auto}
+@media(max-width:1000px){.wrap{grid-template-columns:1fr}}
+#stage{width:100%;background:#000;border:1px solid var(--line);border-radius:8px;display:block;touch-action:none}
+.transport{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;font-size:12px;color:var(--sub)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.panel h3{margin:0 0 8px;font-size:12.5px;color:var(--sub);letter-spacing:.3px}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;font-size:12px}
+.row label{color:var(--sub);font-size:12px}
+.row input[type=number]{width:66px}
+.grid2{display:grid;grid-template-columns:44px 1fr 1fr 1fr;gap:6px;align-items:center;font-size:12px;color:var(--sub);margin-bottom:6px}
+.grid2 input{width:100%}
+.cutbtn{padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:12.5px;background:var(--panel)}
+.cutbtn.sel{border-color:var(--accent);background:rgba(76,141,255,.1)}
+.lrow{display:flex;gap:4px;align-items:center;padding:4px 6px;border-radius:6px;cursor:pointer}
+.lrow.sel{background:rgba(76,141,255,.14)}
+.sub{font-size:12px;color:var(--sub);margin-top:6px;white-space:pre-wrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div><div class="tag">撮影 v0.1</div>
+  <input id="projName" style="flex:1;min-width:150px;font-weight:600" placeholder="作品タイトル">
+  <div class="spacer"></div>
+  <button class="mini" id="btnExport">JSON書き出し</button>
+  <button class="mini" id="btnImport">読み込み</button>
+  <input type="file" id="fileImport" accept=".json" class="hidden">
+</header>
+<div class="wrap">
+  <aside>
+    <button class="primary" style="width:100%;margin-bottom:6px" id="btnPipe">📥 絵コンテから取り込み</button>
+    <button style="width:100%;margin-bottom:6px" id="btnCell">📥 作画から取り込み</button>
+    <button style="width:100%;margin-bottom:10px" id="btnAddCut">+ カット追加</button>
+    <div id="cutList"></div>
+  </aside>
+  <section>
+    <canvas id="stage" width="1280" height="720"></canvas>
+    <div class="transport">
+      <button id="btnPlayCut">▶ 再生</button>
+      <button id="btnPlayAll">▶▶ 全カット</button>
+      <input type="range" id="tSlider" min="0" max="3" step="0.01" value="0" style="flex:1;min-width:120px">
+      <span id="tLabel">0.00 / 0s</span>
+    </div>
+    <div class="transport">
+      <button id="btnRecCut">🎞 動画(カット)</button>
+      <button id="btnRecAll">🎞 動画(全体)</button>
+      <button id="btnPng">📷 PNG</button>
+      <span>スペースキーで再生/停止。選択レイヤーはキャンバス上をドラッグで移動。</span>
+    </div>
+  </section>
+  <aside>
+    <div class="panel"><h3>カット設定</h3>
+      <div class="row"><input id="iTitle" placeholder="カット名" style="flex:1"></div>
+      <div class="row"><label>尺</label><input id="iSec" type="number" min="0.1" step="0.5">秒
+      <label>F.I</label><input id="iFin" type="number" min="0" step="0.1"><label>F.O</label><input id="iFout" type="number" min="0" step="0.1"></div>
+      <button class="mini danger" id="btnDelCut">カットを削除</button>
+    </div>
+    <div class="panel"><h3>カメラワーク</h3>
+      <div class="row">
+        <button class="mini" data-p="fix">FIX</button><button class="mini" data-p="panr">PAN→</button><button class="mini" data-p="panl">PAN←</button><button class="mini" data-p="tu">T.U</button><button class="mini" data-p="tb">T.B</button><button class="mini" data-p="shake">手ブレ</button>
+      </div>
+      <div class="grid2"><span></span><span>X</span><span>Y</span><span>Zoom</span>
+      <span>開始</span><input id="cX0" type="number" step="10"><input id="cY0" type="number" step="10"><input id="cZ0" type="number" step="0.05">
+      <span>終了</span><input id="cX1" type="number" step="10"><input id="cY1" type="number" step="10"><input id="cZ1" type="number" step="0.05"></div>
+      <div class="row"><label>イージング</label><select id="cEase"><option value="ease">スムーズ</option><option value="linear">一定</option><option value="easeIn">加速</option><option value="easeOut">減速</option></select>
+      <label>手ブレ</label><input id="cShake" type="number" min="0" step="1" style="width:56px"></div>
+    </div>
+    <div class="panel"><h3>レイヤー</h3>
+      <button class="mini" id="btnAddImg">+ 画像追加(背景/セル)</button>
+      <input type="file" id="fileImg" accept="image/*" multiple class="hidden">
+      <div id="layerList" style="margin-top:6px"></div>
+      <div class="row" style="margin-top:6px"><label>不透明度</label><input id="lOpacity" type="range" min="0" max="1" step="0.01" style="flex:1"></div>
+      <div class="row"><label>大きさ</label><input id="lScale" type="range" min="0.05" max="3" step="0.01" style="flex:1"><button class="mini" id="btnResetPos">位置リセット</button></div>
+    </div>
+    <div class="panel"><h3>絵コンテ参照</h3>
+      <img id="refImg" style="width:100%;border-radius:6px;display:none" alt="">
+      <div id="refCam" class="sub"></div>
+      <div id="refDialog" class="sub"></div>
+      <label style="font-size:12px;color:var(--sub)"><input type="checkbox" id="ghost"> コンテ透かしを重ねる</label>
+    </div>
+  </aside>
+</div>
+<div id="toast"></div>
+<script>
+"use strict";
+const KEY="editone_satsuei_v01",PIPE="editone_pipe_v01",BRIDGE="editone_bridge_v01";
+const W=1280,H=720;
+const EASE={linear:u=>u,ease:u=>u*u*(3-2*u),easeIn:u=>u*u,easeOut:u=>u*(2-u)};
+function $(id){return document.getElementById(id)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._m);t._m=setTimeout(()=>t.classList.remove("show"),3000)}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+let db=load()||{v:1,app:"satsuei",project:{name:"新規アニメ作品",cuts:[]}};
+function normCut(c){c.cam=c.cam||{};const k=c.cam;["x0","y0","x1","y1"].forEach(p=>k[p]=Number(k[p])||0);k.z0=Number(k.z0)||1;k.z1=Number(k.z1)||1;k.ease=k.ease||"ease";k.shake=Number(k.shake)||0;c.layers=Array.isArray(c.layers)?c.layers:[];c.fadeIn=Number(c.fadeIn)||0;c.fadeOut=Number(c.fadeOut)||0;c.sec=Number(c.sec)||3;c.title=c.title||"";c.konte=c.konte||null;return c}
+db.project.cuts.forEach(normCut);
+let seq=db.project.cuts.reduce((m,c)=>Math.max(m,c.id||0),0);
+let saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(db,(k,v)=>k==="img"?undefined:v))}catch(e){toast("自動保存が容量超過です。JSON書き出しでバックアップしてください")}},500)}
+function newCut(title,sec){seq++;return normCut({id:seq,title:title||"",sec:sec||3,layers:[]})}
+const stage=$("stage"),ctx=stage.getContext("2d");
+const kimgs=new Map();
+let cur=null,tCur=0,selLayer=-1,PL=null;
+function ensureImgs(cut){const ps=[];cut.layers.forEach(l=>{if(l.src&&!l.img)ps.push(new Promise(res=>{const im=new Image();im.onload=()=>{l.img=im;res()};im.onerror=()=>res();im.src=l.src}))});
+if(cut.konte&&cut.konte.thumb&&!kimgs.has(cut.id))ps.push(new Promise(res=>{const im=new Image();im.onload=()=>{kimgs.set(cut.id,im);res()};im.onerror=()=>res();im.src=cut.konte.thumb}));
+return Promise.all(ps)}
+function camAt(cut,t){const k=cut.cam;const u=cut.sec>0?Math.min(t/cut.sec,1):0;const e=(EASE[k.ease]||EASE.ease)(u);let cx=k.x0+(k.x1-k.x0)*e,cy=k.y0+(k.y1-k.y0)*e;const z=Math.max(.05,k.z0+(k.z1-k.z0)*e);if(k.shake>0){cx+=Math.sin(t*47.13)*k.shake;cy+=Math.cos(t*61.7)*k.shake*.7}return{cx,cy,z}}
+function drawFrame(cut,t){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);if(!cut)return;
+const{cx,cy,z}=camAt(cut,t);
+ctx.save();ctx.translate(W/2,H/2);ctx.scale(z,z);ctx.translate(-W/2-cx,-H/2-cy);
+let drawn=false;
+cut.layers.forEach(l=>{if(!l.visible||!l.img)return;drawn=true;ctx.globalAlpha=Math.max(0,Math.min(1,l.opacity));const w=l.img.width*l.scale,h=l.img.height*l.scale;ctx.drawImage(l.img,W/2+l.x-w/2,H/2+l.y-h/2,w,h)});
+ctx.restore();ctx.globalAlpha=1;
+const km=kimgs.get(cut.id);
+if($("ghost").checked&&km){ctx.globalAlpha=.25;ctx.drawImage(km,0,0,W,H);ctx.globalAlpha=1}
+if(!drawn&&!($("ghost").checked&&km)){ctx.fillStyle="#555";ctx.font="30px sans-serif";ctx.textAlign="center";ctx.fillText("画像レイヤーを追加してください(右パネル)",W/2,H/2);ctx.textAlign="left"}
+let f=0;if(cut.fadeIn>0&&t<cut.fadeIn)f=1-t/cut.fadeIn;if(cut.fadeOut>0&&t>cut.sec-cut.fadeOut)f=Math.max(f,(t-(cut.sec-cut.fadeOut))/cut.fadeOut);
+if(f>0){ctx.fillStyle="rgba(0,0,0,"+Math.min(1,f)+")";ctx.fillRect(0,0,W,H)}}
+function drawNow(){drawFrame(cur,tCur);if(cur){$("tSlider").max=cur.sec;$("tSlider").value=tCur;$("tLabel").textContent=tCur.toFixed(2)+" / "+cur.sec+"s"}}
+function selectCut(c){cur=c;tCur=0;selLayer=c&&c.layers.length?0:-1;renderCutList();if(c){ensureImgs(c).then(()=>{renderInsp();drawNow()})}else{renderInsp();drawNow()}}
+function mk(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!=null)el.textContent=txt;return el}
+function renderCutList(){const el=$("cutList");el.innerHTML="";db.project.cuts.forEach((c,i)=>{const d=mk("div","cutbtn"+(c===cur?" sel":""));
+const b=mk("b",null,"C"+String(i+1).padStart(3,"0"));b.style.color="var(--accent)";
+const s=mk("span",null," "+(c.title||"(無題)")+" ");
+const m=mk("span",null,c.sec+"s"+(c.konte?" 🎞":"")+(c.layers.length?" ▣"+c.layers.length:""));m.style.cssText="color:var(--sub);font-size:11px";
+d.append(b,s,m);d.onclick=()=>selectCut(c);el.appendChild(d)})}
+function renderInsp(){const on=!!cur;["iTitle","iSec","iFin","iFout","cX0","cY0","cZ0","cX1","cY1","cZ1","cEase","cShake","lOpacity","lScale"].forEach(id=>$(id).disabled=!on);
+if(!cur){$("refImg").style.display="none";$("refCam").textContent="";$("refDialog").textContent="";$("layerList").innerHTML="";return}
+$("iTitle").value=cur.title;$("iSec").value=cur.sec;$("iFin").value=cur.fadeIn;$("iFout").value=cur.fadeOut;
+const k=cur.cam;$("cX0").value=k.x0;$("cY0").value=k.y0;$("cZ0").value=k.z0;$("cX1").value=k.x1;$("cY1").value=k.y1;$("cZ1").value=k.z1;$("cEase").value=k.ease;$("cShake").value=k.shake;
+if(cur.konte){if(cur.konte.thumb){$("refImg").src=cur.konte.thumb;$("refImg").style.display="block"}else $("refImg").style.display="none";
+$("refCam").textContent="カメラ:"+(cur.konte.cam||"-")+(cur.konte.trans?" / 繋ぎ:"+cur.konte.trans:"");$("refDialog").textContent=cur.konte.dialog||""}
+else{$("refImg").style.display="none";$("refCam").textContent="未接続(「絵コンテから取り込み」で参照できます)";$("refDialog").textContent=""}
+renderLayers()}
+function renderLayers(){const el=$("layerList");el.innerHTML="";if(!cur)return;
+cur.layers.forEach((l,i)=>{const d=mk("div","lrow"+(i===selLayer?" sel":""));
+const nm=mk("span",null,l.name||("レイヤー"+(i+1)));nm.style.cssText="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px";nm.onclick=()=>{selLayer=i;renderInsp();drawNow()};
+const eye=mk("button","mini",l.visible?"👁":"–");eye.onclick=()=>{l.visible=!l.visible;save();renderLayers();drawNow()};
+const up=mk("button","mini","前");up.title="前面へ";up.onclick=()=>{if(i<cur.layers.length-1){cur.layers.splice(i+1,0,cur.layers.splice(i,1)[0]);selLayer=i+1;save();renderInsp();drawNow()}};
+const dn=mk("button","mini","後");dn.title="背面へ";dn.onclick=()=>{if(i>0){cur.layers.splice(i-1,0,cur.layers.splice(i,1)[0]);selLayer=i-1;save();renderInsp();drawNow()}};
+const del=mk("button","mini danger","✕");del.onclick=()=>{cur.layers.splice(i,1);selLayer=Math.min(selLayer,cur.layers.length-1);save();renderInsp();drawNow()};
+d.append(nm,eye,up,dn,del);el.appendChild(d)});
+const l=cur.layers[selLayer];if(l){$("lOpacity").value=l.opacity;$("lScale").value=l.scale}}
+$("iTitle").addEventListener("input",e=>{if(!cur)return;cur.title=e.target.value;save();renderCutList()});
+$("iSec").addEventListener("input",e=>{if(!cur)return;cur.sec=Math.max(.1,Number(e.target.value)||0);save();renderCutList();drawNow()});
+$("iFin").addEventListener("input",e=>{if(!cur)return;cur.fadeIn=Math.max(0,Number(e.target.value)||0);save();drawNow()});
+$("iFout").addEventListener("input",e=>{if(!cur)return;cur.fadeOut=Math.max(0,Number(e.target.value)||0);save();drawNow()});
+const camMap={cX0:"x0",cY0:"y0",cX1:"x1",cY1:"y1",cShake:"shake"};
+Object.keys(camMap).forEach(id=>$(id).addEventListener("input",e=>{if(!cur)return;cur.cam[camMap[id]]=Number(e.target.value)||0;save();drawNow()}));
+[["cZ0","z0"],["cZ1","z1"]].forEach(([id,p])=>$(id).addEventListener("input",e=>{if(!cur)return;const v=Number(e.target.value);cur.cam[p]=v>0?v:1;save();drawNow()}));
+$("cEase").addEventListener("change",e=>{if(!cur)return;cur.cam.ease=e.target.value;save();drawNow()});
+function preset(p){if(!cur)return;const k=cur.cam;
+if(p==="fix"){k.x0=k.x1=k.y0=k.y1=0;k.z0=k.z1=1;k.shake=0}
+else if(p==="panr"){k.x0=-200;k.x1=200;k.y0=k.y1=0;k.z0=k.z1=1.15;k.shake=0}
+else if(p==="panl"){k.x0=200;k.x1=-200;k.y0=k.y1=0;k.z0=k.z1=1.15;k.shake=0}
+else if(p==="tu"){k.x0=k.x1=k.y0=k.y1=0;k.z0=1;k.z1=1.35;k.shake=0}
+else if(p==="tb"){k.x0=k.x1=k.y0=k.y1=0;k.z0=1.35;k.z1=1;k.shake=0}
+else if(p==="shake"){k.shake=k.shake>0?0:6}
+save();renderInsp();drawNow()}
+document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>preset(b.dataset.p));
+$("lOpacity").addEventListener("input",e=>{const l=cur&&cur.layers[selLayer];if(!l)return;l.opacity=Number(e.target.value);save();drawNow()});
+$("lScale").addEventListener("input",e=>{const l=cur&&cur.layers[selLayer];if(!l)return;l.scale=Number(e.target.value);save();drawNow()});
+$("btnResetPos").onclick=()=>{const l=cur&&cur.layers[selLayer];if(!l)return;l.x=0;l.y=0;save();drawNow()};
+$("btnAddImg").onclick=()=>{if(!cur){toast("先にカットを追加/選択してください");return}$("fileImg").click()};
+$("fileImg").addEventListener("change",async e=>{if(!cur)return;
+for(const f of e.target.files){
+const src=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
+await new Promise(res=>{const im=new Image();im.onload=()=>{cur.layers.push({name:f.name.replace(/\.[^.]+$/,""),src,img:im,x:0,y:0,scale:Math.min(W/im.width,H/im.height),opacity:1,visible:true});res()};im.onerror=()=>res();im.src=src})}
+selLayer=cur.layers.length-1;save();renderInsp();renderCutList();drawNow();e.target.value=""});
+let drag=null;
+stage.addEventListener("pointerdown",e=>{if(!cur||selLayer<0)return;e.preventDefault();stage.setPointerCapture(e.pointerId);const l=cur.layers[selLayer];drag={sx:e.clientX,sy:e.clientY,x:l.x,y:l.y}});
+stage.addEventListener("pointermove",e=>{if(!drag||!cur)return;e.preventDefault();const l=cur.layers[selLayer];if(!l)return;const r=stage.getBoundingClientRect();const s=W/r.width;const z=camAt(cur,tCur).z;l.x=drag.x+(e.clientX-drag.sx)*s/z;l.y=drag.y+(e.clientY-drag.sy)*s/z;drawNow()});
+const endDrag=()=>{if(drag){drag=null;save()}};
+stage.addEventListener("pointerup",endDrag);stage.addEventListener("pointercancel",endDrag);
+$("tSlider").addEventListener("input",e=>{if(PL&&PL.on)PL.on=false;tCur=Number(e.target.value);drawNow()});
+function startPlay(list,onDone){list=list.filter(Boolean);if(!list.length)return;
+PL={on:true,list,idx:0,t:0,last:performance.now(),onDone};
+cur=list[0];renderCutList();renderInsp();requestAnimationFrame(loop)}
+function loop(now){if(!PL||!PL.on)return;
+let cut=PL.list[PL.idx];PL.t+=(now-PL.last)/1000;PL.last=now;
+while(PL.t>=cut.sec){PL.t-=cut.sec;PL.idx++;
+if(PL.idx>=PL.list.length){PL.on=false;tCur=0;drawNow();if(PL.onDone)PL.onDone();return}
+cut=PL.list[PL.idx];cur=cut;renderCutList();renderInsp()}
+tCur=PL.t;drawFrame(cur,tCur);
+$("tSlider").max=cur.sec;$("tSlider").value=tCur;$("tLabel").textContent=tCur.toFixed(2)+" / "+cur.sec+"s";
+requestAnimationFrame(loop)}
+$("btnPlayCut").onclick=()=>{if(PL&&PL.on){PL.on=false;return}if(cur)startPlay([cur])};
+$("btnPlayAll").onclick=async()=>{if(PL&&PL.on){PL.on=false;return}for(const c of db.project.cuts)await ensureImgs(c);startPlay(db.project.cuts.slice())};
+async function record(list){list=list.filter(Boolean);if(!list.length){toast("カットがありません");return}
+if(!stage.captureStream||!window.MediaRecorder){toast("この環境は動画書き出しに未対応です。PNG書き出しをご利用ください");return}
+for(const c of list)await ensureImgs(c);
+const mimes=["video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm"];
+const mime=mimes.find(m=>{try{return MediaRecorder.isTypeSupported(m)}catch(e){return false}});
+if(!mime){toast("対応する動画形式がありません");return}
+const rec=new MediaRecorder(stage.captureStream(30),{mimeType:mime,videoBitsPerSecond:8000000});
+const chunks=[];rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+rec.onstop=()=>{const ext=mime.indexOf("mp4")>=0?"mp4":"webm";const blob=new Blob(chunks,{type:mime});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(db.project.name||"satsuei")+"."+ext;a.click();URL.revokeObjectURL(a.href);toast("動画を書き出しました("+ext+")")};
+rec.start(200);toast("実時間で録画中…(再生が終わると自動保存)");
+startPlay(list,()=>rec.stop())}
+$("btnRecCut").onclick=()=>record([cur]);
+$("btnRecAll").onclick=()=>record(db.project.cuts.slice());
+$("btnPng").onclick=()=>{if(!cur){toast("カットがありません");return}drawFrame(cur,tCur);const a=document.createElement("a");a.href=stage.toDataURL("image/png");a.download=(db.project.name||"frame")+"_C"+String(db.project.cuts.indexOf(cur)+1).padStart(3,"0")+".png";a.click()};
+$("btnAddCut").onclick=()=>{const c=newCut();db.project.cuts.push(c);save();selectCut(c)};
+$("btnDelCut").onclick=()=>{if(!cur)return;const i=db.project.cuts.indexOf(cur);if(i>=0&&confirm("このカットを削除しますか?")){db.project.cuts.splice(i,1);save();selectCut(db.project.cuts[Math.min(i,db.project.cuts.length-1)]||null)}};
+function mergeKonte(p){if(p.project)db.project.name=p.project;
+let added=0,upd=0;
+(p.cuts||[]).forEach(pc=>{let c=db.project.cuts.find(x=>x.id===pc.id);
+if(!c){c=normCut({id:pc.id,title:pc.title,sec:pc.sec,layers:[]});seq=Math.max(seq,pc.id||0);db.project.cuts.push(c);added++}else{upd++}
+c.title=pc.title||c.title;c.sec=Number(pc.sec)||c.sec;
+c.konte={thumb:pc.thumb||null,cam:pc.cam||"",dialog:pc.dialog||"",trans:pc.trans||""};kimgs.delete(c.id)});
+save();$("projName").value=db.project.name;renderCutList();
+if(!cur&&db.project.cuts.length)selectCut(db.project.cuts[0]);
+else if(cur)ensureImgs(cur).then(()=>{renderInsp();drawNow()});
+toast("取り込み完了:追加"+added+"件 / 更新"+upd+"件")}
+$("btnPipe").onclick=()=>{let p=null;try{p=JSON.parse(localStorage.getItem(PIPE))}catch(e){}
+if(!p||p.from!=="ekonte"||!Array.isArray(p.cuts)){toast("絵コンテからの送信データがありません(絵コンテ側で「📤 コースへ送信」を押してください)");return}
+mergeKonte(p)};
+$("btnCell").onclick=async()=>{let p=null;try{p=JSON.parse(localStorage.getItem("editone_cell_v01"))}catch(e){}
+if(!p||p.from!=="sakuga"||!Array.isArray(p.cells)||!p.cells.length){toast("作画からの送信データがありません(作画v0.2側で「📤 撮影へ送信」を押してください)");return}
+if(!cur){const c=newCut(p.project||"作画セル",3);db.project.cuts.push(c);cur=c;selLayer=-1}
+for(const cell of p.cells){await new Promise(res=>{const im=new Image();im.onload=()=>{cur.layers.push({name:cell.name,src:cell.png,img:im,x:0,y:0,scale:Math.min(W/im.width,H/im.height),opacity:1,visible:true});res()};im.onerror=()=>res();im.src=cell.png})}
+selLayer=cur.layers.length-1;save();renderCutList();renderInsp();drawNow();
+toast("作画セルを取り込みました("+p.cells.length+"枚)→現在のカットのレイヤーに追加")};
+$("btnExport").onclick=()=>{const blob=new Blob([JSON.stringify(db,(k,v)=>k==="img"?undefined:v,1)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(db.project.name||"satsuei")+"_satsuei.json";a.click();URL.revokeObjectURL(a.href);toast("JSONを書き出しました")};
+$("btnImport").onclick=()=>$("fileImport").click();
+$("fileImport").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+r.onload=()=>{try{const d=JSON.parse(r.result);
+if(d&&d.app==="satsuei"&&d.project){db=d;db.project.cuts.forEach(normCut);seq=db.project.cuts.reduce((m,c)=>Math.max(m,c.id||0),0);kimgs.clear();save();$("projName").value=db.project.name;renderCutList();selectCut(db.project.cuts[0]||null);toast("撮影データを読み込みました")}
+else if(d&&d.app==="ekonte"&&d.project){mergeKonte({project:d.project.name,cuts:(d.project.cuts||[]).map(c=>({id:c.id,title:c.title,sec:c.sec,cam:(c.cam||"")+(c.camNote?" "+c.camNote:""),trans:c.trans,dialog:c.dialog,thumb:c.thumb}))})}
+else toast("不明なJSON形式です")}catch(err){toast("読み込みに失敗しました(JSON形式を確認してください)")}};
+r.readAsText(f);e.target.value=""});
+$("projName").addEventListener("input",e=>{db.project.name=e.target.value;save()});
+$("ghost").addEventListener("change",drawNow);
+window.addEventListener("keydown",e=>{if(e.code==="Space"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();$("btnPlayCut").click()}});
+try{const b=JSON.parse(localStorage.getItem(BRIDGE));if(b&&b.from==="hub"&&Date.now()-b.ts<600000){if(b.project&&!db.project.cuts.length)db.project.name=b.project;toast("ハブから接続:"+(b.project||""))}}catch(e){}
+$("projName").value=db.project.name;
+renderCutList();
+if(db.project.cuts.length)selectCut(db.project.cuts[0]);else{renderInsp();drawNow()}
+</script>
+</body>
+</html>

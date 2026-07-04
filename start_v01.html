@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EDIT ONE スタート</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f0f14">
+<style>
+:root{--bg:#0f0f14;--panel:#17171f;--panel2:#1f1f2a;--line:#2b2b38;--text:#e9e9f0;--sub:#9a9aab;--accent:#4c8dff;--accent2:#845ef7;--ok:#2f9e44;--warn:#f59f00;--danger:#e5484d;--r:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;min-height:100vh}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;flex-wrap:wrap}
+h1{font-size:17px}
+button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer}
+button:active{transform:scale(.97)}
+.primary{background:var(--accent);border-color:var(--accent)}
+.mini{padding:4px 8px;font-size:12px}
+.sub{color:var(--sub);font-size:12px}
+.spacer2{flex:1}
+input[type=text]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 9px;font-size:13px}
+main{max-width:920px;margin:0 auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+.panel h2{font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+a.app{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:5px;color:var(--text);text-decoration:none}
+a.app:active{transform:scale(.98)}
+a.app .ic{font-size:26px}
+a.app .nm{font-weight:600;font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px}
+.item{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:8px}
+.item .grow1{flex:1}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:70;max-width:90%}
+#guide{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:60}
+.gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;max-width:420px;width:90%;display:flex;flex-direction:column;gap:10px}
+.grow{display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<header>
+ <h1>🚀 EDIT ONE</h1>
+ <span class="sub" id="netStat"></span>
+ <span class="spacer2"></span>
+ <button class="primary mini" id="btnInstall" style="display:none">📲 アプリとして入れる</button>
+ <button class="mini" id="btnUpdate">🔄 更新チェック</button>
+</header>
+<main>
+ <div class="panel">
+  <h2>アプリ一覧</h2>
+  <div class="grid" id="appGrid"></div>
+  <div class="sub">メインは 🎬 コースハブから。各アプリは単体でも完全動作します</div>
+ </div>
+ <div class="panel">
+  <h2>📲 アプリとしてインストール</h2>
+  <div class="sub" id="swStat">オフライン対応:確認中…</div>
+  <div class="sub" id="dispStat"></div>
+  <div class="sub">iPad/iPhone:Safariの共有ボタン→「ホーム画面に追加」。Android/PC:右上の「📲 アプリとして入れる」またはブラウザのインストールボタン</div>
+  <div class="row"><button class="mini" id="btnIcon">🎨 アイコン画像を生成(公開準備用)</button></div>
+ </div>
+ <div class="panel">
+  <h2>🔑 ライセンス</h2>
+  <div id="licStat"></div>
+  <div class="row">
+   <input type="text" id="licKey" placeholder="EDITONE-XXXX-XXXX-XXXX" style="width:230px">
+   <button class="primary mini" id="btnAct">有効化</button>
+   <button class="mini" id="btnDeact">解除</button>
+  </div>
+  <div class="row">
+   <input type="text" id="buyUrl" placeholder="購入ページURL(BOOTH/Gumroad等)" style="flex:1;min-width:200px">
+   <button class="mini" id="btnBuy">🛒 購入ページを開く</button>
+  </div>
+  <div class="sub">無料版:作品3分まで・720p書き出し・基本ブラシ。Pro:長さ無制限・1080p・ブラシ/素材の毎月配信・チーム機能</div>
+ </div>
+ <div class="panel">
+  <h2>🎁 素材カタログ(継続配信)</h2>
+  <div class="row">
+   <input type="text" id="catUrl" value="assets.json" style="flex:1;min-width:200px">
+   <button class="mini" id="btnCat">📡 カタログを読み込み</button>
+  </div>
+  <div id="catList" style="display:flex;flex-direction:column;gap:6px"></div>
+  <div class="sub">導入した素材は端末に保存されます(作画アプリへの自動反映はv0.2)</div>
+ </div>
+</main>
+<div id="toast"></div>
+<div id="guide"><div class="gcard"><h2 id="gTitle"></h2><p id="gBody" class="sub"></p><div class="grow"><span id="gStep" class="sub"></span><span class="spacer2"></span><button class="mini" id="gSkip">スキップ</button><button class="primary mini" id="gNext">次へ</button></div></div></div>
+<script>
+"use strict";
+const KEY="editone_start_v01",LIC="editone_license_v01",AST="editone_assets_v01";
+const $=id=>document.getElementById(id);
+function toast(m){const t=$("toast");t.textContent=m;t.style.opacity=1;clearTimeout(t._h);t._h=setTimeout(()=>t.style.opacity=0,2600)}
+let cfg={v:1,buyUrl:""};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.v===1)cfg=s;}catch(e){}
+$("buyUrl").value=cfg.buyUrl||"";
+$("buyUrl").addEventListener("input",()=>{cfg.buyUrl=$("buyUrl").value;try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}});
+const APPS=[
+ {f:"hub_v01.html",i:"🎬",n:"コースハブ",d:"コース選択・工程管理(メイン)"},
+ {f:"scenario_v01.html",i:"📝",n:"シナリオ",d:"脚本・尺見積もり"},
+ {f:"ekonte_v01.html",i:"🎞",n:"絵コンテ",d:"カット設計の背骨"},
+ {f:"sakuga_v02.html",i:"✏️",n:"作画",d:"ブラシ・3Dポーズ・コマ送り"},
+ {f:"saishoku_v01.html",i:"🎨",n:"彩色",d:"バケツ塗り・色指定"},
+ {f:"haikei_v01.html",i:"🏞",n:"背景",d:"3レイヤー・パース定規"},
+ {f:"satsuei_v01.html",i:"📷",n:"撮影",d:"セル合成・カメラワーク"},
+ {f:"onkyo_v01.html",i:"🎙",n:"音響",d:"アフレコ・BGM/SE"},
+ {f:"henshu_v01.html",i:"🎞",n:"編集",d:"結合・テロップ・書き出し"},
+ {f:"team_v01.html",i:"🤝",n:"チーム同期",d:"GitHub同期・担当ボード"}
+];
+const grid=$("appGrid");
+APPS.forEach(a=>{const el=document.createElement("a");el.className="app";el.href=a.f;
+ el.innerHTML='<span class="ic">'+a.i+'</span><span class="nm">'+a.n+'</span><span class="sub">'+a.d+'</span>';
+ grid.appendChild(el)});
+function net(){$("netStat").innerHTML='<span class="dot" style="background:'+(navigator.onLine?"var(--ok)":"var(--warn)")+'"></span>'+(navigator.onLine?"オンライン":"オフライン(全アプリ利用可)")}
+addEventListener("online",net);addEventListener("offline",net);net();
+let swReg=null;
+if("serviceWorker" in navigator&&location.protocol!=="file:"){
+ navigator.serviceWorker.register("sw.js").then(r=>{swReg=r;$("swStat").textContent="オフライン対応:有効(全アプリをこの端末に保存済み)"}).catch(()=>{$("swStat").textContent="オフライン対応:登録失敗"});
+}else{$("swStat").textContent="オフライン対応:無効(file://では動きません。GitHub Pages等のhttpsで開くと有効になります)"}
+const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+$("dispStat").textContent=standalone?"起動モード:インストール済みアプリとして起動中 ✅":"起動モード:ブラウザ(ホーム画面に追加するとアプリになります)";
+let deferredPrompt=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("btnInstall").style.display="inline-block"});
+$("btnInstall").onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const r=await deferredPrompt.userChoice;if(r.outcome==="accepted")toast("インストールしました!");deferredPrompt=null;$("btnInstall").style.display="none"};
+$("btnUpdate").onclick=()=>{if(swReg){swReg.update();toast("更新を確認しました。新版があれば次回起動時に反映されます")}else toast("オフライン対応が無効のため更新チェックできません")};
+$("btnIcon").onclick=()=>{[192,512].forEach(sz=>{const c=document.createElement("canvas");c.width=sz;c.height=sz;const x=c.getContext("2d");
+ const g=x.createLinearGradient(0,0,sz,sz);g.addColorStop(0,"#4c8dff");g.addColorStop(1,"#845ef7");
+ const r=sz*.22;x.beginPath();x.moveTo(r,0);x.arcTo(sz,0,sz,sz,r);x.arcTo(sz,sz,0,sz,r);x.arcTo(0,sz,0,0,r);x.arcTo(0,0,sz,0,r);x.closePath();x.fillStyle=g;x.fill();
+ x.fillStyle="#fff";x.font="bold "+sz*.34+"px system-ui,sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText("E1",sz/2,sz*.44);
+ x.font=sz*.11+"px system-ui,sans-serif";x.fillText("EDIT ONE",sz/2,sz*.72);
+ const a=document.createElement("a");a.download="icon-"+sz+".png";a.href=c.toDataURL("image/png");a.click()});
+ toast("icon-192.png と icon-512.png を書き出しました。リポジトリに配置してください")};
+const CS="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+function sig(body){let h=2166136261;const s=body+"EDITONE_SALT_v1";for(let i=0;i<s.length;i++){h=((h^s.charCodeAt(i))*16777619)>>>0}let o="";for(let i=0;i<4;i++){o+=CS[h%31];h=Math.floor(h/31)}return o}
+const DEV_KEYS=["EDITONE-DEV-MASTER-2026"];
+function validKey(k){k=(k||"").trim().toUpperCase();if(DEV_KEYS.indexOf(k)>=0)return k;const m=k.match(/^EDITONE-([A-Z2-9]{4})-([A-Z2-9]{4})-([A-Z2-9]{4})$/);if(!m)return null;return sig(m[1]+m[2])===m[3]?k:null}
+function licStat(){let l=null;try{l=JSON.parse(localStorage.getItem(LIC)||"null")}catch(e){}
+ $("licStat").innerHTML=l&&l.plan==="pro"?'<b style="color:var(--ok)">Pro版:有効 ✅</b> <span class="sub">('+l.key+')</span>':'<b>無料版</b> <span class="sub">(作品3分まで・720p)</span>'}
+$("btnAct").onclick=()=>{const k=validKey($("licKey").value);if(!k){toast("キーが正しくありません。入力をご確認ください");return}
+ try{localStorage.setItem(LIC,JSON.stringify({key:k,plan:"pro",at:Date.now()}))}catch(e){}
+ licStat();toast("Proライセンスを有効化しました!🎉")};
+$("btnDeact").onclick=()=>{if(!confirm("この端末のライセンスを解除しますか?"))return;localStorage.removeItem(LIC);licStat();toast("解除しました")};
+$("btnBuy").onclick=()=>{const u=$("buyUrl").value.trim();if(!u){toast("購入ページURLを設定してください");return}open(u,"_blank")};
+licStat();
+$("btnCat").onclick=()=>{fetch($("catUrl").value,{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(list=>{
+ const el=$("catList");el.innerHTML="";if(!Array.isArray(list)||!list.length){el.innerHTML='<div class="sub">カタログは空です</div>';return}
+ let ast={v:1,items:[]};try{const s=JSON.parse(localStorage.getItem(AST)||"null");if(s&&s.v===1)ast=s}catch(e){}
+ list.forEach(it=>{const row=document.createElement("div");row.className="item";
+  const has=ast.items.some(x=>x.id===it.id);
+  row.innerHTML='<span>'+(it.type==="brush"?"🖌":it.type==="pose"?"🧍":"🎁")+'</span><span class="grow1"><b>'+(it.name||it.id)+'</b><br><span class="sub">'+(it.desc||"")+'</span></span>';
+  const b=document.createElement("button");b.className="mini"+(has?"":" primary");b.textContent=has?"導入済み":"⬇ 導入";
+  b.onclick=()=>{if(ast.items.some(x=>x.id===it.id)){toast("導入済みです");return}ast.items.push(it);try{localStorage.setItem(AST,JSON.stringify(ast))}catch(e){toast("容量オーバーです");return}b.textContent="導入済み";b.className="mini";toast("導入しました:"+(it.name||it.id))};
+  row.appendChild(b);el.appendChild(row)});
+ toast(list.length+"件の素材が見つかりました")}).catch(()=>toast("カタログを読み込めません(オフラインまたはURL誤り)"))};
+const GSTEPS=[["ようこそ 🚀","このページがEDIT ONEの入り口です。アプリ一覧から各アプリを起動できます。メインは🎬コースハブです。"],["ホーム画面に追加","iPad/iPhoneはSafariの共有→「ホーム画面に追加」、Android/PCはインストールボタン。以後はネットがなくても全アプリが使えます。"],["ライセンス","無料版でも全アプリを試せます。Proキーを購入・入力すると長さ無制限・1080p・素材配信が解放されます(この端末に保存)。"],["素材カタログ","「📡 カタログを読み込み」で新しいブラシや素材が毎月届きます(Pro向け配信の仕組み)。"],["オフラインでも動く","一度開けば、山でも部室でも電波ゼロで制作できます。チーム同期だけはネット接続時に行ってください。"]];
+let gi=0;
+function gShow(){$("guide").style.display="flex";const st=GSTEPS[gi];$("gTitle").textContent=st[0];$("gBody").textContent=st[1];$("gStep").textContent=(gi+1)+" / "+GSTEPS.length;$("gNext").textContent=gi===GSTEPS.length-1?"はじめる":"次へ"}
+function gEnd(){$("guide").style.display="none";localStorage.setItem(KEY+"_guided","1")}
+$("gNext").onclick=()=>{gi++;if(gi>=GSTEPS.length)gEnd();else gShow()};
+$("gSkip").onclick=gEnd;
+if(!localStorage.getItem(KEY+"_guided"))gShow();
+</script>
+</body>
+</html>

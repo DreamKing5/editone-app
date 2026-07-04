@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — 音響 v0.1</title>
+<style>
+:root{--bg:#0f0f14;--panel:#17171f;--panel2:#1f1f2a;--line:#2b2b38;--text:#e9e9f0;--sub:#9a9aab;--accent:#4c8dff;--accent2:#845ef7;--ok:#2f9e44;--warn:#f59f00;--danger:#e5484d;--r:12px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.danger{color:var(--danger)}
+button.mini{padding:2px 8px;font-size:12px}
+input,select{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+input[type=range]{padding:0}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.5px}.logo b{color:var(--accent)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.spacer{flex:1}
+.wrap{display:grid;grid-template-columns:1fr 300px;gap:12px;padding:12px 16px;max-width:1480px;margin:0 auto}
+@media(max-width:1000px){.wrap{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.panel h3{margin:0 0 8px;font-size:12.5px;color:var(--sub);letter-spacing:.3px}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;font-size:12px}
+.row label{color:var(--sub)}
+#vid{width:100%;max-height:340px;background:#000;border:1px solid var(--line);border-radius:8px;display:none}
+#tl{width:100%;border:1px solid var(--line);border-radius:8px;touch-action:none;display:block;margin-top:10px}
+.transport{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;font-size:12px;color:var(--sub)}
+.sub{font-size:12px;color:var(--sub);white-space:pre-wrap}
+#guide{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+#guide.show{display:flex}
+.gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);max-width:440px;width:100%;padding:18px}
+.gcard h2{margin:0 0 8px;font-size:16px}
+.gcard p{margin:0 0 14px;color:var(--sub);font-size:13px;white-space:pre-wrap}
+.grow{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--sub)}
+.grow .spacer2{flex:1}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div><div class="tag">音響 v0.1</div>
+  <input id="projName" style="flex:1;min-width:150px;font-weight:600" placeholder="作品タイトル">
+  <div class="spacer"></div>
+  <button class="primary" id="btnMix">🎧 ミックス書き出し(WAV)</button>
+</header>
+<div class="wrap">
+  <section>
+    <video id="vid" playsinline></video>
+    <canvas id="tl" width="960" height="210"></canvas>
+    <div class="transport">
+      <button id="btnPlay">▶ 再生</button>
+      <button id="btnStop">⏮ 先頭へ</button>
+      <span id="tLabel">0.00 / 10s</span>
+      <span>クリップはドラッグで移動。空きをタップでシーク。</span>
+    </div>
+  </section>
+  <aside>
+    <div class="panel"><h3>映像ガイド</h3>
+      <button style="width:100%" id="btnVideo">🎬 動画を読み込み(撮影の書き出し)</button>
+      <input type="file" id="fileVideo" accept="video/*" class="hidden">
+      <div class="sub" style="margin-top:6px">ガイド映像の音はミュートされます</div>
+    </div>
+    <div class="panel"><h3>アフレコ録音</h3>
+      <button class="primary" style="width:100%" id="btnRec">⏺ 録音開始(再生しながら)</button>
+      <div class="sub" id="recSt" style="margin-top:6px"></div>
+    </div>
+    <div class="panel"><h3>音声ファイル追加</h3>
+      <div class="row"><label>トラック</label><select id="selTr"><option value="0">セリフ</option><option value="1">SE</option><option value="2" selected>BGM</option></select>
+      <button class="mini" id="btnAud">+ 追加</button></div>
+      <input type="file" id="fileAud" accept="audio/*" multiple class="hidden">
+      <div class="sub">再生位置(赤ライン)に配置されます</div>
+    </div>
+    <div class="panel"><h3>選択クリップ</h3>
+      <div class="sub" id="clipInfo">タイムライン上のクリップをタップで選択</div>
+      <div class="row"><label>開始</label><input id="iStart" type="number" min="0" step="0.1" style="width:76px">秒
+      <label>トラック</label><select id="iTr"><option value="0">セリフ</option><option value="1">SE</option><option value="2">BGM</option></select></div>
+      <div class="row"><label>音量</label><input id="iVol" type="range" min="0" max="1.5" step="0.01" style="flex:1"></div>
+      <button class="mini danger" id="btnDelClip">クリップを削除</button>
+    </div>
+    <div class="panel"><h3>ミックス設定</h3>
+      <label style="font-size:12px;color:var(--sub)"><input type="checkbox" id="duck" checked> セリフ中はBGMを自動で下げる(ダッキング)</label>
+      <div class="row" style="margin-top:6px"><label>BGM音量</label><input id="bgmVol" type="range" min="0" max="1" step="0.01" value="0.7" style="flex:1"></div>
+    </div>
+  </aside>
+</div>
+<div id="guide"><div class="gcard"><h2 id="gTitle"></h2><p id="gBody"></p><div class="grow"><span id="gStep"></span><span class="spacer2"></span><button class="mini" id="gSkip">スキップ</button><button class="primary mini" id="gNext">次へ</button></div></div></div>
+<div id="toast"></div>
+<script>
+"use strict";
+const KEY="editone_onkyo_v01",BRIDGE="editone_bridge_v01";
+function $(id){return document.getElementById(id)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._m);t._m=setTimeout(()=>t.classList.remove("show"),3200)}
+let AC=null;function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();return AC}
+let clips=[],seq=0,sel=null,ph=0,playing=null,rec=null,recStream=null,recStart=0;
+const vid=$("vid");let vidOn=false;
+const TRN=["セリフ","SE","BGM"],TRC=["#4c8dff","#2f9e44","#845ef7"];
+const tl=$("tl"),tg=tl.getContext("2d");
+function total(){let t=10;if(vidOn&&isFinite(vid.duration))t=Math.max(t,vid.duration);clips.forEach(c=>t=Math.max(t,c.start+c.dur));return t+1}
+function draw(){const W=tl.width,H=tl.height,T=total(),pxs=W/T;
+tg.fillStyle="#101018";tg.fillRect(0,0,W,H);
+for(let s=0;s<=T;s+=5){const x=s*pxs;tg.fillStyle="#2b2b38";tg.fillRect(x,0,1,H);tg.fillStyle="#9a9aab";tg.font="10px sans-serif";tg.fillText(s+"s",x+2,10)}
+for(let i=0;i<3;i++){const y=18+i*62;tg.fillStyle="#17171f";tg.fillRect(0,y,W,56);tg.fillStyle="#9a9aab";tg.font="11px sans-serif";tg.fillText(TRN[i],4,y+12)}
+clips.forEach(c=>{const y=18+c.tr*62,x=c.start*pxs,w=Math.max(3,c.dur*pxs);
+tg.globalAlpha=.85;tg.fillStyle=c===sel?"#fff":TRC[c.tr];tg.fillRect(x,y+16,w,36);tg.globalAlpha=1;
+tg.fillStyle=c===sel?"#000":"#fff";tg.font="11px sans-serif";tg.fillText(c.name,x+4,y+38)});
+tg.fillStyle="#e5484d";tg.fillRect(ph/T*W,0,2,H);
+$("tLabel").textContent=ph.toFixed(2)+" / "+Math.round(total())+"s"}
+let drag=null;
+tl.addEventListener("pointerdown",e=>{e.preventDefault();const r=tl.getBoundingClientRect();
+const x=(e.clientX-r.left)*tl.width/r.width,y=(e.clientY-r.top)*tl.height/r.height;
+const T=total(),pxs=tl.width/T;
+const c=clips.slice().reverse().find(c=>{const cy=18+c.tr*62+16;return y>=cy&&y<=cy+36&&x>=c.start*pxs&&x<=c.start*pxs+Math.max(3,c.dur*pxs)});
+if(c){sel=c;drag={c,dx:x-c.start*pxs};tl.setPointerCapture(e.pointerId);renderSel();draw();return}
+stopPlay();ph=Math.max(0,x/pxs);draw()});
+tl.addEventListener("pointermove",e=>{if(!drag)return;const r=tl.getBoundingClientRect();
+const x=(e.clientX-r.left)*tl.width/r.width,pxs=tl.width/total();
+drag.c.start=Math.max(0,Math.round(((x-drag.dx)/pxs)*100)/100);renderSel();draw()});
+tl.addEventListener("pointerup",()=>drag=null);tl.addEventListener("pointercancel",()=>drag=null);
+function mkGraph(ctx,t0,rt){const base0=rt?ctx.currentTime+.05:0;
+const master=ctx.createGain();master.connect(ctx.destination);
+const bgm=ctx.createGain();bgm.connect(master);const base=Number($("bgmVol").value);
+const at=s=>Math.max(rt?ctx.currentTime:0,base0+(s-t0));
+bgm.gain.setValueAtTime(base,rt?ctx.currentTime:0);
+if($("duck").checked)clips.filter(c=>c.tr===0).forEach(c=>{const s=c.start,e2=c.start+c.dur;if(e2<=t0)return;
+bgm.gain.setValueAtTime(base,at(s-.25));bgm.gain.linearRampToValueAtTime(base*.25,at(s));
+bgm.gain.setValueAtTime(base*.25,at(e2));bgm.gain.linearRampToValueAtTime(base,at(e2+.35))});
+const nodes=[];clips.forEach(c=>{if(c.start+c.dur<=t0)return;
+const src=ctx.createBufferSource();src.buffer=c.buf;
+const g=ctx.createGain();g.gain.value=c.vol;src.connect(g);g.connect(c.tr===2?bgm:master);
+src.start(base0+Math.max(0,c.start-t0),Math.max(0,t0-c.start));nodes.push(src)});
+return nodes}
+function stopPlay(){if(!playing)return;playing.nodes.forEach(n=>{try{n.stop()}catch(e){}});cancelAnimationFrame(playing.raf);vid.pause();playing=null;$("btnPlay").textContent="▶ 再生";draw()}
+function startPlay(){const c=ac();if(c.resume)c.resume();const t0=ph;
+const nodes=mkGraph(c,t0,true);const ct0=c.currentTime+.05;
+if(vidOn){try{vid.currentTime=Math.min(t0,vid.duration||t0)}catch(e){}vid.muted=true;vid.play().catch(()=>{})}
+playing={nodes,raf:0};$("btnPlay").textContent="■ 停止";
+const loop=()=>{if(!playing)return;ph=t0+(c.currentTime-ct0);
+if(ph>=total()){stopPlay();ph=0;draw();return}
+draw();playing.raf=requestAnimationFrame(loop)};loop()}
+$("btnPlay").onclick=()=>{if(playing){stopPlay();return}startPlay()};
+$("btnStop").onclick=()=>{stopPlay();ph=0;draw()};
+$("btnRec").onclick=async()=>{if(rec){rec.stop();return}
+let stream=null;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast("マイクを利用できません(権限を確認してください)");return}
+recStream=stream;rec=new MediaRecorder(stream);const chunks=[];recStart=ph;
+rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+rec.onstop=async()=>{recStream.getTracks().forEach(t=>t.stop());stopPlay();
+try{const b=await ac().decodeAudioData(await new Blob(chunks).arrayBuffer());
+seq++;clips.push({id:seq,tr:0,start:recStart,dur:b.duration,name:"アフレコ"+seq,buf:b,vol:1});
+sel=clips[clips.length-1];renderSel();draw();toast("録音をセリフトラックに配置しました")}
+catch(e){toast("録音データの変換に失敗しました")}
+rec=null;$("btnRec").textContent="⏺ 録音開始(再生しながら)";$("recSt").textContent=""};
+rec.start(200);$("btnRec").textContent="■ 録音停止";
+$("recSt").textContent="録音中… ヘッドホン推奨(スピーカー再生はマイクに回り込みます)";
+startPlay()};
+$("btnAud").onclick=()=>$("fileAud").click();
+$("fileAud").addEventListener("change",async e=>{const tr=Number($("selTr").value);
+for(const f of e.target.files){try{const b=await ac().decodeAudioData(await f.arrayBuffer());
+seq++;clips.push({id:seq,tr,start:ph,dur:b.duration,name:f.name.replace(/\.[^.]+$/,""),buf:b,vol:1})}
+catch(err){toast("読み込めない音声形式です:"+f.name)}}
+sel=clips[clips.length-1]||null;renderSel();draw();e.target.value=""});
+$("btnVideo").onclick=()=>$("fileVideo").click();
+$("fileVideo").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;
+vid.src=URL.createObjectURL(f);vid.style.display="block";vidOn=true;vid.muted=true;
+vid.onloadedmetadata=()=>{if(vid.duration===Infinity){vid.currentTime=1e9;vid.ondurationchange=()=>{if(isFinite(vid.duration)){vid.currentTime=0;draw()}}}else draw()};
+e.target.value=""});
+function renderSel(){const on=!!sel;["iStart","iVol","iTr"].forEach(id=>$(id).disabled=!on);$("btnDelClip").disabled=!on;
+$("clipInfo").textContent=sel?sel.name+" ("+sel.dur.toFixed(2)+"s / "+TRN[sel.tr]+")":"タイムライン上のクリップをタップで選択";
+if(sel){$("iStart").value=Math.round(sel.start*100)/100;$("iVol").value=sel.vol;$("iTr").value=String(sel.tr)}}
+$("iStart").addEventListener("input",e=>{if(sel){sel.start=Math.max(0,Number(e.target.value)||0);draw()}});
+$("iVol").addEventListener("input",e=>{if(sel)sel.vol=Number(e.target.value)});
+$("iTr").addEventListener("change",e=>{if(sel){sel.tr=Number(e.target.value);draw()}});
+$("btnDelClip").onclick=()=>{if(!sel)return;clips.splice(clips.indexOf(sel),1);sel=null;renderSel();draw()};
+$("btnMix").onclick=async()=>{if(!clips.length){toast("クリップがありません");return}
+stopPlay();const T=Math.ceil(total()),sr=44100;
+toast("ミックスをレンダリング中…");
+try{const off=new OfflineAudioContext(2,sr*T,sr);mkGraph(off,0,false);
+const buf=await off.startRendering();const blob=wav(buf);
+const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=($("projName").value||"mix")+"_mix.wav";a.click();URL.revokeObjectURL(a.href);
+toast("WAVを書き出しました(編集アプリの「ミックス音声」で読み込めます)")}
+catch(e){toast("レンダリングに失敗しました")}};
+function wav(b){const n=b.length,ch=Math.min(2,b.numberOfChannels),len=44+n*ch*2;
+const ab=new ArrayBuffer(len),v=new DataView(ab);
+const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+ws(0,"RIFF");v.setUint32(4,len-8,true);ws(8,"WAVE");ws(12,"fmt ");
+v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,ch,true);
+v.setUint32(24,b.sampleRate,true);v.setUint32(28,b.sampleRate*ch*2,true);
+v.setUint16(32,ch*2,true);v.setUint16(34,16,true);ws(36,"data");v.setUint32(40,n*ch*2,true);
+const cd=[];for(let c=0;c<ch;c++)cd.push(b.getChannelData(c));
+let o=44;for(let i=0;i<n;i++)for(let c=0;c<ch;c++){const s=Math.max(-1,Math.min(1,cd[c][i]));v.setInt16(o,s<0?s*32768:s*32767,true);o+=2}
+return new Blob([ab],{type:"audio/wav"})}
+$("projName").value=localStorage.getItem(KEY+"_name")||"新規音響";
+$("projName").addEventListener("input",e=>{try{localStorage.setItem(KEY+"_name",e.target.value)}catch(err){}});
+const GSTEPS=[["🎙 音響アプリへようこそ","映像に声と音を付けて、ミックス(WAV)を書き出すアプリです。おすすめの手順を30秒で紹介します。"],["① 映像ガイドを読み込む","右の「🎬 動画を読み込み」で撮影アプリが書き出した動画を開きます(ガイド映像の音はミュートされます)。"],["② BGM・SEを配置","「音声ファイル追加」でトラックを選んで追加。クリップはタイムライン上をドラッグで移動できます。"],["③ アフレコ録音","「⏺ 録音開始」を押すと映像と既存の音を再生しながら録音できます。ヘッドホン推奨!停止すると再生位置にセリフとして配置されます。"],["④ ミックス書き出し","セリフ中はBGMが自動で下がります(ダッキング)。最後に「🎧 ミックス書き出し」でWAV保存→編集アプリへ。音声データは自動保存されないので書き出しを忘れずに!"]];
+let gi=0;function gShow(){const g=$("guide");if(gi>=GSTEPS.length){g.classList.remove("show");try{localStorage.setItem(KEY+"_guided","1")}catch(e){}return}
+g.classList.add("show");$("gTitle").textContent=GSTEPS[gi][0];$("gBody").textContent=GSTEPS[gi][1];$("gStep").textContent=(gi+1)+" / "+GSTEPS.length;$("gNext").textContent=gi===GSTEPS.length-1?"はじめる":"次へ"}
+$("gNext").onclick=()=>{gi++;gShow()};$("gSkip").onclick=()=>{gi=GSTEPS.length;gShow()};
+if(!localStorage.getItem(KEY+"_guided"))gShow();
+try{const b=JSON.parse(localStorage.getItem(BRIDGE));if(b&&b.from==="hub"&&Date.now()-b.ts<600000)toast("ハブから接続:"+(b.project||""))}catch(e){}
+renderSel();draw();
+</script>
+</body>
+</html>

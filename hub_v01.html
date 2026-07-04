@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — コースハブ v0.1</title>
+<style>
+:root{
+  --bg:#0f0f14; --panel:#17171f; --panel2:#1f1f2a; --line:#2b2b38;
+  --text:#e9e9f0; --sub:#9a9aab; --accent:#4c8dff; --accent2:#845ef7;
+  --ok:#2f9e44; --warn:#f59f00; --danger:#e5484d; --r:12px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.ghost{background:transparent}
+button.danger{color:var(--danger)}
+button.mini{padding:2px 8px;font-size:12px}
+input,select,textarea{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--accent)}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.logo{font-weight:800;letter-spacing:.5px;white-space:nowrap}
+.logo b{color:var(--accent)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px;white-space:nowrap}
+.spacer{flex:1}
+main{max-width:1100px;margin:0 auto;padding:18px 16px 90px}
+h2{font-size:16px;margin:26px 0 10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 small{color:var(--sub);font-weight:400;font-size:12px}
+.grid{display:grid;gap:12px}
+.courses{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.apps{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card.click{cursor:pointer;transition:border-color .15s, transform .1s}
+.card.click:hover{border-color:var(--accent)}
+.card.click:active{transform:scale(.985)}
+.card.dim{opacity:.45}
+.course-main{grid-column:1/-1;background:linear-gradient(135deg,#1a2340,#251b42);border-color:#3c4a7c}
+.course-main h3{margin:0 0 4px;font-size:18px}
+.course-main .desc{color:#c6cdE8;font-size:12.5px;margin-bottom:12px}
+.badge{display:inline-block;font-size:11px;border-radius:99px;padding:2px 9px;margin-left:6px;vertical-align:middle}
+.badge.ok{background:rgba(47,158,68,.18);color:#69cf7f;border:1px solid rgba(47,158,68,.5)}
+.badge.soon{background:rgba(154,154,171,.12);color:var(--sub);border:1px solid var(--line)}
+.appcard{text-align:center}
+.appcard .ico{font-size:28px;margin-bottom:6px}
+.appcard .nm{font-weight:600}
+.appcard .st{font-size:11px;color:var(--sub);margin-top:4px}
+.appcard.ready .st{color:#69cf7f}
+.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .3s}
+.stats{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0 8px;font-size:12.5px;color:var(--sub)}
+.stats b{color:var(--text);font-size:15px;margin-right:2px}
+.pipeline{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px}
+.pipestep{flex:0 0 auto;display:flex;align-items:center;gap:6px}
+.pipestep .chip{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.pipestep .chip:hover{border-color:var(--accent)}
+.pipestep .arrow{color:var(--sub)}
+.cut{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin-bottom:8px}
+.cut .no{font-weight:700;color:var(--accent);width:52px}
+.cut input.title{flex:1;min-width:130px}
+.cut input.sec{width:64px;text-align:right}
+.cut input.who{width:90px}
+.steps{display:flex;gap:4px;flex-wrap:wrap}
+.step{font-size:11px;border-radius:99px;padding:3px 9px;border:1px solid var(--line);background:var(--panel2);color:var(--sub);cursor:pointer;user-select:none;white-space:nowrap}
+.step.s1{border-color:var(--warn);color:var(--warn)}
+.step.s2{border-color:var(--ok);color:#69cf7f;background:rgba(47,158,68,.12)}
+.cut .ops{display:flex;gap:4px;margin-left:auto}
+.cut textarea{width:100%;min-height:34px;font-size:12.5px;resize:vertical}
+.hint{font-size:12px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+details.settings{margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+details.settings summary{cursor:pointer;font-weight:600}
+.linkrow{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.linkrow label{width:110px;color:var(--sub);font-size:12.5px}
+.linkrow input{flex:1;min-width:180px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+@media (max-width:640px){ .cut .ops{margin-left:0;width:100%;justify-content:flex-end} }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div>
+  <div class="tag">コースハブ v0.1</div>
+  <button class="ghost mini" id="navHome">ホーム</button>
+  <div class="spacer"></div>
+  <button class="mini" id="btnExport">書き出し</button>
+  <button class="mini" id="btnImport">読み込み</button>
+  <input type="file" id="fileImport" accept=".json" class="hidden">
+</header>
+<main>
+
+<!-- ============ ホーム ============ -->
+<section id="viewHome">
+  <h2>コースを選ぶ <small>作りたいものから始める(メイン動線)</small></h2>
+  <div class="grid courses">
+    <div class="card click course-main" id="cardAnime">
+      <h3>🎬 アニメーション制作コース <span class="badge ok">利用可</span></h3>
+      <div class="desc">10〜20分のアニメ作品を完成させる。シナリオから編集まで8工程のアプリが自動セットアップされ、カット単位で制作を管理。</div>
+      <div class="bar"><i id="homeBar" style="width:0%"></i></div>
+      <div class="stats"><span id="homeStat">カット 0 / 合計尺 0:00</span></div>
+      <button class="primary">コースを開く</button>
+    </div>
+    <div class="card dim"><h3 style="margin:0;font-size:15px">🎥 映像制作コース</h3><span class="badge soon">準備中</span></div>
+    <div class="card dim"><h3 style="margin:0;font-size:15px">📚 漫画制作コース</h3><span class="badge soon">準備中</span></div>
+    <div class="card dim"><h3 style="margin:0;font-size:15px">🎨 イラスト制作コース</h3><span class="badge soon">準備中</span></div>
+    <div class="card dim"><h3 style="margin:0;font-size:15px">📄 論文・レポートコース</h3><span class="badge soon">準備中</span></div>
+  </div>
+
+  <h2>アプリを単体で使う <small>すべて単体HTMLで完全動作。連携はコース接続時のみ有効</small></h2>
+  <div class="grid apps" id="appGrid"></div>
+
+  <details class="settings" id="settings">
+    <summary>⚙️ アプリ起動設定(ファイル名 / URL)</summary>
+    <div class="hint" style="margin-top:10px">各アプリの単体HTMLを<b>このハブと同じフォルダ</b>に保存し、ファイル名を入力すると起動できます(URLも可)。空欄のアプリは「準備中」と表示されます。</div>
+    <div id="linkRows"></div>
+  </details>
+</section>
+
+<!-- ============ コース ============ -->
+<section id="viewCourse" class="hidden">
+  <h2 style="margin-top:6px">🎬 アニメーション制作コース</h2>
+  <div class="card">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input id="projName" style="flex:1;min-width:170px;font-weight:600" placeholder="作品タイトル">
+      <label style="color:var(--sub);font-size:12.5px">目標尺
+        <select id="targetMin">
+          <option value="10">10分</option><option value="15">15分</option><option value="20">20分</option>
+        </select>
+      </label>
+    </div>
+    <div class="stats">
+      <span><b id="stCuts">0</b>カット</span>
+      <span>合計尺 <b id="stLen">0:00</b> / <span id="stTarget">10:00</span></span>
+      <span>全体進捗 <b id="stProg">0%</b></span>
+      <span>完成カット <b id="stDone">0</b></span>
+    </div>
+    <div class="bar"><i id="courseBar" style="width:0%"></i></div>
+  </div>
+
+  <h2>制作パイプライン <small>工程をタップでアプリ起動</small></h2>
+  <div class="pipeline" id="pipeline"></div>
+
+  <h2>カット管理 <small>工程チップをタップ:未着手 → 作業中 → 完了</small></h2>
+  <div id="cutList"></div>
+  <div style="display:flex;gap:8px">
+    <button class="primary" id="btnAddCut">+ カットを追加</button>
+    <button id="btnSample">サンプル3カット生成</button>
+  </div>
+  <div class="hint">💡 20分作品はカット数百個規模になります。<b>3コマ打ち・バンク・止め絵+カメラワーク</b>で1カットあたりの作画枚数を減らす前提で秒数を割り振りましょう。チーム制作時はカット単位で担当を分けると競合しません(GitHub同期はPhase 6で搭載予定)。</div>
+</section>
+
+</main>
+<div id="toast"></div>
+
+<script>
+"use strict";
+const KEY="editone_hub_v01", BRIDGE="editone_bridge_v01";
+const STEPS=["絵コンテ","レイアウト","原画・動画","彩色","撮影","音響"];
+const APPS=[
+  {id:"scenario", name:"シナリオ", icon:"📝", desc:"脚本・尺見積もり"},
+  {id:"ekonte",   name:"絵コンテ", icon:"🎞️", desc:"コマ+カメラ+尺"},
+  {id:"sakuga",   name:"作画",     icon:"🖌️", desc:"原画・動画"},
+  {id:"saishoku", name:"彩色",     icon:"🎨", desc:"仕上げ"},
+  {id:"haikei",   name:"背景",     icon:"🏔️", desc:"美術"},
+  {id:"satsuei",  name:"撮影",     icon:"📷", desc:"合成・エフェクト"},
+  {id:"onkyo",    name:"音響",     icon:"🎚️", desc:"アフレコ・SE/BGM"},
+  {id:"henshu",   name:"編集",     icon:"✂️", desc:"結合・書き出し"},
+];
+const PIPE=["scenario","ekonte","sakuga","saishoku","haikei","satsuei","onkyo","henshu"];
+
+let db=load()||{
+  v:1,
+  project:{name:"新規アニメ作品", targetMin:10, cuts:[]},
+  links:{sakuga:"sakuga_v01.html"}
+};
+let cutSeq=db.project.cuts.reduce((m,c)=>Math.max(m,c.id||0),0);
+
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
+let saveTimer=null;
+function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(()=>{ try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){} }, 400); }
+
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove("show"),2600); }
+function fmt(sec){ sec=Math.round(sec||0); return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0"); }
+function $(id){ return document.getElementById(id); }
+
+/* ---------- 画面切替 ---------- */
+function show(view){
+  $("viewHome").classList.toggle("hidden", view!=="home");
+  $("viewCourse").classList.toggle("hidden", view!=="course");
+  window.scrollTo(0,0);
+  if(view==="home") renderHome(); else renderCourse();
+}
+$("navHome").onclick=()=>show("home");
+$("cardAnime").onclick=()=>show("course");
+
+/* ---------- アプリ起動(オプトイン連携) ---------- */
+function launch(appId, cut){
+  const app=APPS.find(a=>a.id===appId);
+  const link=(db.links[appId]||"").trim();
+  if(!link){ toast(app.name+"アプリは準備中です(⚙️ アプリ起動設定でファイル名を登録すると起動できます)"); return; }
+  try{
+    localStorage.setItem(BRIDGE, JSON.stringify({
+      from:"hub", ts:Date.now(), project:db.project.name,
+      cut: cut? {id:cut.id, title:cut.title, sec:cut.sec} : null
+    }));
+  }catch(e){}
+  const w=window.open(link, "_blank");
+  if(!w) toast("ポップアップがブロックされました。許可してください");
+}
+
+/* ---------- ホーム ---------- */
+function renderHome(){
+  // アプリグリッド
+  const g=$("appGrid"); g.innerHTML="";
+  APPS.forEach(app=>{
+    const ready=!!(db.links[app.id]||"").trim();
+    const d=document.createElement("div");
+    d.className="card click appcard"+(ready?" ready":"");
+    d.innerHTML=`<div class="ico">${app.icon}</div><div class="nm">${app.name}</div><div class="st">${ready?"利用可":"準備中"}</div>`;
+    d.onclick=()=>launch(app.id,null);
+    g.appendChild(d);
+  });
+  // 起動設定
+  const rows=$("linkRows"); rows.innerHTML="";
+  APPS.forEach(app=>{
+    const r=document.createElement("div"); r.className="linkrow";
+    const lab=document.createElement("label"); lab.textContent=app.icon+" "+app.name;
+    const inp=document.createElement("input");
+    inp.placeholder="例: "+app.id+"_v01.html(空欄=準備中)";
+    inp.value=db.links[app.id]||"";
+    inp.addEventListener("input",()=>{ db.links[app.id]=inp.value; save(); });
+    inp.addEventListener("change",()=>renderHome());
+    r.appendChild(lab); r.appendChild(inp); rows.appendChild(r);
+  });
+  // コース進捗サマリ
+  const {prog,total}=calc();
+  $("homeBar").style.width=Math.round(prog*100)+"%";
+  $("homeStat").textContent=`カット ${db.project.cuts.length} / 合計尺 ${fmt(total)} / 進捗 ${Math.round(prog*100)}%`;
+}
+
+/* ---------- 集計 ---------- */
+function calc(){
+  const cuts=db.project.cuts;
+  let total=0, doneSteps=0, doneCuts=0;
+  cuts.forEach(c=>{
+    total+=Number(c.sec)||0;
+    const d=c.steps.filter(s=>s===2).length;
+    doneSteps+=d;
+    if(d===STEPS.length) doneCuts++;
+  });
+  const prog=cuts.length? doneSteps/(cuts.length*STEPS.length) : 0;
+  return {prog,total,doneCuts};
+}
+
+/* ---------- コース ---------- */
+function newCut(title,sec){
+  cutSeq++;
+  return {id:cutSeq, title:title||"", sec:sec||6, who:"", memo:"", steps:STEPS.map(()=>0)};
+}
+function renderCourse(){
+  $("projName").value=db.project.name;
+  $("targetMin").value=String(db.project.targetMin);
+  // パイプライン
+  const p=$("pipeline"); p.innerHTML="";
+  PIPE.forEach((id,i)=>{
+    const app=APPS.find(a=>a.id===id);
+    const ready=!!(db.links[id]||"").trim();
+    const w=document.createElement("div"); w.className="pipestep";
+    const c=document.createElement("div"); c.className="chip";
+    c.innerHTML=`<span>${app.icon}</span><span>${i+1}. ${app.name}</span><span style="font-size:10px;color:${ready?"#69cf7f":"var(--sub)"}">${ready?"●":"準備中"}</span>`;
+    c.onclick=()=>launch(id,null);
+    w.appendChild(c);
+    if(i<PIPE.length-1){ const a=document.createElement("span"); a.className="arrow"; a.textContent="→"; w.appendChild(a); }
+    p.appendChild(w);
+  });
+  renderCuts();
+  renderStats();
+}
+function renderStats(){
+  const {prog,total,doneCuts}=calc();
+  $("stCuts").textContent=db.project.cuts.length;
+  $("stLen").textContent=fmt(total);
+  $("stTarget").textContent=fmt(db.project.targetMin*60);
+  $("stProg").textContent=Math.round(prog*100)+"%";
+  $("stDone").textContent=doneCuts;
+  $("courseBar").style.width=Math.round(prog*100)+"%";
+  $("stLen").style.color = total>db.project.targetMin*60 ? "var(--warn)" : "var(--text)";
+}
+function renderCuts(){
+  const list=$("cutList"); list.innerHTML="";
+  const cuts=db.project.cuts;
+  cuts.forEach((cut,idx)=>{
+    const row=document.createElement("div"); row.className="cut";
+    const no=document.createElement("div"); no.className="no"; no.textContent="C"+String(idx+1).padStart(3,"0");
+    const title=document.createElement("input"); title.className="title"; title.placeholder="カット内容(例:教室、主人公が振り向く)"; title.value=cut.title;
+    title.addEventListener("input",()=>{ cut.title=title.value; save(); });
+    const sec=document.createElement("input"); sec.className="sec"; sec.type="number"; sec.min="1"; sec.value=cut.sec; sec.title="秒数";
+    sec.addEventListener("input",()=>{ cut.sec=Number(sec.value)||0; save(); renderStats(); });
+    const secL=document.createElement("span"); secL.style.cssText="color:var(--sub);font-size:12px"; secL.textContent="秒";
+    const who=document.createElement("input"); who.className="who"; who.placeholder="担当"; who.value=cut.who;
+    who.addEventListener("input",()=>{ cut.who=who.value; save(); });
+    const steps=document.createElement("div"); steps.className="steps";
+    STEPS.forEach((nm,si)=>{
+      const s=document.createElement("span");
+      const st=cut.steps[si]||0;
+      s.className="step"+(st===1?" s1":st===2?" s2":"");
+      s.textContent=(st===2?"✓ ":st===1?"… ":"")+nm;
+      s.onclick=()=>{ cut.steps[si]=((cut.steps[si]||0)+1)%3; save(); renderCuts(); renderStats(); };
+      steps.appendChild(s);
+    });
+    const ops=document.createElement("div"); ops.className="ops";
+    const mk=(label,fn,cls)=>{ const b=document.createElement("button"); b.className="mini"+(cls?" "+cls:""); b.textContent=label; b.onclick=fn; return b; };
+    ops.appendChild(mk("🖌️ 作画",()=>launch("sakuga",cut)));
+    ops.appendChild(mk("▲",()=>{ if(idx>0){ cuts.splice(idx-1,0,cuts.splice(idx,1)[0]); save(); renderCuts(); } }));
+    ops.appendChild(mk("▼",()=>{ if(idx<cuts.length-1){ cuts.splice(idx+1,0,cuts.splice(idx,1)[0]); save(); renderCuts(); } }));
+    ops.appendChild(mk("複製",()=>{ const cp=JSON.parse(JSON.stringify(cut)); cp.id=++cutSeq; cuts.splice(idx+1,0,cp); save(); renderCuts(); renderStats(); }));
+    ops.appendChild(mk("削除",()=>{ if(confirm("C"+String(idx+1).padStart(3,"0")+" を削除しますか?")){ cuts.splice(idx,1); save(); renderCuts(); renderStats(); } },"danger"));
+    const memo=document.createElement("textarea"); memo.placeholder="メモ(演出指示・バンク使用・止め絵+カメラワーク等)"; memo.value=cut.memo;
+    memo.addEventListener("input",()=>{ cut.memo=memo.value; save(); });
+    row.appendChild(no); row.appendChild(title); row.appendChild(sec); row.appendChild(secL);
+    row.appendChild(who); row.appendChild(steps); row.appendChild(ops); row.appendChild(memo);
+    list.appendChild(row);
+  });
+  if(!cuts.length){
+    const e=document.createElement("div"); e.className="hint";
+    e.textContent="カットがまだありません。「+ カットを追加」または「サンプル3カット生成」から始めましょう。";
+    list.appendChild(e);
+  }
+}
+
+/* ---------- イベント ---------- */
+$("projName").addEventListener("input",e=>{ db.project.name=e.target.value; save(); });
+$("targetMin").addEventListener("change",e=>{ db.project.targetMin=Number(e.target.value); save(); renderStats(); });
+$("btnAddCut").onclick=()=>{ db.project.cuts.push(newCut()); save(); renderCuts(); renderStats(); };
+$("btnSample").onclick=()=>{
+  db.project.cuts.push(
+    newCut("OP:タイトルロゴ(止め絵+ズーム)",8),
+    newCut("教室全景・朝(背景メイン+セル1枚)",5),
+    newCut("主人公が振り向く(原画3枚・3コマ打ち)",4)
+  );
+  save(); renderCuts(); renderStats();
+};
+
+/* ---------- JSON入出力 ---------- */
+$("btnExport").onclick=()=>{
+  const blob=new Blob([JSON.stringify(db,null,1)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=(db.project.name||"editone_project")+"_hub.json";
+  a.click(); URL.revokeObjectURL(a.href);
+  toast("プロジェクトJSONを書き出しました");
+};
+$("btnImport").onclick=()=>$("fileImport").click();
+$("fileImport").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d||!d.project||!Array.isArray(d.project.cuts)) throw 0;
+      db=d; cutSeq=db.project.cuts.reduce((m,c)=>Math.max(m,c.id||0),0);
+      save(); show("home"); toast("読み込みました:"+(db.project.name||""));
+    }catch(err){ toast("読み込みに失敗しました(JSON形式を確認してください)"); }
+  };
+  r.readAsText(f); e.target.value="";
+});
+
+show("home");
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — チーム同期 v0.1</title>
+<style>
+:root{--bg:#0f0f14;--panel:#17171f;--panel2:#1f1f2a;--line:#2b2b38;--text:#e9e9f0;--sub:#9a9aab;--accent:#4c8dff;--accent2:#845ef7;--ok:#2f9e44;--warn:#f59f00;--danger:#e5484d;--r:12px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.danger{color:var(--danger)}
+button.mini{padding:2px 8px;font-size:12px}
+input,select{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.5px}.logo b{color:var(--accent)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+#stChip{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:2px 10px;color:var(--warn)}
+#stChip.ok{color:var(--ok);border-color:var(--ok)}
+.spacer{flex:1}
+.wrap{display:grid;grid-template-columns:1fr 320px;gap:12px;padding:12px 16px;max-width:1480px;margin:0 auto}
+@media(max-width:1000px){.wrap{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.panel h3{margin:0 0 8px;font-size:12.5px;color:var(--sub);letter-spacing:.3px}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;font-size:12px}
+.row label{color:var(--sub);min-width:74px}
+.row input{flex:1;min-width:100px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:middle}
+th{color:var(--sub);font-weight:600;font-size:11.5px}
+td input,td select{width:100%;padding:4px 6px;font-size:12px}
+td.no{color:var(--accent);font-weight:700;white-space:nowrap}
+.st-完了{color:var(--ok)}.st-作業中{color:var(--accent)}.st-チェック待ち{color:var(--warn)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin-bottom:8px;align-items:center}
+.stats b{color:var(--text)}
+#bar{flex:1;min-width:120px;height:8px;background:var(--panel2);border-radius:99px;overflow:hidden}
+#bar i{display:block;height:100%;background:var(--ok);width:0%}
+.lrow{padding:4px 6px;border-bottom:1px solid var(--line);font-size:12px;color:var(--sub)}
+.sub{font-size:12px;color:var(--sub);white-space:pre-wrap}
+details{font-size:12px;color:var(--sub);margin-top:8px}
+details summary{cursor:pointer;color:var(--text)}
+#guide{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+#guide.show{display:flex}
+.gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);max-width:440px;width:100%;padding:18px}
+.gcard h2{margin:0 0 8px;font-size:16px}
+.gcard p{margin:0 0 14px;color:var(--sub);font-size:13px;white-space:pre-wrap}
+.grow{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--sub)}
+.grow .spacer2{flex:1}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div><div class="tag">チーム同期 v0.1</div>
+  <span id="stChip">未接続</span>
+  <div class="spacer"></div>
+  <button id="btnPull">⬇ プル(最新を取得)</button>
+  <button class="primary" id="btnPush">⬆ プッシュ(共有)</button>
+</header>
+<div class="wrap">
+  <section>
+    <div class="panel">
+      <h3>カット担当ボード</h3>
+      <div class="stats"><span>完了 <b id="stDone">0</b> / <b id="stAll">0</b> カット</span><div id="bar"><i></i></div>
+      <button class="mini" id="btnEkonte">📥 絵コンテから取り込み</button><button class="mini" id="btnAddCut">+ カット</button></div>
+      <table><thead><tr><th style="width:52px">No</th><th>内容</th><th style="width:56px">尺(秒)</th><th style="width:110px">担当</th><th style="width:92px">役割</th><th style="width:110px">状態</th><th style="width:34px"></th></tr></thead>
+      <tbody id="board"></tbody></table>
+      <div class="sub" style="margin-top:8px">💡 同じカットを同時に編集しないこと(担当制)。作業前に⬇プル、作業後に⬆プッシュが基本リズムです。</div>
+    </div>
+    <div class="panel">
+      <h3>更新履歴(コミット)</h3>
+      <button class="mini" id="btnHist">🔄 履歴を読み込み</button>
+      <div id="histList" style="margin-top:6px"></div>
+    </div>
+  </section>
+  <aside>
+    <div class="panel"><h3>GitHub接続(各自の端末で設定)</h3>
+      <div class="row"><label>オーナー</label><input id="iOwner" placeholder="例: club-anime"></div>
+      <div class="row"><label>リポジトリ</label><input id="iRepo" placeholder="例: anime-project"></div>
+      <div class="row"><label>ブランチ</label><input id="iBranch" placeholder="main"></div>
+      <div class="row"><label>あなたの名前</label><input id="iMe" placeholder="例: タロウ"></div>
+      <div class="row"><label>トークン</label><input id="iToken" type="password" placeholder="github_pat_..."></div>
+      <button style="width:100%" id="btnTest">🔌 接続テスト</button>
+      <details><summary>トークンの作り方(1分)</summary>
+GitHub → Settings → Developer settings → Fine-grained personal access tokens → Generate new token。
+Repository accessで対象リポジトリ1つだけを選び、PermissionsはContentsを「Read and write」に。
+※トークンはこの端末にのみ保存され、外部には送信されません(GitHubへの通信を除く)。共用端末では使用後に削除を。</details>
+    </div>
+    <div class="panel"><h3>アプリデータ同期</h3>
+      <div id="appList"></div>
+      <div class="row" style="margin-top:8px"><button class="mini" id="btnPushApps">⬆ 選択をプッシュ</button><button class="mini" id="btnPullApps">⬇ 選択をプル</button></div>
+      <label style="font-size:11.5px;color:var(--sub)"><input type="checkbox" id="ckOver"> プル時にこの端末のデータを上書きすることを理解した</label>
+      <div class="sub" style="margin-top:6px">プル後は各アプリを再読み込みすると反映されます</div>
+    </div>
+  </aside>
+</div>
+<div id="guide"><div class="gcard"><h2 id="gTitle"></h2><p id="gBody"></p><div class="grow"><span id="gStep"></span><span class="spacer2"></span><button class="mini" id="gSkip">スキップ</button><button class="primary mini" id="gNext">次へ</button></div></div></div>
+<div id="toast"></div>
+<script>
+"use strict";
+const KEY="editone_team_v01",BRIDGE="editone_bridge_v01";
+function $(id){return document.getElementById(id)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._m);t._m=setTimeout(()=>t.classList.remove("show"),3600)}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+let cfg=Object.assign({v:1,app:"team",owner:"",repo:"",branch:"main",token:"",me:"",cuts:[],cutsSha:null},load()||{});
+let saveT=null;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}},400)}
+const ROLES=["絵コンテ","作画","彩色","撮影","音響","編集"],STS=["未着手","作業中","チェック待ち","完了"];
+const APPS=[["editone_scenario_v01","シナリオ"],["editone_ekonte_v01","絵コンテ"],["editone_sakuga_v02","作画"],["editone_satsuei_v01","撮影"],["editone_henshu_v01","編集(テロップ等)"],["editone_hub_v01","コースハブ"]];
+function ready(){return cfg.token&&cfg.owner&&cfg.repo}
+function enc64(s){return btoa(unescape(encodeURIComponent(s)))}
+function dec64(s){return decodeURIComponent(escape(atob(s)))}
+async function api(path,opt){let r=null;
+try{r=await fetch("https://api.github.com"+path,Object.assign({headers:{Authorization:"Bearer "+cfg.token,Accept:"application/vnd.github+json"}},opt||{}))}
+catch(e){const err=new Error("ネットワークに接続できません");err.status=0;throw err}
+if(!r.ok){let m="";try{m=(await r.json()).message||""}catch(e){}const err=new Error(r.status+" "+m);err.status=r.status;throw err}
+return r.status===204?null:r.json()}
+function repoPath(p){return "/repos/"+encodeURIComponent(cfg.owner)+"/"+encodeURIComponent(cfg.repo)+"/contents/"+p}
+async function getFile(p){try{const j=await api(repoPath(p)+"?ref="+encodeURIComponent(cfg.branch)+"&t="+Date.now());return{sha:j.sha,text:dec64((j.content||"").replace(/\s/g,""))}}catch(e){if(e.status===404)return null;throw e}}
+async function putFile(p,text,sha,msg){const body={message:msg,content:enc64(text),branch:cfg.branch};if(sha)body.sha=sha;
+return api(repoPath(p),{method:"PUT",body:JSON.stringify(body)})}
+function setSt(ok,label){const c=$("stChip");c.textContent=label;c.classList.toggle("ok",!!ok)}
+[["iOwner","owner"],["iRepo","repo"],["iBranch","branch"],["iMe","me"],["iToken","token"]].forEach(([id,k])=>{
+$(id).value=cfg[k]||"";$(id).addEventListener("input",e=>{cfg[k]=e.target.value.trim();if(k==="branch"&&!cfg.branch)cfg.branch="main";save();setSt(false,"未確認")})});
+if(!cfg.branch){cfg.branch="main";$("iBranch").value="main"}
+$("btnTest").onclick=async()=>{if(!ready()){toast("オーナー・リポジトリ・トークンを入力してください");return}
+try{const j=await api("/repos/"+encodeURIComponent(cfg.owner)+"/"+encodeURIComponent(cfg.repo));
+setSt(true,"接続OK:"+j.full_name+(j.private?"(プライベート)":"(公開)"));toast("接続できました")}
+catch(e){setSt(false,"接続失敗");toast("接続失敗:"+e.message+(e.status===401||e.status===403?"(トークンの権限・対象リポジトリを確認)":e.status===404?"(オーナー/リポジトリ名を確認)":""))}};
+function renderStats(){const all=cfg.cuts.length,done=cfg.cuts.filter(c=>c.st==="完了").length;
+$("stAll").textContent=all;$("stDone").textContent=done;
+document.querySelector("#bar i").style.width=(all?done/all*100:0)+"%"}
+function renderBoard(){const tb=$("board");tb.innerHTML="";
+cfg.cuts.forEach((row,idx)=>{const tr=document.createElement("tr");
+const td0=document.createElement("td");td0.className="no";td0.textContent="C"+String(row.no).padStart(3,"0");tr.appendChild(td0);
+const td1=document.createElement("td");const ti=document.createElement("input");ti.value=row.title||"";ti.placeholder="内容";ti.addEventListener("input",()=>{row.title=ti.value;save()});td1.appendChild(ti);tr.appendChild(td1);
+const td2=document.createElement("td");const si=document.createElement("input");si.type="number";si.min="0";si.step="0.5";si.value=row.sec||0;si.addEventListener("input",()=>{row.sec=Number(si.value)||0;save()});td2.appendChild(si);tr.appendChild(td2);
+const td3=document.createElement("td");const ta=document.createElement("input");ta.value=row.tanto||"";ta.placeholder="未割当";ta.addEventListener("input",()=>{row.tanto=ta.value;save()});td3.appendChild(ta);tr.appendChild(td3);
+const td4=document.createElement("td");const rs=document.createElement("select");ROLES.forEach(r0=>{const o=document.createElement("option");o.value=r0;o.textContent=r0;rs.appendChild(o)});rs.value=row.role||"作画";rs.addEventListener("change",()=>{row.role=rs.value;save()});td4.appendChild(rs);tr.appendChild(td4);
+const td5=document.createElement("td");const ss=document.createElement("select");STS.forEach(s0=>{const o=document.createElement("option");o.value=s0;o.textContent=s0;ss.appendChild(o)});ss.value=row.st||"未着手";ss.className="st-"+(row.st||"");
+ss.addEventListener("change",()=>{if(row.tanto&&cfg.me&&row.tanto!==cfg.me&&!confirm("担当("+row.tanto+")以外による状態変更です。よろしいですか?")){ss.value=row.st;return}
+row.st=ss.value;ss.className="st-"+row.st;save();renderStats()});td5.appendChild(ss);tr.appendChild(td5);
+const td6=document.createElement("td");const del=document.createElement("button");del.className="mini danger";del.textContent="✕";
+del.onclick=()=>{if(confirm("C"+String(row.no).padStart(3,"0")+" をボードから削除しますか?")){cfg.cuts.splice(idx,1);save();renderBoard()}};td6.appendChild(del);tr.appendChild(td6);
+tb.appendChild(tr)});renderStats()}
+$("btnEkonte").onclick=()=>{let d=null;try{d=JSON.parse(localStorage.getItem("editone_ekonte_v01"))}catch(e){}
+if(!d||!d.project||!Array.isArray(d.project.cuts)||!d.project.cuts.length){toast("この端末に絵コンテデータがありません。絵コンテエディタでカットを作ってください");return}
+let added=0;d.project.cuts.forEach((c,i)=>{const no=i+1;let row=cfg.cuts.find(r=>r.no===no);
+if(!row){row={no,title:"",sec:0,tanto:"",role:"作画",st:"未着手"};cfg.cuts.push(row);added++}
+row.title=c.title||row.title;row.sec=Number(c.sec)||row.sec});
+cfg.cuts.sort((a,b)=>a.no-b.no);save();renderBoard();toast("絵コンテから取り込みました(新規 "+added+")")};
+$("btnAddCut").onclick=()=>{const no=cfg.cuts.reduce((m,c)=>Math.max(m,c.no),0)+1;
+cfg.cuts.push({no,title:"",sec:0,tanto:"",role:"作画",st:"未着手"});save();renderBoard()};
+$("btnPull").onclick=async()=>{if(!ready()){toast("先にGitHub接続を設定してください");return}
+try{const f=await getFile("editone/cuts.json");
+if(!f){toast("リポジトリにまだカット表がありません。⬆プッシュで作成できます");return}
+const d=JSON.parse(f.text);cfg.cuts=Array.isArray(d.cuts)?d.cuts:[];cfg.cutsSha=f.sha;save();renderBoard();
+toast("プルしました("+cfg.cuts.length+"カット / 最終更新:"+(d.updatedBy||"不明")+")")}
+catch(e){toast("プル失敗:"+e.message)}};
+$("btnPush").onclick=async()=>{if(!ready()){toast("先にGitHub接続を設定してください");return}
+if(!cfg.cuts.length){toast("カットがありません");return}
+try{if(!cfg.cutsSha){const cur=await getFile("editone/cuts.json");if(cur){toast("リモートに既存のカット表があります。先に⬇プルしてください");return}}
+const res=await putFile("editone/cuts.json",JSON.stringify({v:1,updatedBy:cfg.me||"名無し",ts:Date.now(),cuts:cfg.cuts},null,1),cfg.cutsSha,"カット表更新 by "+(cfg.me||"名無し"));
+cfg.cutsSha=res.content.sha;save();toast("プッシュしました")}
+catch(e){if(e.status===409||e.status===422)toast("リモートが更新されています。先に⬇プルしてからやり直してください");
+else toast("プッシュ失敗:"+e.message)}};
+$("btnHist").onclick=async()=>{if(!ready()){toast("先にGitHub接続を設定してください");return}
+try{const cs=await api("/repos/"+encodeURIComponent(cfg.owner)+"/"+encodeURIComponent(cfg.repo)+"/commits?sha="+encodeURIComponent(cfg.branch)+"&per_page=10");
+const el=$("histList");el.innerHTML="";
+cs.forEach(c=>{const d=document.createElement("div");d.className="lrow";
+d.textContent=new Date(c.commit.author.date).toLocaleString()+" — "+c.commit.message;el.appendChild(d)});
+if(!cs.length)el.innerHTML='<div class="lrow">コミットがまだありません</div>'}
+catch(e){toast("履歴取得失敗:"+e.message)}};
+const al=$("appList");APPS.forEach(([k,l])=>{const d=document.createElement("div");d.style.cssText="font-size:12px;margin-bottom:2px";
+const has=!!localStorage.getItem(k);
+d.innerHTML='<label><input type="checkbox" id="ck_'+k+'" '+(has?"checked":"")+'> '+l+(has?"":' <span style=\"color:var(--sub)\">(この端末にデータなし)</span>')+"</label>";al.appendChild(d)});
+$("btnPushApps").onclick=async()=>{if(!ready()){toast("先にGitHub接続を設定してください");return}
+let n=0;for(const [k,l] of APPS){if(!$("ck_"+k).checked)continue;
+const v=localStorage.getItem(k);if(!v){continue}
+const p="editone/apps/"+k+".json";
+try{const f=await getFile(p);await putFile(p,v,f?f.sha:null,l+"を同期 by "+(cfg.me||"名無し"));n++;toast(l+" をプッシュ中…("+n+")")}
+catch(e){toast(l+"のプッシュ失敗:"+e.message);return}}
+toast(n?n+"件をプッシュしました":"プッシュ対象がありません(チェックと端末内データを確認)")};
+$("btnPullApps").onclick=async()=>{if(!ready()){toast("先にGitHub接続を設定してください");return}
+if(!$("ckOver").checked){toast("下の「上書きを理解した」にチェックしてください");return}
+let n=0;for(const [k,l] of APPS){if(!$("ck_"+k).checked)continue;
+try{const f=await getFile("editone/apps/"+k+".json");if(!f)continue;
+localStorage.setItem(k,f.text);n++;toast(l+" をプル中…("+n+")")}
+catch(e){toast(l+"のプル失敗:"+e.message);return}}
+toast(n?n+"件を取り込みました。各アプリを再読み込みすると反映されます":"リポジトリに同期データがありません")};
+const GSTEPS=[["🤝 チーム同期へようこそ","GitHubの無料リポジトリを使って、部費0円のままみんなで分担制作できます。Gitの知識は不要です。"],["① 接続設定","右のパネルにオーナー/リポジトリ/トークン/名前を入力して「🔌 接続テスト」。トークンの作り方はパネル内の案内を1分で読めます。"],["② カット担当ボード","「📥 絵コンテから取り込み」でカット一覧を作り、担当・役割・状態を割り振ります。同じカットの同時編集を避けるのが鉄則。"],["③ プルとプッシュ","作業前に「⬇ プル」で最新を取得、作業後に「⬆ プッシュ」で共有。リモートが新しい場合は自動で教えてくれます。"],["④ アプリデータ同期","シナリオ・絵コンテ・作画などのデータを選んでプッシュ/プルできます。作画はストローク形式なので軽量です。"]];
+let gi=0;function gShow(){const g=$("guide");if(gi>=GSTEPS.length){g.classList.remove("show");try{localStorage.setItem(KEY+"_guided","1")}catch(e){}return}
+g.classList.add("show");$("gTitle").textContent=GSTEPS[gi][0];$("gBody").textContent=GSTEPS[gi][1];$("gStep").textContent=(gi+1)+" / "+GSTEPS.length;$("gNext").textContent=gi===GSTEPS.length-1?"はじめる":"次へ"}
+$("gNext").onclick=()=>{gi++;gShow()};$("gSkip").onclick=()=>{gi=GSTEPS.length;gShow()};
+if(!localStorage.getItem(KEY+"_guided"))gShow();
+try{const b=JSON.parse(localStorage.getItem(BRIDGE));if(b&&b.from==="hub"&&Date.now()-b.ts<600000)toast("ハブから接続:"+(b.project||""))}catch(e){}
+if(ready())setSt(false,"設定済み(未確認)");
+renderBoard();
+</script>
+</body>
+</html>
