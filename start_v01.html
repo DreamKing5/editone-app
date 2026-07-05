@@ -57,6 +57,7 @@ a.app .nm{font-weight:600;font-size:13px}
   <div class="sub" id="dispStat"></div>
   <div class="sub">iPad/iPhone:Safariの共有ボタン→「ホーム画面に追加」。Android/PC:右上の「📲 アプリとして入れる」またはブラウザのインストールボタン</div>
   <div class="row"><button class="mini" id="btnIcon">🎨 アイコン画像を生成(公開準備用)</button></div>
+  <div class="row" id="iconBox" style="display:none;gap:16px"></div>
  </div>
  <div class="panel">
   <h2>🔑 ライセンス</h2>
@@ -121,13 +122,19 @@ let deferredPrompt=null;
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("btnInstall").style.display="inline-block"});
 $("btnInstall").onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const r=await deferredPrompt.userChoice;if(r.outcome==="accepted")toast("インストールしました!");deferredPrompt=null;$("btnInstall").style.display="none"};
 $("btnUpdate").onclick=()=>{if(swReg){swReg.update();toast("更新を確認しました。新版があれば次回起動時に反映されます")}else toast("オフライン対応が無効のため更新チェックできません")};
-$("btnIcon").onclick=()=>{[192,512].forEach(sz=>{const c=document.createElement("canvas");c.width=sz;c.height=sz;const x=c.getContext("2d");
+$("btnIcon").onclick=()=>{const box=$("iconBox");box.innerHTML="";box.style.display="flex";
+ [192,512].forEach(sz=>{const c=document.createElement("canvas");c.width=sz;c.height=sz;const x=c.getContext("2d");
  const g=x.createLinearGradient(0,0,sz,sz);g.addColorStop(0,"#4c8dff");g.addColorStop(1,"#845ef7");
  const r=sz*.22;x.beginPath();x.moveTo(r,0);x.arcTo(sz,0,sz,sz,r);x.arcTo(sz,sz,0,sz,r);x.arcTo(0,sz,0,0,r);x.arcTo(0,0,sz,0,r);x.closePath();x.fillStyle=g;x.fill();
  x.fillStyle="#fff";x.font="bold "+sz*.34+"px system-ui,sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText("E1",sz/2,sz*.44);
  x.font=sz*.11+"px system-ui,sans-serif";x.fillText("EDIT ONE",sz/2,sz*.72);
- const a=document.createElement("a");a.download="icon-"+sz+".png";a.href=c.toDataURL("image/png");a.click()});
- toast("icon-192.png と icon-512.png を書き出しました。リポジトリに配置してください")};
+ const url=c.toDataURL("image/png");
+ const wrap=document.createElement("div");wrap.style.cssText="display:flex;flex-direction:column;align-items:center;gap:4px";
+ const img=document.createElement("img");img.src=url;img.style.cssText="width:96px;height:96px;border:1px solid var(--line);border-radius:14px";
+ const lb=document.createElement("span");lb.className="sub";lb.textContent="icon-"+sz+".png";
+ wrap.appendChild(img);wrap.appendChild(lb);box.appendChild(wrap);
+ const a=document.createElement("a");a.download="icon-"+sz+".png";a.href=url;try{a.click()}catch(e){}});
+ toast("アイコンを生成しました。下の画像を長押し(PCは右クリック)して保存してください")};
 const CS="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 function sig(body){let h=2166136261;const s=body+"EDITONE_SALT_v1";for(let i=0;i<s.length;i++){h=((h^s.charCodeAt(i))*16777619)>>>0}let o="";for(let i=0;i<4;i++){o+=CS[h%31];h=Math.floor(h/31)}return o}
 const DEV_KEYS=["EDITONE-DEV-MASTER-2026"];
