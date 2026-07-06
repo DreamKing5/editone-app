@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EDIT ONE — 組版 v0.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;background:#f4f6f9;color:#1f2430;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:50;background:#1f2937;color:#fff;display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
+header h1{font-size:16px;font-weight:700}
+.sp{flex:1}
+button{font:inherit;cursor:pointer}
+.btn{background:#374151;color:#fff;border:1px solid #4b5563;border-radius:8px;padding:7px 12px;font-size:13px}
+.btn.acc{background:#2563eb;border-color:#2563eb}
+.btn.ok{background:#059669;border-color:#059669}
+main{max-width:1000px;margin:0 auto;padding:14px}
+.card{background:#fff;border:1px solid #e2e6ee;border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{font-size:15px;margin-bottom:10px}
+.hint{font-size:12px;color:#667085;margin-top:6px;line-height:1.7}
+.rowbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.frm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+select,input[type=text]{font:inherit;font-size:13px;padding:7px 8px;border:1px solid #cdd5e1;border-radius:8px;background:#fff}
+#texT{width:100%;min-height:240px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.7;border:1px solid #cdd5e1;border-radius:8px;padding:10px}
+#logT{width:100%;min-height:120px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.5;border:1px solid #cdd5e1;border-radius:8px;padding:8px;margin-top:8px;background:#0f172a;color:#a5f3fc}
+#refOut{width:100%;min-height:140px;font:inherit;font-size:13px;line-height:1.8;border:1px solid #cdd5e1;border-radius:8px;padding:9px;margin-top:8px}
+#engStatus{font-size:13px;font-weight:700}
+#pdfBox{margin-top:10px}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow:auto;padding:18px}
+.mbox h3{font-size:15px;margin-bottom:10px}
+.mbox textarea{width:100%;min-height:200px;font:inherit;font-size:13px;border:1px solid #cdd5e1;border-radius:8px;padding:9px}
+.mrow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200;max-width:90vw}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+	<h1>📐 組版 v0.1</h1>
+	<span class="sp"></span>
+	<button class="btn" id="expBtn">💾 書き出し</button>
+	<button class="btn" id="impBtn">📂 読み込み</button>
+</header>
+<main>
+<div class="card" id="guide" style="display:none">
+	<h2>🧭 はじめてガイド</h2>
+	<div class="hint">
+	① 執筆エディタで「⬇ .tex書き出し」した内容を下の欄に貼り付けます<br>
+	② WASMエンジンを設置済みなら「⚙ エンジンを読み込む」→「▶ コンパイル」でPDF完成<br>
+	③ エンジンがなくても、🖨 印刷PDF（ブラウザの印刷→PDF保存）と 📄 Word書き出しが使えます<br>
+	④ 参考文献は文献管理アプリのデータから自動生成できます（同じ端末・同じブラウザ）
+	</div>
+	<div class="rowbar"><button class="btn acc" id="guideOff">はじめる</button></div>
+</div>
+<div class="card">
+	<h2>✍ 原稿（.tex）</h2>
+	<div class="frm">
+		<input type="text" id="project" placeholder="プロジェクト名（ファイル名に使われます）" style="flex:1;min-width:160px">
+		<button class="btn" id="texImp">📂 .tex読み込み</button>
+		<button class="btn" id="texDl">⬇ .tex保存</button>
+		<button class="btn" id="sampleBtn">🧪 英語サンプル</button>
+	</div>
+	<textarea id="texT" spellcheck="false" placeholder="ここに .tex の内容を貼り付け（執筆エディタの「⬇ .tex書き出し」の内容）"></textarea>
+</div>
+<div class="card">
+	<h2>⚡ アプリ内LaTeXコンパイル（WASMエンジン）</h2>
+	<div class="frm">
+		<label>エンジン <select id="engSel">
+			<option value="pdftex">pdfTeX（英語向け）</option>
+			<option value="xetex">XeTeX（日本語向け・要フォント登録）</option>
+		</select></label>
+		<button class="btn" id="engLoad">⚙ エンジンを読み込む</button>
+		<button class="btn" id="fontBtn">🔤 フォント登録</button>
+		<span id="engStatus">エンジン：未読み込み</span>
+	</div>
+	<div class="rowbar">
+		<button class="btn acc" id="compBtn">▶ コンパイル</button>
+		<button class="btn ok" id="pdfOpen" style="display:none">↗ PDFを別タブで開く</button>
+	</div>
+	<div id="pdfBox"></div>
+	<textarea id="logT" readonly placeholder="コンパイルログがここに表示されます"></textarea>
+	<div class="hint">エンジンファイル（SwiftLaTeX）はこのHTMLと同じ場所の texengine フォルダに設置します。初回のみネット接続が必要で2回目以降はキャッシュされます。iPadでPDFが埋め込み表示されない場合は「↗ 別タブで開く」を使ってください。</div>
+</div>
+<div class="card">
+	<h2>🖨 エンジンなしでもできる書き出し</h2>
+	<div class="rowbar" style="margin-top:0">
+		<button class="btn acc" id="printBtn">🖨 印刷用ページを開く（→PDF保存）</button>
+		<button class="btn" id="docxBtn">📄 簡易Word（.docx）書き出し</button>
+	</div>
+	<div class="hint">印刷用ページ：見出し・段落を明朝体で整えたページを開きます。ブラウザの印刷画面で「PDFとして保存」を選べば0円でPDF化できます。簡易Word：段落と見出しのみ対応（数式は文字のまま）。Word提出が求められる学校向けの非常口です。</div>
+</div>
+<div class="card">
+	<h2>📚 参考文献リスト（文献管理アプリのデータから自動生成）</h2>
+	<div class="frm">
+		<label>形式 <select id="refStyle">
+			<option value="sist">SIST02風（日本の標準）</option>
+			<option value="apa">APA風</option>
+			<option value="mla">MLA風</option>
+		</select></label>
+		<button class="btn acc" id="refGen">📚 参考文献を作る</button>
+		<button class="btn" id="refCopy">📋 コピー</button>
+		<button class="btn" id="refTheBtn">📋 LaTeX用（thebibliography）</button>
+	</div>
+	<textarea id="refOut" readonly placeholder="ここに参考文献リストが出ます（文献管理アプリと同じ端末・同じブラウザで使ってください）"></textarea>
+</div>
+</main>
+<div class="modal" id="txtm"><div class="mbox">
+	<h3 id="txtTitle">テキスト</h3>
+	<div class="hint">下の内容をコピーして使ってください。</div>
+	<textarea id="txtBody" readonly></textarea>
+	<div class="mrow"><button class="btn acc" id="txtCopy">全選択してコピー</button><button class="btn" id="txtClose">閉じる</button></div>
+</div></div>
+<input type="file" id="impFile" accept=".json,application/json" style="display:none">
+<input type="file" id="texFile" accept=".tex,text/plain" style="display:none">
+<input type="file" id="fontFile" accept=".ttf,.otf" style="display:none">
+<div id="toast"></div>
+<script>
+const LS="editone_kumihan_v01";
+const REFS="editone_ronbun_refs_v01";
+const B="\\";
+const $=function(id){return document.getElementById(id);};
+let st=load();
+let engine=null,engReady=false,engKind="",pdfUrl=null;
+function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d)return d;}catch(e){}return{project:"",tex:"",refStyle:"sist",guided:false};}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("on");},2600);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function showText(title,text){$("txtTitle").textContent=title;$("txtBody").value=text;$("txtm").classList.add("on");}
+function copyText(text,label){
+	if(navigator.clipboard&&navigator.clipboard.writeText){
+		navigator.clipboard.writeText(text).then(function(){toast(label+"をコピーしました");},function(){showText(label,text);});
+	}else{showText(label,text);}
+}
+function blobDl(blob,name){
+	try{
+		const aEl=document.createElement("a");
+		aEl.href=URL.createObjectURL(blob);aEl.download=name;
+		document.body.appendChild(aEl);aEl.click();
+		setTimeout(function(){URL.revokeObjectURL(aEl.href);aEl.remove();},800);
+		toast("ダウンロードを開始しました");
+	}catch(e){toast("この端末では保存できませんでした");}
+}
+function textDl(name,text,mime){
+	try{blobDl(new Blob([text],{type:mime||"text/plain"}),name);}catch(e){showText(name,text);}
+}
+
+/* ── WASMエンジン ── */
+function setEng(msg){$("engStatus").textContent="エンジン："+msg;}
+function loadScript(src){
+	return new Promise(function(res,rej){
+		const sc=document.createElement("script");
+		sc.src=src;sc.onload=res;sc.onerror=function(){rej(new Error("not found"));};
+		document.head.appendChild(sc);
+	});
+}
+$("engLoad").onclick=async function(){
+	const kind=$("engSel").value;
+	setEng("読み込み中…（初回は数十秒かかります）");
+	try{
+		if(kind==="xetex"){
+			if(!window.XeTeXEngine)await loadScript("texengine/XeTeXEngine.js");
+			engine=new XeTeXEngine();
+		}else{
+			if(!window.PdfTeXEngine)await loadScript("texengine/PdfTeXEngine.js");
+			engine=new PdfTeXEngine();
+		}
+		await engine.loadEngine();
+		engReady=true;engKind=kind;
+		setEng("✅ 準備完了（"+(kind==="xetex"?"XeTeX":"pdfTeX")+"）");
+		toast("エンジンの準備ができました");
+	}catch(e){
+		engReady=false;engine=null;
+		setEng("❌ 読み込み失敗");
+		toast("エンジンが見つかりません。texengine フォルダの設置とネット接続を確認してください");
+	}
+};
+$("fontBtn").onclick=function(){
+	if(!engReady){toast("先に「⚙ エンジンを読み込む」を押してください");return;}
+	$("fontFile").click();
+};
+$("fontFile").onchange=function(e){
+	const f=e.target.files[0];if(!f)return;
+	const rd=new FileReader();
+	rd.onload=function(){
+		try{
+			engine.writeMemFSFile(f.name,new Uint8Array(rd.result));
+			toast("フォント「"+f.name+"」を登録しました。プリアンブルでこのファイル名を指定してください");
+		}catch(err){toast("フォントの登録に失敗しました");}
+	};
+	rd.readAsArrayBuffer(f);e.target.value="";
+};
+$("compBtn").onclick=async function(){
+	if(!engReady){toast("先に「⚙ エンジンを読み込む」を押してください（未設置なら🖨印刷PDFを）");return;}
+	const src=$("texT").value;
+	if(!src.trim()){toast("原稿（.tex）を貼り付けてください");return;}
+	st.tex=src;persist();
+	$("logT").value="コンパイル中…";
+	try{
+		engine.writeMemFSFile("main.tex",src);
+		engine.setEngineMainFile("main.tex");
+		const r=await engine.compileLaTeX();
+		$("logT").value=r.log||"(ログなし)";
+		if(r.pdf&&r.pdf.length){
+			if(pdfUrl){URL.revokeObjectURL(pdfUrl);}
+			const bl=new Blob([r.pdf],{type:"application/pdf"});
+			pdfUrl=URL.createObjectURL(bl);
+			$("pdfBox").innerHTML='<embed src="'+pdfUrl+'" type="application/pdf" style="width:100%;height:480px;border:1px solid #e2e6ee;border-radius:8px">';
+			$("pdfOpen").style.display="inline-block";
+			toast("コンパイル成功！PDFができました");
+		}else{
+			toast("コンパイルに失敗しました。ログを確認してください");
+		}
+	}catch(e){
+		$("logT").value+="\nエラー："+e.message;
+		toast("コンパイルに失敗しました。ログを確認してください");
+	}
+};
+$("pdfOpen").onclick=function(){if(pdfUrl)window.open(pdfUrl,"_blank");};
+
+/* ── .tex→段落ブロック（印刷・Word共用） ── */
+function cleanTex(s){
+	s=s.replace(/%.*$/g,"");
+	s=s.replace(/\$([^$]*)\$/g,"$1");
+	s=s.replace(/\\(cite|ref|label)\{([^}]*)\}/g,"[$2]");
+	s=s.replace(/\\(textbf|textit|emph|underline)\{([^}]*)\}/g,"$2");
+	s=s.replace(/\\(begin|end)\{[^}]*\}/g,"");
+	s=s.replace(/\\[a-zA-Z]+\*?(\[[^\]]*\])?/g,"");
+	s=s.replace(/[{}]/g,"");
+	return s.trim();
+}
+function texToBlocks(src){
+	let t=src;
+	const bi=t.indexOf(B+"begin{document}");
+	if(bi>=0)t=t.slice(bi+16);
+	t=t.split(B+"end{document}").join("");
+	const out=[];let buf="";
+	function flush(){if(buf.trim())out.push({k:"p",t:buf.trim()});buf="";}
+	t.replace(/\r/g,"").split("\n").forEach(function(line){
+		const s=line.trim();
+		const mS=s.match(/^\\section\*?\{([^}]*)\}/);
+		const mSS=s.match(/^\\subsection\*?\{([^}]*)\}/);
+		if(mS){flush();out.push({k:"h1",t:cleanTex(mS[1])});return;}
+		if(mSS){flush();out.push({k:"h2",t:cleanTex(mSS[1])});return;}
+		if(!s){flush();return;}
+		if(s[0]==="%")return;
+		const c=cleanTex(s);
+		if(c)buf+=(buf?" ":"")+c;
+	});
+	flush();
+	return out;
+}
+
+/* ── 印刷用ページ ── */
+$("printBtn").onclick=function(){
+	const src=$("texT").value;
+	if(!src.trim()){toast("原稿（.tex）を貼り付けてください");return;}
+	st.tex=src;persist();
+	const blocks=texToBlocks(src);
+	if(!blocks.length){toast("本文が見つかりませんでした");return;}
+	let h="";
+	blocks.forEach(function(b){
+		if(b.k==="h1")h+="<h2>"+esc(b.t)+"</h2>";
+		else if(b.k==="h2")h+="<h3>"+esc(b.t)+"</h3>";
+		else h+="<p>"+esc(b.t)+"</p>";
+	});
+	const w=window.open("","_blank");
+	if(!w){toast("ポップアップがブロックされました。許可してからもう一度押してください");return;}
+	w.document.write('<html><head><meta charset="UTF-8"><title>'+esc(st.project||"印刷用")+'</title><style>body{font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;max-width:42em;margin:24px auto;line-height:2;font-size:12pt;padding:0 16px;color:#000}h2{font-size:14pt;border-left:4px solid #333;padding-left:8px;margin:22px 0 8px}h3{font-size:12.5pt;margin:16px 0 6px}p{text-indent:1em;margin:0 0 4px}<\/style></head><body>'+h+'<script>setTimeout(function(){window.print();},400);<\/script></body></html>');
+	w.document.close();
+	toast("印刷画面で「PDFとして保存」を選んでください");
+};
+
+/* ── 簡易Word（無圧縮ZIP自前実装） ── */
+let CRCT=null;
+function crc32(u8){
+	if(!CRCT){CRCT=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++){c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);}CRCT[n]=c>>>0;}}
+	let c=0xFFFFFFFF;
+	for(let i=0;i<u8.length;i++){c=CRCT[(c^u8[i])&0xFF]^(c>>>8);}
+	return (c^0xFFFFFFFF)>>>0;
+}
+function zipStore(files){
+	const enc=new TextEncoder();
+	const parts=[],cdir=[];let off=0,cdLen=0;
+	files.forEach(function(f){
+		const name=enc.encode(f.name);
+		const data=(typeof f.data==="string")?enc.encode(f.data):f.data;
+		const crc=crc32(data);
+		const lh=new Uint8Array(30+name.length);
+		const dv=new DataView(lh.buffer);
+		dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);
+		dv.setUint32(14,crc,true);dv.setUint32(18,data.length,true);dv.setUint32(22,data.length,true);
+		dv.setUint16(26,name.length,true);
+		lh.set(name,30);
+		parts.push(lh);parts.push(data);
+		const ch=new Uint8Array(46+name.length);
+		const dc=new DataView(ch.buffer);
+		dc.setUint32(0,0x02014b50,true);dc.setUint16(4,20,true);dc.setUint16(6,20,true);
+		dc.setUint32(16,crc,true);dc.setUint32(20,data.length,true);dc.setUint32(24,data.length,true);
+		dc.setUint16(28,name.length,true);dc.setUint32(42,off,true);
+		ch.set(name,46);
+		cdir.push(ch);cdLen+=ch.length;
+		off+=lh.length+data.length;
+	});
+	const eo=new Uint8Array(22);
+	const de=new DataView(eo.buffer);
+	de.setUint32(0,0x06054b50,true);
+	de.setUint16(8,files.length,true);de.setUint16(10,files.length,true);
+	de.setUint32(12,cdLen,true);de.setUint32(16,off,true);
+	return new Blob(parts.concat(cdir,[eo]),{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+}
+function xmlEsc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+$("docxBtn").onclick=function(){
+	const src=$("texT").value;
+	if(!src.trim()){toast("原稿（.tex）を貼り付けてください");return;}
+	st.tex=src;persist();
+	const blocks=texToBlocks(src);
+	if(!blocks.length){toast("本文が見つかりませんでした");return;}
+	let body="";
+	blocks.forEach(function(b){
+		const sz=b.k==="h1"?32:(b.k==="h2"?28:22);
+		const bold=b.k!=="p"?"<w:b/>":"";
+		body+='<w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr>'+bold+'<w:sz w:val="'+sz+'"/></w:rPr><w:t xml:space="preserve">'+xmlEsc(b.t)+'</w:t></w:r></w:p>';
+	});
+	const doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+body+'</w:body></w:document>';
+	const ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>';
+	const rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+	const blob=zipStore([
+		{name:"[Content_Types].xml",data:ct},
+		{name:"_rels/.rels",data:rels},
+		{name:"word/document.xml",data:doc}
+	]);
+	blobDl(blob,(st.project||"ronbun")+".docx");
+};
+
+/* ── 参考文献 ── */
+function loadRefs(){try{const d=JSON.parse(localStorage.getItem(REFS));if(d&&d.refs&&d.refs.length)return d.refs;}catch(e){}return null;}
+function fmtRef(r,style){
+	const a=r.author||"著者不明",y=r.year||"出版年不明",t=r.title||"(無題)",s=r.src||"",p=r.pages?"p."+r.pages:"",u=r.url||"";
+	const tail=[];
+	if(style==="apa"){
+		if(s)tail.push(s);if(p)tail.push(p);
+		return a+" ("+y+"). "+t+". "+tail.join(", ")+(tail.length?".":"")+(u?" "+u:"");
+	}
+	if(style==="mla"){
+		if(s)tail.push(s);tail.push(y);if(p)tail.push(p);
+		return a+". “"+t+".” "+tail.join(", ")+"."+(u?" "+u:"");
+	}
+	if(s)tail.push(s);tail.push(y);if(p)tail.push(p);
+	return a+". "+t+". "+tail.join(", ")+"."+(u?" "+u:"");
+}
+$("refGen").onclick=function(){
+	const refs=loadRefs();
+	if(!refs){toast("文献管理アプリのデータが見つかりません（同じ端末・同じブラウザで使ってください）");return;}
+	st.refStyle=$("refStyle").value;persist();
+	const L=refs.map(function(r,i){return "["+(i+1)+"] "+fmtRef(r,st.refStyle);});
+	$("refOut").value=L.join("\n");
+	toast(refs.length+"件の参考文献を作りました");
+};
+$("refCopy").onclick=function(){
+	const v=$("refOut").value;
+	if(!v){toast("先に「📚 参考文献を作る」を押してください");return;}
+	copyText(v,"参考文献リスト");
+};
+$("refTheBtn").onclick=function(){
+	const refs=loadRefs();
+	if(!refs){toast("文献管理アプリのデータが見つかりません（同じ端末・同じブラウザで使ってください）");return;}
+	const style=$("refStyle").value;
+	const L=[B+"begin{thebibliography}{99}"];
+	refs.forEach(function(r){L.push(B+"bibitem{"+(r.key||"ref")+"} "+fmtRef(r,style));});
+	L.push(B+"end{thebibliography}");
+	copyText(L.join("\n"),"thebibliography");
+};
+
+/* ── 原稿の出し入れ ── */
+$("project").oninput=function(e){st.project=e.target.value;persist();};
+$("texT").oninput=function(e){st.tex=e.target.value;persist();};
+$("texImp").onclick=function(){$("texFile").click();};
+$("texFile").onchange=function(e){
+	const f=e.target.files[0];if(!f)return;
+	const rd=new FileReader();
+	rd.onload=function(){
+		if($("texT").value.trim()&&!confirm("今の原稿を置き換えますか？")){e.target.value="";return;}
+		$("texT").value=rd.result;st.tex=rd.result;persist();toast("読み込みました");
+	};
+	rd.readAsText(f);e.target.value="";
+};
+$("texDl").onclick=function(){
+	const src=$("texT").value;
+	if(!src.trim()){toast("原稿（.tex）が空です");return;}
+	textDl((st.project||"ronbun")+".tex",src,"text/plain");
+};
+$("sampleBtn").onclick=function(){
+	if($("texT").value.trim()&&!confirm("今の原稿を英語サンプルに置き換えますか？"))return;
+	const L=[];
+	L.push(B+"documentclass{article}");
+	L.push(B+"title{EDIT ONE Compile Test}");
+	L.push(B+"author{Ronbun Course}");
+	L.push(B+"begin{document}");
+	L.push(B+"maketitle");
+	L.push(B+"section{Introduction}");
+	L.push("This PDF was compiled entirely inside the browser. No server, no installation.");
+	L.push(B+"section{Method}");
+	L.push("We used a WebAssembly TeX engine loaded from the same folder as this app. The formula $E=mc^2$ should be typeset correctly.");
+	L.push(B+"end{document}");
+	$("texT").value=L.join("\n");
+	st.tex=$("texT").value;persist();
+	toast("英語サンプルを入れました（pdfTeXでそのままコンパイルできます）");
+};
+
+/* ── 共通 ── */
+$("txtClose").onclick=function(){$("txtm").classList.remove("on");};
+$("txtCopy").onclick=function(){const t=$("txtBody");t.focus();t.select();try{document.execCommand("copy");toast("コピーしました");}catch(e){toast("選択して手動でコピーしてください");}};
+$("expBtn").onclick=function(){textDl((st.project||"kumihan")+"_kumihan.json",JSON.stringify(st,null,1),"application/json");};
+$("impBtn").onclick=function(){$("impFile").click();};
+$("impFile").onchange=function(e){
+	const f=e.target.files[0];if(!f)return;
+	const rd=new FileReader();
+	rd.onload=function(){
+		try{
+			const d=JSON.parse(rd.result);
+			if(!d||typeof d.tex!=="string")throw 0;
+			if(!confirm("今の内容を置き換えて読み込みます。よろしいですか？"))return;
+			st=d;persist();initFields();toast("読み込みました");
+		}catch(err){toast("読み込めませんでした（このアプリの書き出しファイルを選んでください）");}
+	};
+	rd.readAsText(f);e.target.value="";
+};
+function initFields(){
+	$("project").value=st.project||"";
+	$("texT").value=st.tex||"";
+	$("refStyle").value=st.refStyle||"sist";
+}
+if(!st.guided){$("guide").style.display="block";}
+$("guideOff").onclick=function(){st.guided=true;persist();$("guide").style.display="none";};
+initFields();
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EDIT ONE — 推敲 v0.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;background:#f4f6f9;color:#1f2430;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:50;background:#1f2937;color:#fff;display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
+header h1{font-size:16px;font-weight:700}
+.sp{flex:1}
+button{font:inherit;cursor:pointer}
+.btn{background:#374151;color:#fff;border:1px solid #4b5563;border-radius:8px;padding:7px 12px;font-size:13px}
+.btn.acc{background:#2563eb;border-color:#2563eb}
+.btn.mini{padding:4px 8px;font-size:12px}
+main{max-width:1150px;margin:0 auto;padding:14px}
+.wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #e2e6ee;border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{font-size:15px;margin-bottom:10px}
+.hint{font-size:12px;color:#667085;margin-top:6px;line-height:1.7}
+.rowbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.frm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+select,input[type=text]{font:inherit;font-size:13px;padding:7px 8px;border:1px solid #cdd5e1;border-radius:8px;background:#fff}
+.chk{display:inline-flex;align-items:center;gap:5px;font-size:13px}
+#srcT{width:100%;min-height:220px;font:inherit;font-size:14px;line-height:1.9;border:1px solid #cdd5e1;border-radius:8px;padding:10px}
+.stat{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:8px}
+.stat b{font-size:16px}
+.issue{padding:9px;border:1px solid #e2e6ee;border-left:4px solid #f59e0b;border-radius:8px;margin-bottom:6px;font-size:13px;cursor:pointer;background:#fffdf5;line-height:1.7}
+.issue .tag{display:inline-block;background:#f59e0b;color:#fff;border-radius:6px;padding:1px 7px;font-size:11px;margin-right:6px}
+.issue.info{border-left-color:#2563eb;background:#f7faff}
+.issue.info .tag{background:#2563eb}
+.ok{padding:14px;border:1px dashed #34d399;border-radius:8px;color:#047857;font-size:13px;text-align:center}
+#prevBox{border:1px solid #e2e6ee;border-radius:8px;padding:12px;font-size:14px;line-height:2.1;max-height:420px;overflow:auto;background:#fbfdff}
+.sent{border-radius:4px}
+.sent.bad{background:#fef3c7;border-bottom:2px solid #f59e0b}
+.sent.hl{background:#bfdbfe}
+.mitem{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #eef1f6;font-size:13px;line-height:1.7}
+.mitem input{margin-top:4px}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow:auto;padding:18px}
+.mbox h3{font-size:15px;margin-bottom:10px}
+.mbox textarea{width:100%;min-height:200px;font:inherit;font-size:13px;border:1px solid #cdd5e1;border-radius:8px;padding:9px}
+.mrow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200;max-width:90vw}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+	<h1>🧐 推敲 v0.1</h1>
+	<span class="sp"></span>
+	<button class="btn" id="expBtn">💾 書き出し</button>
+	<button class="btn" id="impBtn">📂 読み込み</button>
+</header>
+<main>
+<div class="card" id="guide" style="display:none">
+	<h2>🧭 はじめてガイド</h2>
+	<div class="hint">
+	① 執筆エディタの文章を下の欄に貼り付けます<br>
+	② 「🔍 検査」を押すと、直した方がよい箇所が一覧になります<br>
+	③ 指摘をタップすると右（スマホは下）のプレビューで該当文が光ります<br>
+	④ 機械チェックは「候補探し」です。最終判断は自分でするのが推敲のコツです
+	</div>
+	<div class="rowbar"><button class="btn acc" id="guideOff">はじめる</button></div>
+</div>
+<div class="card">
+	<div class="frm">
+		<input type="text" id="project" placeholder="プロジェクト名（例：探究論文）" style="flex:1;min-width:160px">
+		<label class="chk"><input type="checkbox" id="texChk"> LaTeXコマンドを除いて検査</label>
+		<label>文体 <select id="styleSel">
+			<option value="auto">自動判定</option>
+			<option value="dearu">だ・である体</option>
+			<option value="desumasu">です・ます体</option>
+		</select></label>
+	</div>
+	<textarea id="srcT" placeholder="ここに推敲したい文章を貼り付け（執筆エディタの本文や .tex の中身）"></textarea>
+	<div class="rowbar">
+		<button class="btn acc" id="chkBtn">🔍 検査</button>
+		<button class="btn" id="sampleBtn">🧪 お試し文章</button>
+		<button class="btn" id="issueCopy">📋 指摘一覧をコピー</button>
+	</div>
+	<div class="stat" id="statBox"></div>
+</div>
+<div class="wrap">
+<div class="card" style="margin-bottom:0">
+	<h2>⚠ 指摘一覧</h2>
+	<div id="issueList"><div class="hint">「🔍 検査」を押すとここに指摘が並びます。</div></div>
+</div>
+<div class="card" style="margin-bottom:0">
+	<h2>📄 プレビュー（指摘のある文に色付き）</h2>
+	<div id="prevBox"><span class="hint">検査するとここに文章が表示されます。</span></div>
+</div>
+</div>
+<div class="card" style="margin-top:14px">
+	<h2>✅ 手動チェックリスト（機械では見つけられない推敲）</h2>
+	<div id="manualList"></div>
+	<div class="hint">チェック状態は自動保存されます。提出前に全部✅になるのが目標です。</div>
+</div>
+</main>
+<div class="modal" id="txtm"><div class="mbox">
+	<h3 id="txtTitle">テキスト</h3>
+	<div class="hint">下の内容をコピーして使ってください。</div>
+	<textarea id="txtBody" readonly></textarea>
+	<div class="mrow"><button class="btn acc" id="txtCopy">全選択してコピー</button><button class="btn" id="txtClose">閉じる</button></div>
+</div></div>
+<input type="file" id="impFile" accept=".json,application/json" style="display:none">
+<div id="toast"></div>
+<script>
+const LS="editone_suikou_v01";
+const B="\\";
+const $=function(id){return document.getElementById(id);};
+let st=load();
+let sents=[],issues=[],lastStat="";
+function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d)return d;}catch(e){}return{project:"",text:"",tex:false,style:"auto",manual:{},guided:false};}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("on");},2400);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function trunc(s,n){s=String(s);return s.length>n?s.slice(0,n)+"…":s;}
+function showText(title,text){$("txtTitle").textContent=title;$("txtBody").value=text;$("txtm").classList.add("on");}
+function copyText(text,label){
+	if(navigator.clipboard&&navigator.clipboard.writeText){
+		navigator.clipboard.writeText(text).then(function(){toast(label+"をコピーしました");},function(){showText(label,text);});
+	}else{showText(label,text);}
+}
+function download(name,text){
+	try{
+		const bl=new Blob([text],{type:"application/json"});
+		const aEl=document.createElement("a");
+		aEl.href=URL.createObjectURL(bl);aEl.download=name;
+		document.body.appendChild(aEl);aEl.click();
+		setTimeout(function(){URL.revokeObjectURL(aEl.href);aEl.remove();},500);
+		toast("ダウンロードを開始しました（保存できない場合はコピーで保存してください）");
+	}catch(e){showText(name,text);}
+}
+
+/* ── 辞書 ── */
+const SPOKEN=["なので","やっぱり","ちゃんと","すごく","いろんな","たぶん","みたいな","ってこと","じゃなく","んですが"];
+const REDUN=[["することができ","→「できる」と短くできます"],["という風に","→「というように」が書き言葉です"],["のではないかと思われる","→「と考えられる」が簡潔です"],["していく上で","→「するうえで」を検討"]];
+const RANUKI=["見れる","見れた","見れな","食べれる","食べれた","来れる","来れた","出れる","出れな","寝れる"];
+const CONJ=["しかし","また","そして","さらに","つまり","一方"];
+const DEGREE=["とても","非常に","かなり","すごく"];
+const MANUAL=[
+	"主張（結論）と根拠（データ・文献）が対応している",
+	"各段落の先頭に、その段落の主題文がある",
+	"本文中のすべての図表を「図1」「表1」の形で参照した",
+	"本文で挙げた文献がすべて参考文献リストにある（逆も）",
+	"数値・単位・用語の表記が全体で統一されている",
+	"声に出して読み、誤字脱字と読みにくい箇所を確認した",
+	"「思う」「感じる」などの主観表現を根拠付きの表現に直した",
+	"結論が序論で立てた問いに答えている",
+	"自分以外の人（友人・先生）に一度読んでもらった",
+	"提出要件（文字数・書式・締切）を再確認した"
+];
+function renderManual(){
+	let h="";
+	MANUAL.forEach(function(m,i){
+		const k="m"+(i+1);
+		h+='<label class="mitem"><input type="checkbox" data-k="'+k+'"'+(st.manual[k]?" checked":"")+'> <span>'+esc(m)+'</span></label>';
+	});
+	$("manualList").innerHTML=h;
+	const boxes=$("manualList").querySelectorAll("input");
+	for(let i=0;i<boxes.length;i++){
+		boxes[i].onchange=function(e){st.manual[e.target.getAttribute("data-k")]=e.target.checked;persist();};
+	}
+}
+
+/* ── LaTeX除去 ── */
+function stripTex(t){
+	t=t.replace(/%[^\n]*/g,"");
+	t=t.replace(/\$[^$\n]*\$/g,"〔数式〕");
+	t=t.replace(/\\(begin|end)\{[^}]*\}/g,"");
+	t=t.replace(/\\(cite|ref|label|includegraphics)(\[[^\]]*\])?\{[^}]*\}/g,"〔参照〕");
+	t=t.replace(/\\[a-zA-Z]+\*?(\[[^\]]*\])?/g,"");
+	t=t.replace(/[{}]/g,"");
+	return t;
+}
+function splitSent(t){
+	const out=[];let cur="";
+	for(let i=0;i<t.length;i++){
+		const ch=t[i];cur+=ch;
+		if(ch==="。"||ch==="！"||ch==="？"||ch==="\n"){if(cur.trim())out.push(cur.trim());cur="";}
+	}
+	if(cur.trim())out.push(cur.trim());
+	return out;
+}
+
+/* ── 検査本体 ── */
+function add(si,tag,msg){issues.push({si:si,tag:tag,msg:msg});}
+function analyze(){
+	issues=[];
+	const raw=$("srcT").value;
+	st.text=raw;st.project=$("project").value;st.tex=$("texChk").checked;st.style=$("styleSel").value;persist();
+	const t=st.tex?stripTex(raw):raw;
+	sents=splitSent(t);
+	if(!sents.length){toast("文章を貼り付けてから検査してください");$("issueList").innerHTML='<div class="hint">「🔍 検査」を押すとここに指摘が並びます。</div>';return;}
+	const dmRe=/(です|ます|でした|ました|ません|ましょう)[）」』]?[。！？]?$/;
+	const daRe=/(である|であった|だった)[）」』]?[。！？]?$/;
+	let dm=0,da=0;
+	sents.forEach(function(s){if(dmRe.test(s))dm++;else if(daRe.test(s))da++;});
+	const target=st.style==="auto"?(dm>da?"desumasu":"dearu"):st.style;
+	sents.forEach(function(s,i){
+		if(s.length>=100)add(i,"長い","1文が"+s.length+"字あります。2文に分けることを検討");
+		const cm=(s.match(/、/g)||[]).length;
+		if(cm>=6)add(i,"読点","読点が"+cm+"個あります。文を分けるか整理を検討");
+		if(target==="dearu"&&dmRe.test(s))add(i,"文体","「です・ます」が混ざっています（である体に統一）");
+		if(target==="desumasu"&&daRe.test(s))add(i,"文体","「である」調が混ざっています（です・ます体に統一）");
+		SPOKEN.forEach(function(w){if(s.indexOf(w)>=0)add(i,"話し言葉","「"+w+"」は話し言葉です。書き言葉に言い換えを");});
+		REDUN.forEach(function(p){if(s.indexOf(p[0])>=0)add(i,"冗長","「"+p[0]+"」"+p[1]);});
+		if(/の[^、。]{0,8}の[^、。]{0,8}の/.test(s))add(i,"の連続","「の」が近くで3回続いています。言い換えを検討");
+		RANUKI.forEach(function(w){if(s.indexOf(w)>=0)add(i,"ら抜き","「"+w+"」→「"+w.replace("れ","られ")+"」が正式な表記です");});
+		if(i>=1){CONJ.forEach(function(c){if(s.indexOf(c)===0&&sents[i-1].indexOf(c)===0)add(i,"接続詞","「"+c+"」で始まる文が連続しています");});}
+	});
+	let dgAll=0;
+	DEGREE.forEach(function(w){dgAll+=(t.split(w).length-1);});
+	if(dgAll>=4)add(-1,"程度表現","「とても」「非常に」などの程度表現が計"+dgAll+"回。数値や根拠に置き換えを検討");
+	const ndAll=(t.split("など").length-1);
+	if(ndAll>=6)add(-1,"など","「など」が計"+ndAll+"回。具体例を書き切ることを検討");
+	const chars=t.replace(/\s/g,"").length;
+	let mx=0;
+	sents.forEach(function(s){if(s.length>mx)mx=s.length;});
+	lastStat="文字数 <b>"+chars+"</b>　文の数 <b>"+sents.length+"</b>　平均文長 <b>"+Math.round(chars/sents.length)+"</b>字　最長 <b>"+mx+"</b>字　指摘 <b>"+issues.length+"</b>件";
+	renderResults();
+	toast("検査が完了しました（指摘"+issues.length+"件）");
+}
+function renderResults(){
+	$("statBox").innerHTML=lastStat;
+	const bad={};
+	issues.forEach(function(it){if(it.si>=0)bad[it.si]=true;});
+	if(!issues.length){
+		$("issueList").innerHTML='<div class="ok">✨ 機械チェックでの指摘はありません。手動チェックリストも確認しましょう。</div>';
+	}else{
+		let h="";
+		issues.forEach(function(it){
+			h+='<div class="issue'+(it.si<0?" info":"")+'" onclick="jump('+it.si+')"><span class="tag">'+esc(it.tag)+'</span>'+esc(it.msg);
+			if(it.si>=0)h+='<div class="hint">文'+(it.si+1)+'：'+esc(trunc(sents[it.si],28))+'</div>';
+			h+='</div>';
+		});
+		$("issueList").innerHTML=h;
+	}
+	let ph="";
+	sents.forEach(function(s,i){ph+='<span class="sent'+(bad[i]?" bad":"")+'" id="sent'+i+'">'+esc(s)+'</span>';});
+	$("prevBox").innerHTML=ph||'<span class="hint">検査するとここに文章が表示されます。</span>';
+}
+function jump(i){
+	if(i<0)return;
+	const old=document.querySelector(".sent.hl");if(old)old.classList.remove("hl");
+	const el=$("sent"+i);if(!el)return;
+	el.classList.add("hl");
+	el.scrollIntoView({block:"center",behavior:"smooth"});
+	setTimeout(function(){el.classList.remove("hl");},1800);
+}
+
+/* ── 操作 ── */
+$("chkBtn").onclick=analyze;
+$("sampleBtn").onclick=function(){
+	if($("srcT").value.trim()&&!confirm("今の文章をお試し文章に置き換えますか？"))return;
+	$("srcT").value="本研究では、睡眠時間と学習成績の関係を調べることができました。\n先行研究では、睡眠の質の向上のための方法の検討が行われてきたが、高校生を対象とした調査は少なく、また、部活動の影響も、十分には、検討されてこなかったため、本研究では、高校生を対象に、調査を行い、睡眠と成績の関係を、多角的に分析する。\nしかし、調査には限界がある。\nしかし、それでも意義はあるという風に考えた。\n結果はとても興味深く、とても大きな差が見れたので、やっぱり睡眠は大事なのだと思う。";
+	analyze();
+};
+$("issueCopy").onclick=function(){
+	if(!issues.length){toast("コピーする指摘がありません（先に検査してください）");return;}
+	const L=[];
+	issues.forEach(function(it){
+		L.push("【"+it.tag+"】"+(it.si>=0?"文"+(it.si+1)+"：":"全体：")+it.msg+(it.si>=0?"　←「"+trunc(sents[it.si],30)+"」":""));
+	});
+	copyText(L.join("\n"),"指摘一覧");
+};
+$("project").oninput=function(e){st.project=e.target.value;persist();};
+$("srcT").oninput=function(e){st.text=e.target.value;persist();};
+$("texChk").onchange=function(e){st.tex=e.target.checked;persist();};
+$("styleSel").onchange=function(e){st.style=e.target.value;persist();};
+$("txtClose").onclick=function(){$("txtm").classList.remove("on");};
+$("txtCopy").onclick=function(){const t=$("txtBody");t.focus();t.select();try{document.execCommand("copy");toast("コピーしました");}catch(e){toast("選択して手動でコピーしてください");}};
+$("expBtn").onclick=function(){download((st.project||"bunsho")+"_suikou.json",JSON.stringify(st,null,1));};
+$("impBtn").onclick=function(){$("impFile").click();};
+$("impFile").onchange=function(e){
+	const f=e.target.files[0];if(!f)return;
+	const rd=new FileReader();
+	rd.onload=function(){
+		try{
+			const d=JSON.parse(rd.result);
+			if(!d||typeof d.text!=="string")throw 0;
+			if(!confirm("今の内容を置き換えて読み込みます。よろしいですか？"))return;
+			st=d;if(!st.manual)st.manual={};persist();initFields();renderManual();toast("読み込みました");
+		}catch(err){toast("読み込めませんでした（このアプリの書き出しファイルを選んでください）");}
+	};
+	rd.readAsText(f);e.target.value="";
+};
+function initFields(){
+	$("project").value=st.project||"";
+	$("srcT").value=st.text||"";
+	$("texChk").checked=!!st.tex;
+	$("styleSel").value=st.style||"auto";
+}
+if(!st.guided){$("guide").style.display="block";}
+$("guideOff").onclick=function(){st.guided=true;persist();$("guide").style.display="none";};
+initFields();
+renderManual();
+</script>
+</body>
+</html>

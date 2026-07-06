@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — 構想ボード v0.1</title>
+<style>
+:root{--bg:#14161a;--panel:#1f232b;--panel2:#262b35;--line:#333a46;--text:#e8eaf0;--sub:#9aa3b2;--ac:#5b8cff;--ok:#3fb27f;--warn:#e0a34e;--danger:#e05c5c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.55}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+button.mini{padding:2px 8px;font-size:12px}
+button.danger{color:var(--danger)}
+input,select,textarea{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--ac)}
+header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.logo{font-weight:800;white-space:nowrap}
+.logo b{color:var(--ac)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px;white-space:nowrap}
+#pName{flex:1;min-width:150px;font-weight:600}
+#saveSt{font-size:11px;color:var(--sub);white-space:nowrap}
+main{max-width:1100px;margin:0 auto;padding:16px 14px 90px}
+h2{font-size:15px;margin:24px 0 10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 small{color:var(--sub);font-weight:400;font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card label{display:block;font-size:12px;color:var(--sub);margin:10px 0 4px}
+.card label:first-child{margin-top:0}
+.card textarea{width:100%;min-height:44px;resize:vertical}
+.card input{width:100%}
+.board{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.col{flex:0 0 240px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+.colhead{display:flex;gap:6px;align-items:center;margin-bottom:4px}
+.colhead input{flex:1;font-weight:600;background:transparent;border-color:transparent}
+.colhead input:focus{background:var(--panel2);border-color:var(--line)}
+.note{border-radius:10px;padding:8px 8px 4px;margin-top:8px;border:1px solid var(--line)}
+.note textarea{width:100%;background:transparent;border:none;color:var(--text);resize:vertical;min-height:44px;padding:0}
+.note textarea:focus{outline:none}
+.nops{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}
+.nops button{padding:1px 6px;font-size:11px;background:#0003;border-color:#0000}
+.stats{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0;font-size:12.5px;color:var(--sub)}
+.stats b{color:var(--text);font-size:15px}
+.chap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.chaphead{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chaphead input{flex:1;min-width:140px;font-weight:700}
+.secrow{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.secrow input.ttl{flex:1;min-width:130px}
+.secrow input.tgt{width:76px;text-align:right}
+.secrow .sub{color:var(--sub);font-size:12px}
+.chap textarea{width:100%;min-height:36px;font-size:12.5px;resize:vertical;margin-top:6px}
+.hint{font-size:12px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:12px 0}
+#ovl{position:fixed;inset:0;background:#000a;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+#ovl .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:640px;width:100%;padding:14px}
+#ovl textarea{width:100%;min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+#ovl .ops{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:70;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div>
+  <div class="tag">🧠 構想ボード v0.1</div>
+  <input id="pName" placeholder="研究テーマ（仮タイトル）">
+  <select id="tpl">
+    <option value="">構成テンプレ選択</option>
+    <option value="imrad">卒論・理系（IMRaD）</option>
+    <option value="jinbun">人文系</option>
+    <option value="tankyu">探究レポート（高校）</option>
+  </select>
+  <button class="mini" id="btnTpl">適用</button>
+  <button class="mini" id="btnExport">💾 書き出し</button>
+  <button class="mini" id="btnImport">📂 読み込み</button>
+  <span id="saveSt">自動保存有効</span>
+</header>
+<main>
+
+<h2>リサーチクエスチョン・仮説 <small>ここが研究の背骨。迷ったら必ずここに戻る</small></h2>
+<div class="card">
+  <label>リサーチクエスチョン（明らかにしたい問い）</label>
+  <textarea id="rq" placeholder="例：なぜ○○は△△になるのか？"></textarea>
+  <label>仮説（予想する答え）</label>
+  <textarea id="hyp" placeholder="例：○○の原因は□□であると考えられる"></textarea>
+  <label>キーワード（カンマ区切り）</label>
+  <input id="kw" placeholder="例：学習効果, スマートフォン, 高校生">
+</div>
+
+<h2>付箋ボード（KJ法風） <small>◀▶で隣のグループへ移動、🎨で色変更</small></h2>
+<div class="board" id="board"></div>
+<button id="addGrp">＋ グループを追加</button>
+
+<h2>アウトライン（章・節） <small>テンプレ適用または手動で構成。目標字数を配分</small></h2>
+<div class="stats"><span>合計目標 <b id="sumTarget">0</b> 字</span><span>節数 <b id="secCount">0</b></span></div>
+<div id="tree"></div>
+<button id="addCh">＋ 章を追加</button>
+
+<div class="hint">💡 保存のたびに、このアウトラインは連携用の受け渡しデータにも書き込まれます。執筆エディタ側の取り込み機能はPhase 4で搭載予定です（オプトイン連携：このアプリ単体でも完全に使えます）。</div>
+
+</main>
+
+<div id="ovl" class="hidden">
+  <div class="box">
+    <div style="font-weight:700;margin-bottom:8px" id="ovlTitle">書き出し</div>
+    <textarea id="ovlText"></textarea>
+    <div class="ops">
+      <input type="file" id="ovlFile" accept=".json" class="hidden">
+      <button class="mini hidden" id="ovlPick">📁 ファイルを選択</button>
+      <button class="mini hidden" id="ovlLoad">読み込む</button>
+      <button class="mini" id="ovlCopy">📋 コピー</button>
+      <button class="mini" id="ovlDl">⬇ ダウンロード</button>
+      <button class="mini" id="ovlClose">閉じる</button>
+    </div>
+    <div class="hint" style="margin:10px 0 0">ダウンロードできない端末（iPad等）ではコピーで保管。読み込みは貼り付けでもファイル選択でもOKです。</div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+const KEY="editone_kousou_v01", PIPE="editone_ronbun_pipe_v01";
+const COLORS=["#2a3350","#203a2e","#403225","#3a2440","#31353d"];
+const TPL={
+ imrad:{name:"卒論・理系（IMRaD）",ch:[
+  ["第1章 序論",[["背景と問題意識",1200],["研究目的",600]]],
+  ["第2章 先行研究",[["先行研究の整理",1500],["本研究の位置づけ",600]]],
+  ["第3章 方法",[["対象と手続き",1000],["分析方法",800]]],
+  ["第4章 結果",[["結果の記述",1500],["図表の提示",600]]],
+  ["第5章 考察",[["結果の解釈",1200],["限界と今後の課題",800]]],
+  ["第6章 結論",[["結論",600]]]
+ ]},
+ jinbun:{name:"人文系",ch:[
+  ["序章",[["問題の所在",1000],["研究の視角と方法",800]]],
+  ["第1章 先行研究と資料",[["先行研究の検討",1200],["資料の概要",800]]],
+  ["第2章 本論１",[["分析１",1500]]],
+  ["第3章 本論２",[["分析２",1500]]],
+  ["終章",[["総括",1000],["今後の展望",600]]]
+ ]},
+ tankyu:{name:"探究レポート（高校）",ch:[
+  ["1 きっかけと問い",[["きっかけと問い",600]]],
+  ["2 調べた方法",[["調べた方法",500]]],
+  ["3 調べてわかったこと",[["調べてわかったこと",1500]]],
+  ["4 考察",[["考察",800]]],
+  ["5 まとめと今後",[["まとめと今後",600]]]
+ ]}
+};
+
+function defGroups(){
+ return ["背景・きっかけ","先行研究メモ","方法のアイデア","結果の予想","疑問・課題"].map(t=>({title:t,notes:[]}));
+}
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
+let st=load()||{project:"",rq:"",hyp:"",kw:"",groups:defGroups(),chapters:[]};
+if(!Array.isArray(st.groups)) st.groups=defGroups();
+if(!Array.isArray(st.chapters)) st.chapters=[];
+
+let tm=null;
+function save(){
+ $("saveSt").textContent="保存中…";
+ clearTimeout(tm);
+ tm=setTimeout(()=>{
+  try{
+   localStorage.setItem(KEY, JSON.stringify(st));
+   localStorage.setItem(PIPE, JSON.stringify({from:"kousou", ts:Date.now(), project:st.project,
+    outline:{chapters:st.chapters.map(c=>({title:c.title, sections:c.sections.map(s=>({title:s.title,target:s.target,memo:s.memo}))}))}}));
+   $("saveSt").textContent="自動保存済み";
+  }catch(e){ $("saveSt").textContent="保存失敗"; toast("保存に失敗しました（端末の空き容量を確認してください）"); }
+ },500);
+}
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove("show"),2600); }
+function $(id){ return document.getElementById(id); }
+function mk(label,fn,cls){ const b=document.createElement("button"); b.className="mini"+(cls?" "+cls:""); b.textContent=label; b.onclick=fn; return b; }
+
+/* ---------- 上部フィールド ---------- */
+$("pName").value=st.project;
+$("rq").value=st.rq; $("hyp").value=st.hyp; $("kw").value=st.kw;
+$("pName").addEventListener("input",e=>{ st.project=e.target.value; save(); });
+$("rq").addEventListener("input",e=>{ st.rq=e.target.value; save(); });
+$("hyp").addEventListener("input",e=>{ st.hyp=e.target.value; save(); });
+$("kw").addEventListener("input",e=>{ st.kw=e.target.value; save(); });
+
+/* ---------- 付箋ボード ---------- */
+function renderBoard(){
+ const b=$("board"); b.innerHTML="";
+ st.groups.forEach((g,gi)=>{
+  const col=document.createElement("div"); col.className="col";
+  const h=document.createElement("div"); h.className="colhead";
+  const t=document.createElement("input"); t.value=g.title;
+  t.addEventListener("input",()=>{ g.title=t.value; save(); });
+  h.appendChild(t);
+  h.appendChild(mk("✕",()=>{ if(confirm("グループ「"+g.title+"」を付箋ごと削除しますか？")){ st.groups.splice(gi,1); save(); renderBoard(); } },"danger"));
+  col.appendChild(h);
+  g.notes.forEach((n,ni)=>{
+   const card=document.createElement("div"); card.className="note"; card.style.background=n.color||COLORS[0];
+   const ta=document.createElement("textarea"); ta.placeholder="アイデア・メモ"; ta.value=n.text;
+   ta.addEventListener("input",()=>{ n.text=ta.value; save(); });
+   const ops=document.createElement("div"); ops.className="nops";
+   ops.appendChild(mk("◀",()=>{ if(gi>0){ g.notes.splice(ni,1); st.groups[gi-1].notes.push(n); save(); renderBoard(); } }));
+   ops.appendChild(mk("▶",()=>{ if(gi<st.groups.length-1){ g.notes.splice(ni,1); st.groups[gi+1].notes.push(n); save(); renderBoard(); } }));
+   ops.appendChild(mk("↑",()=>{ if(ni>0){ g.notes.splice(ni-1,0,g.notes.splice(ni,1)[0]); save(); renderBoard(); } }));
+   ops.appendChild(mk("↓",()=>{ if(ni<g.notes.length-1){ g.notes.splice(ni+1,0,g.notes.splice(ni,1)[0]); save(); renderBoard(); } }));
+   ops.appendChild(mk("🎨",()=>{ n.color=COLORS[(COLORS.indexOf(n.color||COLORS[0])+1)%COLORS.length]; save(); renderBoard(); }));
+   ops.appendChild(mk("✕",()=>{ if(!n.text||confirm("この付箋を削除しますか？")){ g.notes.splice(ni,1); save(); renderBoard(); } },"danger"));
+   card.appendChild(ta); card.appendChild(ops); col.appendChild(card);
+  });
+  const add=mk("＋ 付箋",()=>{ g.notes.push({text:"",color:COLORS[g.notes.length%COLORS.length]}); save(); renderBoard(); });
+  add.style.cssText="width:100%;margin-top:8px";
+  col.appendChild(add);
+  b.appendChild(col);
+ });
+}
+$("addGrp").onclick=()=>{ st.groups.push({title:"新しいグループ",notes:[]}); save(); renderBoard(); };
+
+/* ---------- アウトライン ---------- */
+function renderTree(){
+ const tr=$("tree"); tr.innerHTML="";
+ st.chapters.forEach((c,ci)=>{
+  const box=document.createElement("div"); box.className="chap";
+  const head=document.createElement("div"); head.className="chaphead";
+  const t=document.createElement("input"); t.value=c.title;
+  t.addEventListener("input",()=>{ c.title=t.value; save(); });
+  head.appendChild(t);
+  head.appendChild(mk("＋節",()=>{ c.sections.push({title:"新しい節",target:800,memo:""}); save(); renderTree(); }));
+  head.appendChild(mk("↑",()=>{ if(ci>0){ st.chapters.splice(ci-1,0,st.chapters.splice(ci,1)[0]); save(); renderTree(); } }));
+  head.appendChild(mk("↓",()=>{ if(ci<st.chapters.length-1){ st.chapters.splice(ci+1,0,st.chapters.splice(ci,1)[0]); save(); renderTree(); } }));
+  head.appendChild(mk("✕",()=>{ if(confirm("章「"+c.title+"」を節ごと削除しますか？")){ st.chapters.splice(ci,1); save(); renderTree(); } },"danger"));
+  box.appendChild(head);
+  c.sections.forEach((s,si)=>{
+   const row=document.createElement("div"); row.className="secrow";
+   const ti=document.createElement("input"); ti.className="ttl"; ti.value=s.title;
+   ti.addEventListener("input",()=>{ s.title=ti.value; save(); });
+   const tg=document.createElement("input"); tg.className="tgt"; tg.type="number"; tg.min="0"; tg.value=s.target; tg.title="目標字数";
+   tg.addEventListener("input",()=>{ s.target=Number(tg.value)||0; save(); renderStats(); });
+   const lab=document.createElement("span"); lab.className="sub"; lab.textContent="字";
+   row.appendChild(ti); row.appendChild(tg); row.appendChild(lab);
+   row.appendChild(mk("↑",()=>{ if(si>0){ c.sections.splice(si-1,0,c.sections.splice(si,1)[0]); save(); renderTree(); } }));
+   row.appendChild(mk("↓",()=>{ if(si<c.sections.length-1){ c.sections.splice(si+1,0,c.sections.splice(si,1)[0]); save(); renderTree(); } }));
+   row.appendChild(mk("✕",()=>{ if(confirm("節「"+s.title+"」を削除しますか？")){ c.sections.splice(si,1); save(); renderTree(); } },"danger"));
+   const memo=document.createElement("textarea"); memo.placeholder="この節に書くことメモ（付箋の内容を落とし込む）"; memo.value=s.memo||"";
+   memo.addEventListener("input",()=>{ s.memo=memo.value; save(); });
+   box.appendChild(row); box.appendChild(memo);
+  });
+  tr.appendChild(box);
+ });
+ if(!st.chapters.length){
+  const e=document.createElement("div"); e.className="hint";
+  e.textContent="アウトラインがまだありません。上のテンプレを適用するか、「＋ 章を追加」から始めましょう。";
+  tr.appendChild(e);
+ }
+ renderStats();
+}
+function renderStats(){
+ let sum=0,cnt=0;
+ st.chapters.forEach(c=>c.sections.forEach(s=>{ sum+=Number(s.target)||0; cnt++; }));
+ $("sumTarget").textContent=sum.toLocaleString();
+ $("secCount").textContent=cnt;
+}
+$("addCh").onclick=()=>{ st.chapters.push({title:"新しい章",sections:[{title:"新しい節",target:800,memo:""}]}); save(); renderTree(); };
+$("btnTpl").onclick=()=>{
+ const k=$("tpl").value;
+ if(!k){ toast("テンプレを選んでから「適用」を押してください"); return; }
+ if(st.chapters.length&&!confirm("現在のアウトラインを「"+TPL[k].name+"」で置き換えますか？（付箋とリサーチクエスチョンは残ります）")) return;
+ st.chapters=TPL[k].ch.map(c=>({title:c[0], sections:c[1].map(s=>({title:s[0],target:s[1],memo:""}))}));
+ save(); renderTree(); toast("テンプレートを適用しました");
+};
+
+/* ---------- JSON入出力（iPad対応） ---------- */
+let ovlMode="export";
+function openOvl(mode){
+ ovlMode=mode;
+ $("ovlTitle").textContent = mode==="export" ? "書き出し（バックアップ）" : "読み込み（JSONを貼り付けかファイル選択）";
+ $("ovlText").value = mode==="export" ? JSON.stringify(st,null,1) : "";
+ $("ovlPick").classList.toggle("hidden", mode!=="import");
+ $("ovlLoad").classList.toggle("hidden", mode!=="import");
+ $("ovlCopy").classList.toggle("hidden", mode!=="export");
+ $("ovlDl").classList.toggle("hidden", mode!=="export");
+ $("ovl").classList.remove("hidden");
+}
+$("btnExport").onclick=()=>openOvl("export");
+$("btnImport").onclick=()=>openOvl("import");
+$("ovlClose").onclick=()=>$("ovl").classList.add("hidden");
+$("ovlCopy").onclick=()=>{
+ const t=$("ovlText"); t.focus(); t.select();
+ const done=()=>toast("コピーしました");
+ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t.value).then(done,()=>{ document.execCommand("copy"); done(); }); }
+ else{ document.execCommand("copy"); done(); }
+};
+$("ovlDl").onclick=()=>{
+ try{
+  const blob=new Blob([$("ovlText").value],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="editone_kousou.json"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast("ダウンロードを開始しました（保存されない場合はコピーを使ってください）");
+ }catch(e){ toast("ダウンロードできませんでした。コピーを使ってください"); }
+};
+$("ovlPick").onclick=()=>$("ovlFile").click();
+$("ovlFile").addEventListener("change",e=>{
+ const f=e.target.files[0]; if(!f) return;
+ const r=new FileReader();
+ r.onload=()=>{ $("ovlText").value=r.result; };
+ r.readAsText(f); e.target.value="";
+});
+$("ovlLoad").onclick=()=>{
+ try{
+  const d=JSON.parse($("ovlText").value);
+  if(!d||!Array.isArray(d.chapters)||!Array.isArray(d.groups)) throw 0;
+  if(!confirm("現在の内容を読み込んだ内容で置き換えますか？")) return;
+  st=d;
+  if(!Array.isArray(st.groups)) st.groups=defGroups();
+  if(!Array.isArray(st.chapters)) st.chapters=[];
+  $("pName").value=st.project||""; $("rq").value=st.rq||""; $("hyp").value=st.hyp||""; $("kw").value=st.kw||"";
+  save(); renderBoard(); renderTree();
+  $("ovl").classList.add("hidden");
+  toast("読み込みました");
+ }catch(err){ toast("読み込みに失敗しました（JSON形式を確認してください）"); }
+};
+
+renderBoard();
+renderTree();
+</script>
+</body>
+</html>

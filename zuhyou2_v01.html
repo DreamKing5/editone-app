@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EDIT ONE — 図表 v0.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;background:#f4f6f9;color:#1f2430;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:50;background:#1f2937;color:#fff;display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
+header h1{font-size:16px;font-weight:700}
+.sp{flex:1}
+button{font:inherit;cursor:pointer}
+.btn{background:#374151;color:#fff;border:1px solid #4b5563;border-radius:8px;padding:7px 12px;font-size:13px}
+.btn.acc{background:#2563eb;border-color:#2563eb}
+.btn.mini{padding:4px 8px;font-size:12px}
+main{max-width:1150px;margin:0 auto;padding:14px}
+.wrap{display:grid;grid-template-columns:250px 1fr;gap:14px}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #e2e6ee;border-radius:12px;padding:14px}
+.card h2{font-size:15px;margin-bottom:10px}
+.hint{font-size:12px;color:#667085;margin-top:6px;line-height:1.7}
+.rowbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.frm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+select,input[type=text]{font:inherit;font-size:13px;padding:7px 8px;border:1px solid #cdd5e1;border-radius:8px;background:#fff}
+.chk{display:inline-flex;align-items:center;gap:5px;font-size:13px}
+#dataT{width:100%;min-height:130px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;border:1px solid #cdd5e1;border-radius:8px;padding:9px;margin-top:4px}
+.prev{border:1px solid #e2e6ee;border-radius:8px;overflow:auto;margin-top:10px;background:#fff;text-align:center;padding:6px}
+.prev svg{max-width:100%;height:auto}
+.perr{color:#b45309;font-size:13px;padding:20px}
+.fitem{display:flex;align-items:center;gap:6px;padding:8px;border:1px solid #e2e6ee;border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:13px;background:#fbfdff}
+.fitem.sel{border-color:#2563eb;background:#eef4ff}
+.fitem .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow:auto;padding:18px}
+.mbox h3{font-size:15px;margin-bottom:10px}
+.mbox textarea{width:100%;min-height:200px;font:inherit;font-size:13px;border:1px solid #cdd5e1;border-radius:8px;padding:9px}
+.mrow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+#pngImg{width:100%;border:1px solid #e2e6ee;border-radius:8px;margin-top:6px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200;max-width:90vw}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+	<h1>📈 図表 v0.1</h1>
+	<span class="sp"></span>
+	<button class="btn" id="expBtn">💾 書き出し</button>
+	<button class="btn" id="impBtn">📂 読み込み</button>
+</header>
+<main>
+<div class="card" id="guide" style="display:none;margin-bottom:14px">
+	<h2>🧭 はじめてガイド</h2>
+	<div class="hint">
+	① 「＋ 新しい図」を押すとお試しデータ入りの図ができます<br>
+	② データ欄を自分のデータに書き換えると、プレビューがすぐ更新されます<br>
+	③ 印刷提出なら「白黒」をON（網掛けパターンで区別）<br>
+	④ 🖼 PNG保存して、📋キャプションとLaTeX図コードを論文に貼り付け
+	</div>
+	<div class="rowbar"><button class="btn acc" id="guideOff">はじめる</button></div>
+</div>
+<div class="wrap">
+<div class="card">
+	<h2>🗂 図の一覧</h2>
+	<div id="figList"></div>
+	<div class="rowbar"><button class="btn acc" id="addFig">＋ 新しい図</button></div>
+	<div class="hint">図の番号（図1、図2…）は上から順に自動で付きます。▲▼で並び替えできます。</div>
+</div>
+<div class="card">
+	<div id="empty" class="hint" style="display:none">左の「＋ 新しい図」から図を作ってください。</div>
+	<div id="edMain">
+	<div class="frm">
+		<label>種類 <select id="typeSel">
+			<option value="bar">棒グラフ</option>
+			<option value="line">折れ線</option>
+			<option value="scatter">散布図</option>
+			<option value="pie">円グラフ</option>
+			<option value="box">箱ひげ図</option>
+		</select></label>
+		<label class="chk"><input type="checkbox" id="monoChk"> 白黒（モノクロ印刷用）</label>
+		<input type="text" id="ylabIn" placeholder="縦軸ラベル（例：平均点）">
+	</div>
+	<textarea id="dataT" spellcheck="false"></textarea>
+	<div class="hint" id="dataHint"></div>
+	<div class="prev" id="prev"></div>
+	<div class="frm" style="margin-top:10px">
+		<span id="capNo" style="font-size:13px;font-weight:700"></span>
+		<input type="text" id="capIn" placeholder="キャプション（例：条件別の平均点の比較）" style="flex:1">
+	</div>
+	<div class="rowbar">
+		<button class="btn acc" id="pngBtn">🖼 PNG保存</button>
+		<button class="btn" id="svgBtn">📐 SVG保存</button>
+		<button class="btn" id="capBtn">📋 キャプションをコピー</button>
+		<button class="btn" id="texBtn">📐 LaTeX図コードをコピー</button>
+		<button class="btn mini" id="delFigBtn">🗑 この図を削除</button>
+	</div>
+	</div>
+</div>
+</div>
+</main>
+<div class="modal" id="pngM"><div class="mbox">
+	<h3>🖼 PNG画像（2倍解像度）</h3>
+	<div class="hint">iPad・iPhone：画像を<b>長押し</b>→「写真に追加」で保存できます。PC：右クリック→「名前を付けて画像を保存」。</div>
+	<img id="pngImg" alt="グラフのPNG画像">
+	<div class="mrow"><button class="btn" id="pngDl">⬇ ダウンロードを試す</button><button class="btn" id="pngClose">閉じる</button></div>
+</div></div>
+<div class="modal" id="txtm"><div class="mbox">
+	<h3 id="txtTitle">テキスト</h3>
+	<div class="hint">下の内容をコピーして使ってください。</div>
+	<textarea id="txtBody" readonly></textarea>
+	<div class="mrow"><button class="btn acc" id="txtCopy">全選択してコピー</button><button class="btn" id="txtClose">閉じる</button></div>
+</div></div>
+<input type="file" id="impFile" accept=".json,application/json" style="display:none">
+<div id="toast"></div>
+<script>
+const LS="editone_zuhyou2_v01";
+const B="\\";
+const W=640,H=400,PL=60,PR=20,PT=40,PB=50;
+const COL=["#2563eb","#e11d48","#059669","#d97706","#7c3aed","#0891b2"];
+const DASH=["","6 3","2 2","8 3 2 3","1 3","10 4"];
+const TNAME={bar:"棒",line:"折れ線",scatter:"散布図",pie:"円",box:"箱ひげ"};
+const $=function(id){return document.getElementById(id);};
+let st=load();
+let rTimer=null;
+function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.figs)return d;}catch(e){}return{figs:[],sel:null,guided:false};}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("on");},2400);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function escX(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function texEsc(s){return String(s).replace(/([%&#_{}])/g,B+"$1");}
+function cur(){for(let i=0;i<st.figs.length;i++){if(st.figs[i].id===st.sel)return st.figs[i];}return null;}
+function figIndex(){for(let i=0;i<st.figs.length;i++){if(st.figs[i].id===st.sel)return i;}return -1;}
+function defData(type){
+	if(type==="bar")return "条件,平均点,平均点±\n条件A,62,5\n条件B,74,4\n条件C,68,6";
+	if(type==="line")return "回,記録\n1回目,12\n2回目,15\n3回目,14\n4回目,18\n5回目,21";
+	if(type==="scatter")return "睡眠時間,小テスト\n5,55\n5.5,58\n6,60\n6.5,62\n7,68\n7.5,72\n8,75";
+	if(type==="pie")return "回答,人数\nはい,34\nいいえ,12\nわからない,8";
+	return "A組,B組\n72,60\n68,58\n75,66\n80,62\n64,55\n70,63";
+}
+const HINTS={
+	bar:"1行目＝見出し（1列目：ラベル、2列目以降：系列名）。系列の直後に「系列名±」の列を置くと誤差バーになります。",
+	line:"1行目＝見出し。1列目がヨコ軸のラベル、2列目以降が系列。「系列名±」の列で誤差バーも付けられます。",
+	scatter:"1行目＝見出し（X軸・Y軸の名前になります）。2行目以降に数値の組を入れます。",
+	pie:"各行に「ラベル,値」。割合は自動計算されます。",
+	box:"1行目＝グループ名。2行目以降に各グループの生データを縦に入れます（行数はそろわなくてもOK）。"
+};
+
+/* ── データ解析 ── */
+function parseGrid(text){
+	const raw=String(text||"").replace(/\r/g,"");
+	const lines=raw.split("\n").filter(function(l){return l.trim()!=="";});
+	const sepTab=raw.indexOf("\t")>=0;
+	return lines.map(function(l){return (sepTab?l.split("\t"):l.split(",")).map(function(c){return String(c==null?"":c).trim();});});
+}
+function numOf(s){if(s===""||s==null)return null;const n=Number(s);return isFinite(n)?n:null;}
+function parseSeries(rows){
+	const head=rows[0];
+	const sers=[],colMap=[];
+	for(let c=1;c<head.length;c++){
+		const nm=head[c];
+		if(nm.slice(-1)==="±"&&sers.length){colMap.push({err:sers.length-1});}
+		else{sers.push({name:nm||("系列"+(sers.length+1)),vals:[],errs:[]});colMap.push({ser:sers.length-1});}
+	}
+	if(!sers.length)return{err:"系列（2列目以降）がありません"};
+	const labels=[];
+	rows.slice(1).forEach(function(r){
+		labels.push(r[0]||"");
+		sers.forEach(function(s){s.vals.push(null);s.errs.push(null);});
+		const li=labels.length-1;
+		for(let c=1;c<=colMap.length;c++){
+			const m=colMap[c-1];if(!m)continue;
+			const v=numOf(r[c]);
+			if(m.ser!=null){sers[m.ser].vals[li]=v;}else{sers[m.err].errs[li]=v;}
+		}
+	});
+	if(!labels.length)return{err:"データ行がありません"};
+	return{labels:labels,sers:sers};
+}
+
+/* ── 目盛り・座標 ── */
+function ticks(min,max){
+	if(!isFinite(min)||!isFinite(max)){min=0;max=1;}
+	if(min===max){min-=1;max+=1;}
+	const span=max-min;
+	const base=Math.pow(10,Math.floor(Math.log(span/5)/Math.LN10));
+	let step=base*10;
+	[base,base*2,base*5,base*10].some(function(s){if(span/s<=6){step=s;return true;}return false;});
+	const lo=Math.floor(min/step)*step;
+	const hi=Math.ceil(max/step)*step;
+	const t=[];
+	for(let v=lo;v<=hi+step*0.001;v+=step){t.push(Math.round(v/step)*step);}
+	return{lo:lo,hi:hi,t:t};
+}
+function fmtN(v){return String(parseFloat(v.toFixed(6)));}
+function r1(x){return Math.round(x*10)/10;}
+function y2p(v,tk){return PT+(1-(v-tk.lo)/(tk.hi-tk.lo))*(H-PT-PB);}
+function x2p(v,tk){return PL+(v-tk.lo)/(tk.hi-tk.lo)*(W-PL-PR);}
+function trunc(s,n){s=String(s);return s.length>n?s.slice(0,n)+"…":s;}
+function measure(s){let w=0;s=String(s);for(let i=0;i<s.length;i++){w+=s.charCodeAt(i)>255?12:7;}return w;}
+
+/* ── 白黒パターン・色 ── */
+function patternDefs(){
+	return '<defs>'
+	+'<pattern id="p0" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#9ca3af"/></pattern>'
+	+'<pattern id="p1" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><path d="M0 6 L6 0" stroke="#111" stroke-width="1.2"/></pattern>'
+	+'<pattern id="p2" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><circle cx="3" cy="3" r="1.1" fill="#111"/></pattern>'
+	+'<pattern id="p3" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><path d="M0 3 H6" stroke="#111" stroke-width="1.2"/></pattern>'
+	+'<pattern id="p4" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><path d="M3 0 V6" stroke="#111" stroke-width="1.2"/></pattern>'
+	+'<pattern id="p5" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fff"/><path d="M0 8 L8 0 M0 0 L8 8" stroke="#111" stroke-width="1"/></pattern>'
+	+'</defs>';
+}
+function fillOf(i,mono){return mono?('url(#p'+(i%6)+')'):COL[i%COL.length];}
+function strokeOf(i,mono){return mono?"#111":COL[i%COL.length];}
+
+/* ── 軸・凡例・誤差バー（共通部品） ── */
+function axisY(tk,ylab){
+	let s="";
+	tk.t.forEach(function(v){
+		const y=r1(y2p(v,tk));
+		s+='<line x1="'+PL+'" y1="'+y+'" x2="'+(W-PR)+'" y2="'+y+'" stroke="#e5e7eb"/>';
+		s+='<text x="'+(PL-7)+'" y="'+(y+4)+'" font-size="11" text-anchor="end" fill="#333">'+fmtN(v)+'</text>';
+	});
+	s+='<line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(H-PB)+'" stroke="#333"/>';
+	s+='<line x1="'+PL+'" y1="'+(H-PB)+'" x2="'+(W-PR)+'" y2="'+(H-PB)+'" stroke="#333"/>';
+	if(ylab){s+='<text transform="rotate(-90)" x="'+(-(PT+(H-PT-PB)/2))+'" y="15" font-size="12" text-anchor="middle" fill="#333">'+escX(ylab)+'</text>';}
+	return s;
+}
+function legend(names,mono){
+	let s="";let x=PL;
+	names.forEach(function(nm,i){
+		s+='<rect x="'+x+'" y="8" width="13" height="13" fill="'+fillOf(i,mono)+'" stroke="#333" stroke-width="0.8"/>';
+		s+='<text x="'+(x+18)+'" y="19" font-size="12" fill="#333">'+escX(nm)+'</text>';
+		x+=18+measure(nm)+16;
+	});
+	return s;
+}
+function errBar(cx,v,e,tk){
+	if(e==null||!(e>0)||v==null)return "";
+	const y1e=r1(y2p(v-e,tk)),y2e=r1(y2p(v+e,tk));cx=r1(cx);
+	return '<line x1="'+cx+'" y1="'+y1e+'" x2="'+cx+'" y2="'+y2e+'" stroke="#111"/>'
+	+'<line x1="'+(cx-4)+'" y1="'+y1e+'" x2="'+(cx+4)+'" y2="'+y1e+'" stroke="#111"/>'
+	+'<line x1="'+(cx-4)+'" y1="'+y2e+'" x2="'+(cx+4)+'" y2="'+y2e+'" stroke="#111"/>';
+}
+function xLabel(x,text){return '<text x="'+r1(x)+'" y="'+(H-PB+17)+'" font-size="11" text-anchor="middle" fill="#333">'+escX(trunc(text,8))+'</text>';}
+
+/* ── 棒グラフ ── */
+function drawBar(f,rows){
+	const d=parseSeries(rows);if(d.err)return d;
+	const labels=d.labels,sers=d.sers,m=sers.length;
+	let hi=1,lo=0,has=false;
+	sers.forEach(function(s){s.vals.forEach(function(v,i){if(v==null)return;has=true;const e=s.errs[i]||0;if(v+e>hi)hi=v+e;if(v-e<lo)lo=v-e;});});
+	if(!has)return{err:"数値データがありません"};
+	const tk=ticks(Math.min(lo,0),Math.max(hi,0));
+	let s=axisY(tk,f.ylab)+(m>1?legend(sers.map(function(x){return x.name;}),f.mono):"");
+	const gw=(W-PL-PR)/labels.length;
+	const bw=Math.min(gw*0.72/m,60);
+	const y0=y2p(Math.max(tk.lo,Math.min(tk.hi,0)),tk);
+	labels.forEach(function(lb,li){
+		const gx=PL+li*gw;
+		sers.forEach(function(sr,si){
+			const v=sr.vals[li];if(v==null)return;
+			const x=gx+gw/2-(bw*m)/2+si*bw;
+			const yv=y2p(v,tk);
+			const yTop=Math.min(yv,y0),hh=Math.abs(y0-yv);
+			s+='<rect x="'+r1(x)+'" y="'+r1(yTop)+'" width="'+r1(Math.max(bw-2,1))+'" height="'+r1(Math.max(hh,0.5))+'" fill="'+fillOf(si,f.mono)+'" stroke="#333" stroke-width="0.8"/>';
+			s+=errBar(x+(bw-2)/2,v,sr.errs[li],tk);
+		});
+		s+=xLabel(gx+gw/2,lb);
+	});
+	return s;
+}
+
+/* ── 折れ線 ── */
+function drawLine(f,rows){
+	const d=parseSeries(rows);if(d.err)return d;
+	const labels=d.labels,sers=d.sers,m=sers.length;
+	let hi=-Infinity,lo=Infinity,has=false;
+	sers.forEach(function(s){s.vals.forEach(function(v,i){if(v==null)return;has=true;const e=s.errs[i]||0;if(v+e>hi)hi=v+e;if(v-e<lo)lo=v-e;});});
+	if(!has)return{err:"数値データがありません"};
+	if(lo===hi){lo-=1;hi+=1;}
+	const pad=(hi-lo)*0.08;
+	const tk=ticks(lo-pad,hi+pad);
+	let s=axisY(tk,f.ylab)+(m>1?legend(sers.map(function(x){return x.name;}),f.mono):"");
+	const gw=(W-PL-PR)/labels.length;
+	sers.forEach(function(sr,si){
+		let dstr="";let pen=false;
+		sr.vals.forEach(function(v,li){
+			if(v==null){pen=false;return;}
+			const x=PL+(li+0.5)*gw,y=y2p(v,tk);
+			dstr+=(pen?" L":" M")+r1(x)+" "+r1(y);
+			pen=true;
+		});
+		if(dstr){s+='<path d="'+dstr.trim()+'" fill="none" stroke="'+strokeOf(si,f.mono)+'" stroke-width="2"'+(f.mono&&DASH[si%DASH.length]?' stroke-dasharray="'+DASH[si%DASH.length]+'"':'')+'/>';}
+		sr.vals.forEach(function(v,li){
+			if(v==null)return;
+			const x=PL+(li+0.5)*gw;
+			s+=errBar(x,v,sr.errs[li],tk);
+			s+='<circle cx="'+r1(x)+'" cy="'+r1(y2p(v,tk))+'" r="3.5" fill="'+strokeOf(si,f.mono)+'"/>';
+		});
+	});
+	labels.forEach(function(lb,li){s+=xLabel(PL+(li+0.5)*gw,lb);});
+	return s;
+}
+
+/* ── 散布図 ── */
+function drawScatter(f,rows){
+	const head=rows[0];
+	const startRow=(numOf(head[0])!=null&&numOf(head[1])!=null)?0:1;
+	const pts=[];
+	rows.slice(startRow).forEach(function(r){const x=numOf(r[0]),y=numOf(r[1]);if(x!=null&&y!=null)pts.push([x,y]);});
+	if(pts.length<2)return{err:"散布図には数値の組（X,Y）が2行以上必要です"};
+	let xlo=Infinity,xhi=-Infinity,ylo=Infinity,yhi=-Infinity;
+	pts.forEach(function(p){if(p[0]<xlo)xlo=p[0];if(p[0]>xhi)xhi=p[0];if(p[1]<ylo)ylo=p[1];if(p[1]>yhi)yhi=p[1];});
+	const px=(xhi-xlo)*0.08||1,py=(yhi-ylo)*0.08||1;
+	const tkx=ticks(xlo-px,xhi+px),tky=ticks(ylo-py,yhi+py);
+	const xname=startRow?String(head[0]||""):"";
+	const yname=startRow?String(head[1]||""):"";
+	let s=axisY(tky,f.ylab||yname);
+	tkx.t.forEach(function(v){
+		const x=r1(x2p(v,tkx));
+		s+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(H-PB)+'" stroke="#f0f2f6"/>';
+		s+='<text x="'+x+'" y="'+(H-PB+17)+'" font-size="11" text-anchor="middle" fill="#333">'+fmtN(v)+'</text>';
+	});
+	if(xname){s+='<text x="'+(PL+(W-PL-PR)/2)+'" y="'+(H-8)+'" font-size="12" text-anchor="middle" fill="#333">'+escX(xname)+'</text>';}
+	pts.forEach(function(p){s+='<circle cx="'+r1(x2p(p[0],tkx))+'" cy="'+r1(y2p(p[1],tky))+'" r="4" fill="'+(f.mono?"#111":COL[0])+'" fill-opacity="0.85"/>';});
+	return s;
+}
+
+/* ── 円グラフ ── */
+function drawPie(f,rows){
+	const items=[];
+	rows.forEach(function(r){const v=numOf(r[1]);if(v==null||v<0)return;items.push({name:String(r[0]||""),v:v});});
+	if(!items.length)return{err:"「ラベル,値」の行が必要です"};
+	let total=0;items.forEach(function(it){total+=it.v;});
+	if(total<=0)return{err:"値の合計が0です"};
+	const cx=210,cy=PT+(H-PT-20)/2,rr=Math.min(150,(H-PT-30)/2);
+	let s="",a=-Math.PI/2;
+	items.forEach(function(it,i){
+		const a2=a+it.v/total*Math.PI*2;
+		if(items.length===1){s+='<circle cx="'+cx+'" cy="'+r1(cy)+'" r="'+r1(rr)+'" fill="'+fillOf(i,f.mono)+'" stroke="#333"/>';}
+		else{
+			const x0=cx+rr*Math.cos(a),y0=cy+rr*Math.sin(a),x1=cx+rr*Math.cos(a2),y1=cy+rr*Math.sin(a2);
+			const lg=(a2-a)>Math.PI?1:0;
+			s+='<path d="M'+cx+' '+r1(cy)+' L'+r1(x0)+' '+r1(y0)+' A'+r1(rr)+' '+r1(rr)+' 0 '+lg+' 1 '+r1(x1)+' '+r1(y1)+' Z" fill="'+fillOf(i,f.mono)+'" stroke="#333" stroke-width="0.8"/>';
+		}
+		const share=it.v/total;
+		if(share>=0.06){
+			const am=(a+a2)/2,tx=cx+rr*0.62*Math.cos(am),ty=cy+rr*0.62*Math.sin(am);
+			s+='<text x="'+r1(tx)+'" y="'+r1(ty+4)+'" font-size="12" text-anchor="middle" fill="'+(f.mono?"#111":"#fff")+'" font-weight="700">'+Math.round(share*100)+'%</text>';
+		}
+		a=a2;
+	});
+	let ly=PT+10;
+	items.forEach(function(it,i){
+		s+='<rect x="400" y="'+(ly-11)+'" width="13" height="13" fill="'+fillOf(i,f.mono)+'" stroke="#333" stroke-width="0.8"/>';
+		s+='<text x="419" y="'+ly+'" font-size="12" fill="#333">'+escX(trunc(it.name,10))+'　'+fmtN(it.v)+'（'+Math.round(it.v/total*100)+'%）</text>';
+		ly+=22;
+	});
+	return s;
+}
+
+/* ── 箱ひげ図 ── */
+function quant(sorted,q){const pos=(sorted.length-1)*q;const lo2=Math.floor(pos),hi2=Math.ceil(pos);return sorted[lo2]+(sorted[hi2]-sorted[lo2])*(pos-lo2);}
+function drawBox(f,rows){
+	const head=rows[0];
+	const groups=[];
+	for(let c=0;c<head.length;c++){groups.push({name:String(head[c]||("グループ"+(c+1))),vals:[]});}
+	rows.slice(1).forEach(function(r){
+		for(let c=0;c<groups.length;c++){const v=numOf(r[c]);if(v!=null)groups[c].vals.push(v);}
+	});
+	const gs=groups.filter(function(g){return g.vals.length>=3;});
+	if(!gs.length)return{err:"各グループ（列）に3個以上の数値が必要です"};
+	let lo=Infinity,hi=-Infinity;
+	gs.forEach(function(g){g.vals.forEach(function(v){if(v<lo)lo=v;if(v>hi)hi=v;});});
+	if(lo===hi){lo-=1;hi+=1;}
+	const pad=(hi-lo)*0.08;
+	const tk=ticks(lo-pad,hi+pad);
+	let s=axisY(tk,f.ylab);
+	const gw=(W-PL-PR)/gs.length;
+	gs.forEach(function(g,gi){
+		const sorted=g.vals.slice().sort(function(p,q){return p-q;});
+		const q1=quant(sorted,0.25),md=quant(sorted,0.5),q3=quant(sorted,0.75);
+		const mn=sorted[0],mx=sorted[sorted.length-1];
+		const cx=PL+(gi+0.5)*gw;
+		const bw=Math.min(gw*0.5,70);
+		const yq1=y2p(q1,tk),yq3=y2p(q3,tk),ymd=y2p(md,tk),ymn=y2p(mn,tk),ymx=y2p(mx,tk);
+		s+='<line x1="'+r1(cx)+'" y1="'+r1(ymx)+'" x2="'+r1(cx)+'" y2="'+r1(yq3)+'" stroke="#111"/>';
+		s+='<line x1="'+r1(cx)+'" y1="'+r1(yq1)+'" x2="'+r1(cx)+'" y2="'+r1(ymn)+'" stroke="#111"/>';
+		s+='<line x1="'+r1(cx-bw/4)+'" y1="'+r1(ymx)+'" x2="'+r1(cx+bw/4)+'" y2="'+r1(ymx)+'" stroke="#111"/>';
+		s+='<line x1="'+r1(cx-bw/4)+'" y1="'+r1(ymn)+'" x2="'+r1(cx+bw/4)+'" y2="'+r1(ymn)+'" stroke="#111"/>';
+		s+='<rect x="'+r1(cx-bw/2)+'" y="'+r1(yq3)+'" width="'+r1(bw)+'" height="'+r1(Math.max(yq1-yq3,0.5))+'" fill="'+(f.mono?"#fff":COL[gi%COL.length])+'"'+(f.mono?'':' fill-opacity="0.35"')+' stroke="#333"/>';
+		s+='<line x1="'+r1(cx-bw/2)+'" y1="'+r1(ymd)+'" x2="'+r1(cx+bw/2)+'" y2="'+r1(ymd)+'" stroke="#111" stroke-width="2"/>';
+		s+=xLabel(cx,g.name);
+	});
+	return s;
+}
+
+/* ── SVG組み立て ── */
+function buildSvg(f){
+	try{
+		const rows=parseGrid(f.data);
+		if(rows.length<1)return{err:"データがありません"};
+		if(f.type!=="pie"&&rows.length<2)return{err:"データが足りません（1行目＝見出し、2行目以降＝データ）"};
+		let inner;
+		if(f.type==="bar")inner=drawBar(f,rows);
+		else if(f.type==="line")inner=drawLine(f,rows);
+		else if(f.type==="scatter")inner=drawScatter(f,rows);
+		else if(f.type==="pie")inner=drawPie(f,rows);
+		else inner=drawBox(f,rows);
+		if(typeof inner!=="string")return inner;
+		return{svg:'<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" font-family="sans-serif">'+patternDefs()+'<rect width="'+W+'" height="'+H+'" fill="#ffffff"/>'+inner+'</svg>'};
+	}catch(e){return{err:"描画に失敗しました："+e.message};}
+}
+
+/* ── 画面描画 ── */
+function renderAll(){renderList();renderEd();}
+function renderList(){
+	const el=$("figList");
+	if(!st.figs.length){el.innerHTML="<div class='hint'>まだ図がありません。</div>";return;}
+	let h="";
+	st.figs.forEach(function(f,i){
+		h+="<div class='fitem"+(f.id===st.sel?" sel":"")+"' onclick='selFig("+f.id+")'>"
+		+"<span class='nm'>図"+(i+1)+"："+esc(f.cap||("（"+TNAME[f.type]+"）"))+"</span>"
+		+"<button class='btn mini' onclick='mvFig(event,"+f.id+",-1)'>▲</button>"
+		+"<button class='btn mini' onclick='mvFig(event,"+f.id+",1)'>▼</button>"
+		+"</div>";
+	});
+	el.innerHTML=h;
+}
+function selFig(id){st.sel=id;persist();renderAll();}
+function mvFig(ev,id,dir){
+	ev.stopPropagation();
+	let i=-1;
+	st.figs.forEach(function(f,k){if(f.id===id)i=k;});
+	const j=i+dir;
+	if(i<0||j<0||j>=st.figs.length)return;
+	const tmp=st.figs[i];st.figs[i]=st.figs[j];st.figs[j]=tmp;
+	persist();renderAll();
+}
+function renderEd(){
+	const f=cur();
+	if(!f){$("edMain").style.display="none";$("empty").style.display="block";return;}
+	$("edMain").style.display="block";$("empty").style.display="none";
+	$("typeSel").value=f.type;
+	$("monoChk").checked=!!f.mono;
+	$("ylabIn").value=f.ylab||"";
+	$("dataT").value=f.data||"";
+	$("capIn").value=f.cap||"";
+	$("capNo").textContent="図"+(figIndex()+1);
+	$("dataHint").textContent=HINTS[f.type];
+	paint();
+}
+function paint(){
+	const f=cur();if(!f)return;
+	const r=buildSvg(f);
+	$("prev").innerHTML=r.err?("<div class='perr'>⚠ "+esc(r.err)+"</div>"):r.svg;
+}
+function schedule(){clearTimeout(rTimer);rTimer=setTimeout(paint,250);}
+
+/* ── コピー・ダウンロード（iPadフォールバック付き） ── */
+function showText(title,text){$("txtTitle").textContent=title;$("txtBody").value=text;$("txtm").classList.add("on");}
+function copyText(text,label){
+	if(navigator.clipboard&&navigator.clipboard.writeText){
+		navigator.clipboard.writeText(text).then(function(){toast(label+"をコピーしました");},function(){showText(label,text);});
+	}else{showText(label,text);}
+}
+function download(name,text,mime){
+	try{
+		const bl=new Blob([text],{type:mime||"text/plain"});
+		const aEl=document.createElement("a");
+		aEl.href=URL.createObjectURL(bl);aEl.download=name;
+		document.body.appendChild(aEl);aEl.click();
+		setTimeout(function(){URL.revokeObjectURL(aEl.href);aEl.remove();},500);
+		toast("ダウンロードを開始しました（保存できない場合はコピーで保存してください）");
+	}catch(e){showText(name,text);}
+}
+
+/* ── 操作 ── */
+$("addFig").onclick=function(){
+	const f={id:Date.now(),type:"bar",data:defData("bar"),cap:"",ylab:"",mono:false};
+	st.figs.push(f);st.sel=f.id;persist();renderAll();
+};
+$("delFigBtn").onclick=function(){
+	const i=figIndex();if(i<0)return;
+	if(!confirm("図"+(i+1)+"を削除しますか？"))return;
+	st.figs.splice(i,1);
+	st.sel=st.figs.length?st.figs[Math.min(i,st.figs.length-1)].id:null;
+	persist();renderAll();
+};
+$("typeSel").onchange=function(e){
+	const f=cur();if(!f)return;
+	const nv=e.target.value;
+	if(f.data.trim()===defData(f.type).trim()){f.data=defData(nv);}
+	f.type=nv;persist();renderEd();renderList();
+};
+$("monoChk").onchange=function(e){const f=cur();if(!f)return;f.mono=e.target.checked;persist();paint();};
+$("ylabIn").oninput=function(e){const f=cur();if(!f)return;f.ylab=e.target.value;persist();schedule();};
+$("dataT").oninput=function(e){const f=cur();if(!f)return;f.data=e.target.value;persist();schedule();};
+$("capIn").oninput=function(e){const f=cur();if(!f)return;f.cap=e.target.value;persist();};
+$("capIn").onchange=function(){renderList();};
+$("pngBtn").onclick=function(){
+	const f=cur();if(!f)return;
+	const r=buildSvg(f);if(r.err){toast(r.err);return;}
+	const img=new Image();
+	img.onload=function(){
+		try{
+			const c=document.createElement("canvas");c.width=W*2;c.height=H*2;
+			const g=c.getContext("2d");
+			g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);
+			g.setTransform(2,0,0,2,0,0);g.drawImage(img,0,0);
+			$("pngImg").src=c.toDataURL("image/png");
+			$("pngM").classList.add("on");
+		}catch(e){toast("PNG変換に失敗しました。SVG保存を使ってください");}
+	};
+	img.onerror=function(){toast("PNG変換に失敗しました。SVG保存を使ってください");};
+	img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(r.svg);
+};
+$("pngDl").onclick=function(){
+	try{
+		const aEl=document.createElement("a");
+		aEl.href=$("pngImg").src;aEl.download="fig"+(figIndex()+1)+".png";
+		document.body.appendChild(aEl);aEl.click();
+		setTimeout(function(){aEl.remove();},500);
+		toast("ダウンロードを開始しました（保存できない場合は画像を長押ししてください）");
+	}catch(e){toast("画像を長押しして保存してください");}
+};
+$("pngClose").onclick=function(){$("pngM").classList.remove("on");};
+$("svgBtn").onclick=function(){
+	const f=cur();if(!f)return;
+	const r=buildSvg(f);if(r.err){toast(r.err);return;}
+	download("fig"+(figIndex()+1)+".svg",r.svg,"image/svg+xml");
+};
+$("capBtn").onclick=function(){
+	const f=cur();if(!f)return;
+	copyText("図"+(figIndex()+1)+"　"+(f.cap||""),"キャプション");
+};
+$("texBtn").onclick=function(){
+	const f=cur();if(!f)return;
+	const n=figIndex()+1;
+	const L=[];
+	L.push(B+"begin{figure}[htbp]");
+	L.push("  "+B+"centering");
+	L.push("  "+B+"includegraphics[width=0.8"+B+"linewidth]{fig"+n+".png}");
+	L.push("  "+B+"caption{"+texEsc(f.cap||"ここにキャプション")+"}");
+	L.push("  "+B+"label{fig:"+n+"}");
+	L.push(B+"end{figure}");
+	copyText(L.join("\n"),"LaTeXの図コード");
+};
+$("txtClose").onclick=function(){$("txtm").classList.remove("on");};
+$("txtCopy").onclick=function(){const t=$("txtBody");t.focus();t.select();try{document.execCommand("copy");toast("コピーしました");}catch(e){toast("選択して手動でコピーしてください");}};
+$("expBtn").onclick=function(){download("zuhyou2.json",JSON.stringify(st,null,1),"application/json");};
+$("impBtn").onclick=function(){$("impFile").click();};
+$("impFile").onchange=function(e){
+	const f=e.target.files[0];if(!f)return;
+	const rd=new FileReader();
+	rd.onload=function(){
+		try{
+			const d=JSON.parse(rd.result);
+			if(!d||!d.figs)throw 0;
+			if(!confirm("今のデータを置き換えて読み込みます。よろしいですか？"))return;
+			st=d;persist();renderAll();toast("読み込みました");
+		}catch(err){toast("読み込めませんでした（このアプリの書き出しファイルを選んでください）");}
+	};
+	rd.readAsText(f);e.target.value="";
+};
+if(!st.guided){$("guide").style.display="block";}
+$("guideOff").onclick=function(){st.guided=true;persist();$("guide").style.display="none";};
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EDIT ONE — データ・統計 v0.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;background:#f4f6f9;color:#1f2430;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:50;background:#1f2937;color:#fff;display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
+header h1{font-size:16px;font-weight:700;margin-right:4px}
+header input{font:inherit;background:#111827;border:1px solid #374151;color:#fff;border-radius:8px;padding:6px 10px;font-size:13px;width:200px}
+.sp{flex:1}
+button{font:inherit;cursor:pointer}
+.btn{background:#374151;color:#fff;border:1px solid #4b5563;border-radius:8px;padding:7px 12px;font-size:13px}
+.btn.acc{background:#2563eb;border-color:#2563eb}
+.btn.mini{padding:4px 8px;font-size:12px}
+main{max-width:1150px;margin:0 auto;padding:14px;display:grid;gap:14px}
+.card{background:#fff;border:1px solid #e2e6ee;border-radius:12px;padding:14px}
+.card h2{font-size:15px;margin-bottom:10px}
+.hint{font-size:12px;color:#667085;margin-top:6px;line-height:1.7}
+.tblwrap{overflow:auto;max-height:340px;border:1px solid #e2e6ee;border-radius:8px}
+table.data{border-collapse:collapse}
+table.data th,table.data td{border:1px solid #e9edf3;padding:2px;white-space:nowrap}
+table.data th{background:#f8fafc}
+table.data input{border:none;padding:6px 8px;font-size:13px;width:110px;background:transparent}
+table.data th input{font-weight:700;width:88px}
+.rowbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+select{font:inherit;font-size:13px;padding:7px 8px;border:1px solid #cdd5e1;border-radius:8px;background:#fff;max-width:160px}
+.frm{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.res{display:none;margin-top:10px;overflow-x:auto}
+.res.on{display:block}
+.rtbl{border-collapse:collapse;font-size:13px;margin-bottom:10px}
+.rtbl th,.rtbl td{border:1px solid #dbe2ec;padding:5px 9px;text-align:right}
+.rtbl th{background:#f1f5fb;text-align:center;font-weight:600}
+.rtbl td:first-child{text-align:left}
+.sent{width:100%;min-height:88px;font:inherit;font-size:13px;line-height:1.7;border:1px solid #cdd5e1;border-radius:8px;padding:9px;background:#fbfdff}
+.warn{color:#b45309;font-size:12px;margin-top:6px}
+.chk{display:inline-flex;align-items:center;gap:5px;font-size:13px;margin:3px 10px 3px 0}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:18px}
+.mbox h3{font-size:15px;margin-bottom:10px}
+.mbox textarea{width:100%;min-height:200px;font:inherit;font-size:13px;border:1px solid #cdd5e1;border-radius:8px;padding:9px}
+.mrow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200;max-width:90vw}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+	<h1>📊 データ・統計 v0.1</h1>
+	<input id="project" placeholder="プロジェクト名（例：睡眠と成績の研究）">
+	<span class="sp"></span>
+	<button class="btn" id="sampleBtn">🧪 サンプル</button>
+	<button class="btn" id="pasteBtn">📋 貼り付け</button>
+	<button class="btn" id="expBtn">💾 書き出し</button>
+	<button class="btn" id="impBtn">📂 読み込み</button>
+</header>
+<main>
+<div class="card" id="guide" style="display:none">
+	<h2>🧭 はじめてガイド</h2>
+	<div class="hint">
+	① 下の表にデータを入力（Excelやメモからの📋貼り付けが速い）<br>
+	② 調べたい分析のカードで変数を選んで「計算する」<br>
+	③ 「論文用の文章」ができるので、📋コピーして執筆エディタに貼るだけ<br>
+	まずは右上の🧪サンプルで試すのがおすすめ！
+	</div>
+	<div class="rowbar"><button class="btn acc" id="guideOff">はじめる</button></div>
+</div>
+<div class="card">
+	<h2>1️⃣ データ表</h2>
+	<div class="tblwrap"><table class="data" id="grid"></table></div>
+	<div class="rowbar">
+		<button class="btn mini" id="addRowBtn">＋ 行を追加</button>
+		<button class="btn mini" id="delRowBtn">− 最後の行を削除</button>
+		<button class="btn mini" id="addColBtn">＋ 変数（列）を追加</button>
+		<span class="hint">数値の分析では、空欄と数値でないセルは自動で除外されます。</span>
+	</div>
+</div>
+<div class="grid2">
+<div class="card">
+	<h2>2️⃣ 記述統計（平均・ばらつき）</h2>
+	<div id="descVars"></div>
+	<div class="frm"><button class="btn acc" id="descBtn">計算する</button><button class="btn" id="descTexBtn">📐 LaTeX表をコピー</button></div>
+	<div class="res" id="descRes"></div>
+</div>
+<div class="card">
+	<h2>3️⃣ 相関（2つの変数の関係）</h2>
+	<div class="frm"><select id="corX"></select><span>と</span><select id="corY"></select><button class="btn acc" id="corBtn">計算する</button></div>
+	<div class="res" id="corRes"></div>
+</div>
+<div class="card">
+	<h2>4️⃣ t検定（2つの平均の差）</h2>
+	<div class="frm"><select id="tA"></select><span>と</span><select id="tB"></select></div>
+	<div class="frm">
+		<label class="chk"><input type="radio" name="tkind" value="ind" checked> 対応なし（別々の人・グループ）</label>
+		<label class="chk"><input type="radio" name="tkind" value="pair"> 対応あり（同じ人の前後など）</label>
+		<button class="btn acc" id="tBtn">計算する</button>
+	</div>
+	<div class="res" id="tRes"></div>
+</div>
+<div class="card">
+	<h2>5️⃣ χ²検定（カテゴリの関連）</h2>
+	<div class="frm"><select id="xA"></select><span>と</span><select id="xB"></select><button class="btn acc" id="xBtn">計算する</button></div>
+	<div class="res" id="xRes"></div>
+</div>
+</div>
+<div class="card">
+	<h2>❓ 結果の読み方（超要約）</h2>
+	<div class="hint">
+	・<b>p値</b>：この結果が偶然で起こる確率の目安。p が .05 より小さいとき「統計的に有意」と書くのが慣例<br>
+	・<b>M / SD</b>：平均と標準偏差。SDが大きいほどばらつきが大きい<br>
+	・<b>r</b>：相関の強さ（−1〜＋1）。目安は .2 弱い / .4 中程度 / .7 強い<br>
+	・<b>d</b>：t検定の効果量。目安は 0.2 小さい / 0.5 中程度 / 0.8 大きい<br>
+	・<b>Cramér の V</b>：χ²検定の関連の強さ（0〜1）<br>
+	・注意：「有意」＝「重要」ではありません。効果量とあわせて解釈しましょう
+	</div>
+</div>
+</main>
+<div class="modal" id="pasteM"><div class="mbox">
+	<h3>📋 データの貼り付け</h3>
+	<div class="hint">Excel・Numbers・スプレッドシートからコピーした表や、カンマ区切りのテキストを貼り付けてください。</div>
+	<textarea id="pasteT" placeholder="組,小テスト&#10;A,72&#10;A,68&#10;B,60"></textarea>
+	<label class="chk"><input type="checkbox" id="pasteHead" checked> 1行目を変数名として使う</label>
+	<div class="mrow"><button class="btn" id="pasteClose">キャンセル</button><button class="btn acc" id="pasteGo">表に取り込む</button></div>
+</div></div>
+<div class="modal" id="txtm"><div class="mbox">
+	<h3 id="txtTitle">テキスト</h3>
+	<div class="hint">下の内容をコピーして使ってください。</div>
+	<textarea id="txtBody" readonly></textarea>
+	<div class="mrow"><button class="btn acc" id="txtCopy">全選択してコピー</button><button class="btn" id="txtClose">閉じる</button></div>
+</div></div>
+<input type="file" id="impFile" accept=".json,application/json" style="display:none">
+<div id="toast"></div>
+<script>
+const LS="editone_toukei_v01";
+const B="\\";
+const $=function(id){return document.getElementById(id);};
+let lastDesc=[];
+let st=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.cols)return d;}catch(e){}return{project:"",guided:false,cols:[{name:"変数1",vals:["","","","",""]},{name:"変数2",vals:["","","","",""]}]};}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("on");},2400);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function nrows(){return st.cols.length?st.cols[0].vals.length:0;}
+
+/* ── データ表 ── */
+function renderGrid(){
+	const g=$("grid");
+	let h="<tr><th style='width:34px'></th>";
+	st.cols.forEach(function(c,ci){h+="<th><input value='"+esc(c.name)+"' onchange='colName("+ci+",this.value)'> <button class='btn mini' onclick='delCol("+ci+")'>✕</button></th>";});
+	h+="</tr>";
+	for(let r=0;r<nrows();r++){
+		h+="<tr><td style='text-align:center;color:#98a2b3;font-size:11px'>"+(r+1)+"</td>";
+		st.cols.forEach(function(c,ci){h+="<td><input value='"+esc(c.vals[r]==null?"":c.vals[r])+"' onchange='cellIn("+ci+","+r+",this.value)'></td>";});
+		h+="</tr>";
+	}
+	g.innerHTML=h;
+	renderSelects();
+}
+function renderSelects(){
+	const opts=st.cols.map(function(c,i){return "<option value='"+i+"'>"+esc(c.name)+"</option>";}).join("");
+	["corX","corY","tA","tB","xA","xB"].forEach(function(id){
+		const s=$(id);const v=s.value;s.innerHTML=opts;
+		if(v!==""&&+v<st.cols.length){s.value=v;}
+		else if((id==="corY"||id==="tB"||id==="xB")&&st.cols.length>1){s.value="1";}
+	});
+	$("descVars").innerHTML=st.cols.map(function(c,i){return "<label class='chk'><input type='checkbox' class='dv' value='"+i+"'> "+esc(c.name)+"</label>";}).join("");
+}
+function colName(ci,v){st.cols[ci].name=v.trim()||("変数"+(ci+1));persist();renderSelects();}
+function cellIn(ci,r,v){st.cols[ci].vals[r]=v;persist();}
+function delCol(ci){
+	if(st.cols.length<=1){toast("最後の1列は削除できません");return;}
+	if(!confirm("変数「"+st.cols[ci].name+"」を削除しますか？"))return;
+	st.cols.splice(ci,1);persist();renderGrid();
+}
+
+/* ── 数値の取り出し ── */
+function colNums(ci){const o=[];st.cols[ci].vals.forEach(function(v){const s=String(v==null?"":v).trim();if(!s)return;const n=Number(s);if(isFinite(n))o.push(n);});return o;}
+function pairNums(a,b){
+	const x=[],y=[];
+	for(let r=0;r<nrows();r++){
+		const s1=String(st.cols[a].vals[r]==null?"":st.cols[a].vals[r]).trim();
+		const s2=String(st.cols[b].vals[r]==null?"":st.cols[b].vals[r]).trim();
+		if(!s1||!s2)continue;
+		const n1=Number(s1),n2=Number(s2);
+		if(isFinite(n1)&&isFinite(n2)){x.push(n1);y.push(n2);}
+	}
+	return{x:x,y:y};
+}
+function mean(a){return a.reduce(function(s,x){return s+x;},0)/a.length;}
+function sdU(a){if(a.length<2)return NaN;const m=mean(a);return Math.sqrt(a.reduce(function(s,x){return s+(x-m)*(x-m);},0)/(a.length-1));}
+function median(a){const b2=a.slice().sort(function(p,q){return p-q;});const n=b2.length;return n%2?b2[(n-1)/2]:(b2[n/2-1]+b2[n/2])/2;}
+function f2(x){return isFinite(x)?x.toFixed(2):"—";}
+function pStr(p){p=Math.min(Math.max(p,0),1);return p<0.001?"p < .001":"p = "+p.toFixed(3).replace(/^0/,"");}
+function pDisp(p){p=Math.min(Math.max(p,0),1);return p<0.001?"&lt; .001":p.toFixed(3).replace(/^0/,"");}
+function rStr(r){return r.toFixed(2).replace(/^(-?)0\./,"$1.");}
+function texEsc(s){return String(s).replace(/([%&#_{}])/g,B+"$1");}
+
+/* ── 確率分布（p値計算） ── */
+function lgamma(x){
+	const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.001208650973866179,-0.000005395239384953];
+	let y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);
+	let ser=1.000000000190015;
+	for(let j=0;j<6;j++){y+=1;ser+=c[j]/y;}
+	return -t+Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+	const FPMIN=1e-300;
+	let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+	if(Math.abs(d)<FPMIN)d=FPMIN;
+	d=1/d;let h=d;
+	for(let m=1;m<=200;m++){
+		const m2=2*m;
+		let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+		d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+		c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+		d=1/d;h*=d*c;
+		aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+		d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;
+		c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;
+		d=1/d;const del=d*c;h*=del;
+		if(Math.abs(del-1)<3e-12)break;
+	}
+	return h;
+}
+function ibeta(a,b,x){
+	if(x<=0)return 0;if(x>=1)return 1;
+	const bt=Math.exp(lgamma(a+b)-lgamma(a)-lgamma(b)+a*Math.log(x)+b*Math.log(1-x));
+	if(x<(a+1)/(a+b+2))return bt*betacf(a,b,x)/a;
+	return 1-bt*betacf(b,a,1-x)/b;
+}
+function tP(t,df){if(!isFinite(t)||df<=0)return 1;return ibeta(df/2,0.5,df/(df+t*t));}
+function gammaP(s,x){
+	if(x<=0)return 0;
+	if(x<s+1){
+		let sum=1/s,term=sum;
+		for(let n=1;n<300;n++){term*=x/(s+n);sum+=term;if(Math.abs(term)<Math.abs(sum)*1e-12)break;}
+		return sum*Math.exp(-x+s*Math.log(x)-lgamma(s));
+	}
+	let b2=x+1-s,c=1e300,d=1/b2,h=d;
+	for(let i=1;i<300;i++){
+		const an=-i*(i-s);
+		b2+=2;d=an*d+b2;if(Math.abs(d)<1e-300)d=1e-300;
+		c=b2+an/c;if(Math.abs(c)<1e-300)c=1e-300;
+		d=1/d;const del=d*c;h*=del;
+		if(Math.abs(del-1)<1e-12)break;
+	}
+	return 1-Math.exp(-x+s*Math.log(x)-lgamma(s))*h;
+}
+function chi2P(x,df){if(x<=0)return 1;return 1-gammaP(df/2,x/2);}
+
+/* ── 結果表示（共通） ── */
+function showRes(id,tableHtml,sent,extraHtml){
+	const box=$(id);
+	box.innerHTML=tableHtml+(extraHtml||"")+"<textarea class='sent' id='"+id+"S' readonly></textarea><div class='rowbar'><button class='btn mini' id='"+id+"C'>📋 文章をコピー</button></div>";
+	box.classList.add("on");
+	$(id+"S").value=sent;
+	$(id+"C").onclick=function(){copyText($(id+"S").value,"論文用の文章");};
+}
+
+/* ── 記述統計 ── */
+function desc(){
+	const sel=[];document.querySelectorAll(".dv").forEach(function(e){if(e.checked)sel.push(+e.value);});
+	if(!sel.length){toast("変数にチェックを入れてください");return;}
+	let rows="";const sents=[];lastDesc=[];
+	sel.forEach(function(ci){
+		const a=colNums(ci);const name=st.cols[ci].name;
+		if(a.length<1){sents.push("「"+name+"」：数値データがありません。");return;}
+		const m=mean(a),s=sdU(a),md=median(a),mn=Math.min.apply(null,a),mx=Math.max.apply(null,a);
+		lastDesc.push({name:name,n:a.length,m:m,s:s,md:md,mn:mn,mx:mx});
+		rows+="<tr><td>"+esc(name)+"</td><td>"+a.length+"</td><td>"+f2(m)+"</td><td>"+f2(s)+"</td><td>"+f2(md)+"</td><td>"+f2(mn)+"</td><td>"+f2(mx)+"</td></tr>";
+		sents.push("「"+name+"」の平均は M = "+f2(m)+"、標準偏差は SD = "+f2(s)+" であった（n = "+a.length+"、中央値 "+f2(md)+"、範囲 "+f2(mn)+"–"+f2(mx)+"）。");
+	});
+	showRes("descRes","<table class='rtbl'><tr><th>変数</th><th>n</th><th>M</th><th>SD</th><th>中央値</th><th>最小</th><th>最大</th></tr>"+rows+"</table>",sents.join("\n"));
+}
+function descTex(){
+	if(!lastDesc.length){toast("先に「計算する」を押してください");return;}
+	const L=[];
+	L.push(B+"begin{table}[htbp]");
+	L.push("  "+B+"centering");
+	L.push("  "+B+"caption{記述統計量}");
+	L.push("  "+B+"begin{tabular}{lrrrrrr}");
+	L.push("    "+B+"hline");
+	L.push("    変数 & $n$ & $M$ & $SD$ & 中央値 & 最小 & 最大 "+B+B+" "+B+"hline");
+	lastDesc.forEach(function(d){L.push("    "+texEsc(d.name)+" & "+d.n+" & "+f2(d.m)+" & "+f2(d.s)+" & "+f2(d.md)+" & "+f2(d.mn)+" & "+f2(d.mx)+" "+B+B);});
+	L.push("    "+B+"hline");
+	L.push("  "+B+"end{tabular}");
+	L.push(B+"end{table}");
+	copyText(L.join("\n"),"LaTeXの表");
+}
+
+/* ── 相関 ── */
+function corr(){
+	const a=+$("corX").value,b=+$("corY").value;
+	if(a===b){toast("別々の変数を選んでください");return;}
+	const pr=pairNums(a,b);const n=pr.x.length;
+	if(n<3){toast("両方に数値が入った行が3行以上必要です");return;}
+	const mx=mean(pr.x),my=mean(pr.y);
+	let sxy=0,sxx=0,syy=0;
+	for(let i=0;i<n;i++){sxy+=(pr.x[i]-mx)*(pr.y[i]-my);sxx+=(pr.x[i]-mx)*(pr.x[i]-mx);syy+=(pr.y[i]-my)*(pr.y[i]-my);}
+	if(sxx===0||syy===0){toast("値がすべて同じ変数では相関を計算できません");return;}
+	const r=sxy/Math.sqrt(sxx*syy);
+	const rr=Math.min(Math.abs(r),0.999999);
+	const t=rr*Math.sqrt((n-2)/(1-rr*rr));
+	const p=tP(t,n-2);
+	const ar=Math.abs(r);
+	const strength=ar>=0.7?"強い":ar>=0.4?"中程度の":ar>=0.2?"弱い":"ごく弱い";
+	const dir=r>=0?"正":"負";
+	const nx=st.cols[a].name,ny=st.cols[b].name;
+	let sent;
+	if(p<0.05){sent="「"+nx+"」と「"+ny+"」の間には"+strength+dir+"の相関が見られた（r = "+rStr(r)+", n = "+n+", "+pStr(p)+"）。";}
+	else{sent="「"+nx+"」と「"+ny+"」の間に有意な相関は見られなかった（r = "+rStr(r)+", n = "+n+", "+pStr(p)+"）。";}
+	showRes("corRes","<table class='rtbl'><tr><th>r</th><th>n</th><th>p</th></tr><tr><td>"+rStr(r)+"</td><td>"+n+"</td><td>"+pDisp(p)+"</td></tr></table>",sent);
+}
+
+/* ── t検定 ── */
+function tTest(){
+	const a=+$("tA").value,b=+$("tB").value;
+	if(a===b){toast("別々の変数を選んでください");return;}
+	const kind=document.querySelector("input[name=tkind]:checked").value;
+	const nx=st.cols[a].name,ny=st.cols[b].name;
+	let t,df,p,d,desc1,desc2,method;
+	if(kind==="pair"){
+		const pr=pairNums(a,b);const n=pr.x.length;
+		if(n<3){toast("両方に数値が入った行が3行以上必要です（対応ありは同じ行＝同じ人のデータ）");return;}
+		const dif=pr.x.map(function(v,i){return v-pr.y[i];});
+		const md=mean(dif),sdd=sdU(dif);
+		if(!isFinite(sdd)||sdd===0){toast("差がすべて同じため計算できません");return;}
+		t=md/(sdd/Math.sqrt(n));df=n-1;p=tP(Math.abs(t),df);d=Math.abs(md/sdd);
+		desc1="「"+nx+"」（M = "+f2(mean(pr.x))+", SD = "+f2(sdU(pr.x))+"）";
+		desc2="「"+ny+"」（M = "+f2(mean(pr.y))+", SD = "+f2(sdU(pr.y))+", n = "+n+"）";
+		method="対応のあるt検定";
+	}else{
+		const A=colNums(a),B2=colNums(b);
+		if(A.length<2||B2.length<2){toast("各変数に数値が2つ以上必要です");return;}
+		const m1=mean(A),m2=mean(B2),s1=sdU(A),s2=sdU(B2),n1=A.length,n2=B2.length;
+		const v1=s1*s1,v2=s2*s2;
+		const se=Math.sqrt(v1/n1+v2/n2);
+		if(se===0){toast("ばらつきがゼロのため計算できません");return;}
+		t=(m1-m2)/se;
+		df=Math.pow(v1/n1+v2/n2,2)/(Math.pow(v1/n1,2)/(n1-1)+Math.pow(v2/n2,2)/(n2-1));
+		p=tP(Math.abs(t),df);
+		const sp=Math.sqrt(((n1-1)*v1+(n2-1)*v2)/(n1+n2-2));
+		d=sp>0?Math.abs(m1-m2)/sp:NaN;
+		desc1="「"+nx+"」（M = "+f2(m1)+", SD = "+f2(s1)+", n = "+n1+"）";
+		desc2="「"+ny+"」（M = "+f2(m2)+", SD = "+f2(s2)+", n = "+n2+"）";
+		method="対応のないt検定（Welch法）";
+	}
+	const dW=d>=0.8?"大きい":d>=0.5?"中程度":d>=0.2?"小さい":"ごく小さい";
+	let sent=desc1+"と"+desc2+"の平均値を比較するため、"+method+"を行った。その結果、";
+	if(p<0.05){sent+="両者の差は有意であった（t("+f2(df)+") = "+f2(t)+", "+pStr(p)+", d = "+f2(d)+"）。効果量は"+dW+"と判断される。";}
+	else{sent+="有意な差は見られなかった（t("+f2(df)+") = "+f2(t)+", "+pStr(p)+", d = "+f2(d)+"）。";}
+	showRes("tRes","<table class='rtbl'><tr><th>t</th><th>自由度</th><th>p</th><th>効果量 d</th></tr><tr><td>"+f2(t)+"</td><td>"+f2(df)+"</td><td>"+pDisp(p)+"</td><td>"+f2(d)+"</td></tr></table>",sent);
+}
+
+/* ── χ²検定 ── */
+function chi2(){
+	const a=+$("xA").value,b=+$("xB").value;
+	if(a===b){toast("別々の変数を選んでください");return;}
+	const cats1=[],cats2=[],pairs=[];
+	for(let r=0;r<nrows();r++){
+		const s1=String(st.cols[a].vals[r]==null?"":st.cols[a].vals[r]).trim();
+		const s2=String(st.cols[b].vals[r]==null?"":st.cols[b].vals[r]).trim();
+		if(!s1||!s2)continue;
+		if(cats1.indexOf(s1)<0)cats1.push(s1);
+		if(cats2.indexOf(s2)<0)cats2.push(s2);
+		pairs.push([s1,s2]);
+	}
+	const n=pairs.length;
+	if(cats1.length<2||cats2.length<2){toast("それぞれ2種類以上のカテゴリが必要です");return;}
+	if(cats1.length>10||cats2.length>10){toast("カテゴリが多すぎます（10種類まで）。数値ではなくカテゴリの列を選んでください");return;}
+	const obs=cats1.map(function(){return cats2.map(function(){return 0;});});
+	pairs.forEach(function(pr){obs[cats1.indexOf(pr[0])][cats2.indexOf(pr[1])]+=1;});
+	const rowT=obs.map(function(row){return row.reduce(function(s,x){return s+x;},0);});
+	const colT=cats2.map(function(c,j){return obs.reduce(function(s,row){return s+row[j];},0);});
+	let x2=0,low=0;
+	obs.forEach(function(row,i){row.forEach(function(o,j){const e=rowT[i]*colT[j]/n;if(e<5)low+=1;if(e>0)x2+=(o-e)*(o-e)/e;});});
+	const df=(cats1.length-1)*(cats2.length-1);
+	const p=chi2P(x2,df);
+	const V=Math.sqrt(x2/(n*Math.min(cats1.length-1,cats2.length-1)));
+	const nx=st.cols[a].name,ny=st.cols[b].name;
+	let h="<table class='rtbl'><tr><th>"+esc(nx)+" ＼ "+esc(ny)+"</th>"+cats2.map(function(c){return "<th>"+esc(c)+"</th>";}).join("")+"<th>計</th></tr>";
+	cats1.forEach(function(c1,i){h+="<tr><td>"+esc(c1)+"</td>"+obs[i].map(function(o){return "<td>"+o+"</td>";}).join("")+"<td>"+rowT[i]+"</td></tr>";});
+	h+="<tr><td>計</td>"+colT.map(function(c){return "<td>"+c+"</td>";}).join("")+"<td>"+n+"</td></tr></table>";
+	h+="<table class='rtbl'><tr><th>χ²</th><th>自由度</th><th>p</th><th>Cramér の V</th></tr><tr><td>"+f2(x2)+"</td><td>"+df+"</td><td>"+pDisp(p)+"</td><td>"+f2(V)+"</td></tr></table>";
+	const vW=V>=0.5?"強い":V>=0.3?"中程度の":V>=0.1?"弱い":"ごく弱い";
+	let sent="「"+nx+"」と「"+ny+"」の関連を調べるため、χ²検定を行った。その結果、";
+	if(p<0.05){sent+="両者の間に有意な関連が見られた（χ²("+df+") = "+f2(x2)+", n = "+n+", "+pStr(p)+", Cramér の V = "+f2(V)+"）。関連の強さは"+vW+"と判断される。";}
+	else{sent+="有意な関連は見られなかった（χ²("+df+") = "+f2(x2)+", n = "+n+", "+pStr(p)+"）。";}
+	const warn=low>0?"<div class='warn'>⚠ 期待度数が5未満のセルが"+low+"個あります。サンプルが少ないため、結果は慎重に解釈してください。</div>":"";
+	showRes("xRes",h,sent,warn);
+}
+
+/* ── コピー・ダウンロード（iPadフォールバック付き） ── */
+function showText(title,text){$("txtTitle").textContent=title;$("txtBody").value=text;$("txtm").classList.add("on");}
+function copyText(text,label){
+	if(navigator.clipboard&&navigator.clipboard.writeText){
+		navigator.clipboard.writeText(text).then(function(){toast(label+"をコピーしました");},function(){showText(label,text);});
+	}else{showText(label,text);}
+}
+function download(name,text){
+	try{
+		const bl=new Blob([text],{type:"application/json"});
+		const aEl=document.createElement("a");
+		aEl.href=URL.createObjectURL(bl);aEl.download=name;
+		document.body.appendChild(aEl);aEl.click();
+		setTimeout(function(){URL.revokeObjectURL(aEl.href);aEl.remove();},500);
+		toast("ダウンロードを開始しました（保存できない場合はコピーで保存してください）");
+	}catch(e){showText(name,text);}
+}
+
+/* ── 貼り付け・サンプル・保存 ── */
+$("pasteBtn").onclick=function(){$("pasteM").classList.add("on");};
+$("pasteClose").onclick=function(){$("pasteM").classList.remove("on");};
+$("pasteGo").onclick=function(){
+	const raw=$("pasteT").value.replace(/\r/g,"");
+	const lines=raw.split("\n").filter(function(l){return l.trim()!=="";});
+	if(!lines.length){toast("データがありません");return;}
+	const sepTab=raw.indexOf("\t")>=0;
+	const rows=lines.map(function(l){return sepTab?l.split("\t"):l.split(",");});
+	let w=0;rows.forEach(function(r){if(r.length>w)w=r.length;});
+	const useHead=$("pasteHead").checked;
+	const head=useHead?rows[0]:null;
+	const body=useHead?rows.slice(1):rows;
+	if(!body.length){toast("データ行がありません");return;}
+	if(!confirm("今の表を置き換えて取り込みます。よろしいですか？"))return;
+	st.cols=[];
+	for(let c=0;c<w;c++){
+		st.cols.push({name:(head&&String(head[c]==null?"":head[c]).trim())||("変数"+(c+1)),vals:body.map(function(r){return String(r[c]==null?"":r[c]).trim();})});
+	}
+	persist();renderGrid();$("pasteM").classList.remove("on");$("pasteT").value="";
+	toast(w+"列 × "+body.length+"行を取り込みました");
+};
+$("sampleBtn").onclick=function(){
+	if(!confirm("サンプルデータ（小テストと睡眠時間の例）で今の表を置き換えます。よろしいですか？"))return;
+	st.cols=[
+		{name:"小テスト",vals:["72","68","75","80","64","70","60","58","66","62","55","63"]},
+		{name:"睡眠時間",vals:["7.5","7","8","8.5","6.5","7","6","5.5","6.5","6","5","6.5"]},
+		{name:"A組の点数",vals:["72","68","75","80","64","70","","","","","",""]},
+		{name:"B組の点数",vals:["60","58","66","62","55","63","","","","","",""]},
+		{name:"組",vals:["A","A","A","A","A","A","B","B","B","B","B","B"]},
+		{name:"部活",vals:["あり","あり","なし","なし","あり","なし","あり","あり","なし","あり","あり","なし"]}
+	];
+	persist();renderGrid();
+	toast("サンプルを入れました。例：相関＝小テスト×睡眠時間、t検定＝A組×B組、χ²＝組×部活");
+};
+
+/* ── 初期化 ── */
+$("project").value=st.project||"";
+$("project").onchange=function(e){st.project=e.target.value.trim();persist();};
+$("addRowBtn").onclick=function(){st.cols.forEach(function(c){c.vals.push("");});persist();renderGrid();};
+$("delRowBtn").onclick=function(){if(nrows()<=1){toast("これ以上削除できません");return;}st.cols.forEach(function(c){c.vals.pop();});persist();renderGrid();};
+$("addColBtn").onclick=function(){st.cols.push({name:"変数"+(st.cols.length+1),vals:Array(nrows()).fill("")});persist();renderGrid();};
+$("descBtn").onclick=desc;
+$("descTexBtn").onclick=descTex;
+$("corBtn").onclick=corr;
+$("tBtn").onclick=tTest;
+$("xBtn").onclick=chi2;
+$("txtClose").onclick=function(){$("txtm").classList.remove("on");};
+$("txtCopy").onclick=function(){const t=$("txtBody");t.focus();t.select();try{document.execCommand("copy");toast("コピーしました");}catch(e){toast("選択して手動でコピーしてください");}};
+$("expBtn").onclick=function(){download((st.project||"data")+"_toukei.json",JSON.stringify(st,null,1));};
+$("impBtn").onclick=function(){$("impFile").click();};
+$("impFile").onchange=function(e){
+	const f=e.target.files[0];if(!f)return;
+	const rd=new FileReader();
+	rd.onload=function(){
+		try{
+			const d=JSON.parse(rd.result);
+			if(!d||!d.cols)throw 0;
+			if(!confirm("今のデータを置き換えて読み込みます。よろしいですか？"))return;
+			st=d;persist();$("project").value=st.project||"";renderGrid();toast("読み込みました");
+		}catch(err){toast("読み込めませんでした（このアプリの書き出しファイルを選んでください）");}
+	};
+	rd.readAsText(f);e.target.value="";
+};
+if(!st.guided){$("guide").style.display="block";}
+$("guideOff").onclick=function(){st.guided=true;persist();$("guide").style.display="none";};
+renderGrid();
+</script>
+</body>
+</html>

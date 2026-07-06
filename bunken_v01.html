@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EDIT ONE — 文献管理 v0.1</title>
+<style>
+:root{--bg:#14161a;--panel:#1f232b;--panel2:#262b35;--line:#333a46;--text:#e8eaf0;--sub:#9aa3b2;--ac:#5b8cff;--ok:#3fb27f;--warn:#e0a34e;--danger:#e05c5c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;font-size:14px;line-height:1.55}
+button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{transform:scale(.97)}
+button.primary{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+button.mini{padding:2px 8px;font-size:12px}
+button.danger{color:var(--danger)}
+input,select,textarea{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--ac)}
+input.dup{border-color:var(--danger)}
+header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.logo{font-weight:800;white-space:nowrap}
+.logo b{color:var(--ac)}
+.tag{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:2px 8px;white-space:nowrap}
+#q{flex:1;min-width:130px}
+#saveSt{font-size:11px;color:var(--sub);white-space:nowrap}
+main{max-width:900px;margin:0 auto;padding:16px 14px 90px}
+.stats{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 12px;font-size:12.5px;color:var(--sub)}
+.stats b{color:var(--text);font-size:15px}
+.refcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+.row{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.row:first-child{margin-top:0}
+.row .grow{flex:1;min-width:120px}
+.row .yr{width:80px}
+.row .keyin{width:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+.row .pg{width:130px}
+.lbl{font-size:11px;color:var(--sub);white-space:nowrap}
+.refcard details{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.refcard summary{cursor:pointer;font-size:12.5px;color:var(--sub)}
+.refcard details label{display:block;font-size:11px;color:var(--sub);margin:8px 0 3px}
+.refcard details textarea{width:100%;min-height:40px;resize:vertical;font-size:13px}
+.hint{font-size:12px;color:var(--sub);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:12px 0}
+#ovl{position:fixed;inset:0;background:#000a;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+#ovl .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:640px;width:100%;padding:14px}
+#ovl textarea{width:100%;min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+#ovl .ops{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:70;max-width:90vw}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EDIT<b>ONE</b></div>
+  <div class="tag">📚 文献管理 v0.1</div>
+  <button class="mini primary" id="btnAdd">＋ 文献を追加</button>
+  <input id="q" placeholder="検索（著者・タイトル・タグ・キー）">
+  <select id="sort">
+    <option value="added">追加順</option>
+    <option value="year">年（新しい順）</option>
+    <option value="author">著者順</option>
+    <option value="star">★順</option>
+  </select>
+  <button class="mini" id="btnBib">BibTeX書き出し</button>
+  <button class="mini" id="btnExport">💾 書き出し</button>
+  <button class="mini" id="btnImport">📂 読み込み</button>
+  <span id="saveSt">自動保存有効</span>
+</header>
+<main>
+<div class="stats"><span>登録 <b id="cnt">0</b> 件</span><span>表示中 <b id="cntV">0</b> 件</span></div>
+<div id="list"></div>
+<div class="hint">💡 引用キーは「この文献を指す短い名前」です。本文では \cite{キー} と書くだけで引用でき、参考文献リストは組版時に自動生成されます。保存のたびに文献一覧は連携用の受け渡しデータにも書き込まれ、執筆エディタの引用挿入（Phase 4で搭載）から使われます。</div>
+</main>
+
+<div id="ovl" class="hidden">
+  <div class="box">
+    <div style="font-weight:700;margin-bottom:8px" id="ovlTitle">書き出し</div>
+    <textarea id="ovlText"></textarea>
+    <div class="ops">
+      <input type="file" id="ovlFile" accept=".json" class="hidden">
+      <button class="mini hidden" id="ovlPick">📁 ファイルを選択</button>
+      <button class="mini hidden" id="ovlLoad">読み込む</button>
+      <button class="mini" id="ovlCopy">📋 コピー</button>
+      <button class="mini" id="ovlDl">⬇ ダウンロード</button>
+      <button class="mini" id="ovlClose">閉じる</button>
+    </div>
+    <div class="hint" style="margin:10px 0 0">ダウンロードできない端末（iPad等）ではコピーで保管。読み込みは貼り付けでもファイル選択でもOKです。</div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+const KEY="editone_bunken_v01", REFS="editone_ronbun_refs_v01";
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
+let st=load()||{refs:[]};
+if(!Array.isArray(st.refs)) st.refs=[];
+
+let tm=null;
+function save(){
+ $("saveSt").textContent="保存中…";
+ clearTimeout(tm);
+ tm=setTimeout(()=>{
+  try{
+   localStorage.setItem(KEY, JSON.stringify(st));
+   localStorage.setItem(REFS, JSON.stringify({from:"bunken", ts:Date.now(),
+    refs:st.refs.map(r=>({key:r.key,type:r.type,author:r.author,year:r.year,title:r.title,src:r.src,pages:r.pages,url:r.url}))}));
+   $("saveSt").textContent="自動保存済み";
+  }catch(e){ $("saveSt").textContent="保存失敗"; toast("保存に失敗しました（端末の空き容量を確認してください）"); }
+ },500);
+}
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove("show"),2600); }
+function $(id){ return document.getElementById(id); }
+function mk(label,fn,cls){ const b=document.createElement("button"); b.className="mini"+(cls?" "+cls:""); b.textContent=label; b.onclick=fn; return b; }
+function copyText(v){
+ const done=()=>toast("コピーしました："+v);
+ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done,()=>fallbackCopy(v,done)); }
+ else fallbackCopy(v,done);
+}
+function fallbackCopy(v,done){
+ const ta=document.createElement("textarea"); ta.value=v; document.body.appendChild(ta);
+ ta.select(); try{ document.execCommand("copy"); done(); }catch(e){ toast("コピーできませんでした"); }
+ document.body.removeChild(ta);
+}
+
+/* ---------- 引用キー ---------- */
+function isDup(k,self){ return st.refs.some(r=>r!==self&&r.key===k); }
+function genKey(author,year){
+ let base=(author||"").split(/[;、,，\s]+/)[0]||"";
+ base=base.toLowerCase().replace(/[^a-z0-9]/g,"");
+ if(!base) base="ref";
+ const k=base+(year||"");
+ if(!isDup(k,null)) return k;
+ const abc="abcdefghijklmnopqrstuvwxyz";
+ for(let i=0;i<abc.length;i++){ if(!isDup(k+abc[i],null)) return k+abc[i]; }
+ return k+String(Date.now()%1000);
+}
+
+/* ---------- 一覧 ---------- */
+function viewList(){
+ const q=$("q").value.trim().toLowerCase();
+ let arr=st.refs.slice();
+ if(q) arr=arr.filter(r=>((r.author||"")+" "+(r.title||"")+" "+(r.tags||"")+" "+(r.key||"")).toLowerCase().includes(q));
+ const s=$("sort").value;
+ if(s==="year") arr.sort((a,b)=>(Number(b.year)||0)-(Number(a.year)||0));
+ else if(s==="author") arr.sort((a,b)=>(a.author||"").localeCompare(b.author||"","ja"));
+ else if(s==="star") arr.sort((a,b)=>(b.star||0)-(a.star||0));
+ return arr;
+}
+function inp(ph,val,fn,cls){
+ const i=document.createElement("input"); i.placeholder=ph; i.value=val||""; if(cls)i.className=cls;
+ i.addEventListener("input",()=>fn(i));
+ return i;
+}
+function render(){
+ const list=$("list"); list.innerHTML="";
+ const arr=viewList();
+ arr.forEach(r=>{
+  const card=document.createElement("div"); card.className="refcard";
+  /* row1: 種別・★・キー・操作 */
+  const r1=document.createElement("div"); r1.className="row";
+  const sel=document.createElement("select");
+  [["article","論文"],["book","書籍"],["web","Webページ"],["misc","その他"]].forEach(o=>{
+   const op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; sel.appendChild(op);
+  });
+  sel.value=r.type||"article";
+  sel.addEventListener("change",()=>{ r.type=sel.value; save(); });
+  r1.appendChild(sel);
+  const star=mk(r.star?"★".repeat(r.star):"☆",()=>{ r.star=((r.star||0)+1)%4; save(); render(); });
+  star.title="重要度（タップで ☆→★→★★→★★★）";
+  r1.appendChild(star);
+  const lbl=document.createElement("span"); lbl.className="lbl"; lbl.textContent="引用キー";
+  r1.appendChild(lbl);
+  const keyin=inp("キー",r.key,i=>{
+   r.key=i.value.trim();
+   i.classList.toggle("dup",isDup(r.key,r));
+   if(isDup(r.key,r)) toast("引用キーが重複しています");
+   save();
+  },"keyin");
+  r1.appendChild(keyin);
+  r1.appendChild(mk("📋 キー",()=>copyText(r.key||"")));
+  r1.appendChild(mk("📋 \\cite",()=>copyText("\\cite{"+(r.key||"")+"}")));
+  r1.appendChild(mk("✕",()=>{ if(confirm("この文献を削除しますか？")){ st.refs.splice(st.refs.indexOf(r),1); save(); render(); } },"danger"));
+  card.appendChild(r1);
+  /* row2: 著者・年 */
+  const r2=document.createElement("div"); r2.className="row";
+  r2.appendChild(inp("著者（複数はセミコロン区切り：Yamada Taro; Sato Hanako）",r.author,i=>{ r.author=i.value; save(); },"grow"));
+  r2.appendChild(inp("年",r.year,i=>{ r.year=i.value.trim(); save(); },"yr"));
+  card.appendChild(r2);
+  /* row3: タイトル */
+  const r3=document.createElement("div"); r3.className="row";
+  r3.appendChild(inp("タイトル",r.title,i=>{ r.title=i.value; save(); },"grow"));
+  card.appendChild(r3);
+  /* row4: 掲載誌・ページ */
+  const r4=document.createElement("div"); r4.className="row";
+  r4.appendChild(inp("掲載誌名／出版社／サイト名",r.src,i=>{ r.src=i.value; save(); },"grow"));
+  r4.appendChild(inp("巻号・ページ",r.pages,i=>{ r.pages=i.value; save(); },"pg"));
+  card.appendChild(r4);
+  /* row5: URL・タグ */
+  const r5=document.createElement("div"); r5.className="row";
+  r5.appendChild(inp("URL・DOI",r.url,i=>{ r.url=i.value.trim(); save(); },"grow"));
+  r5.appendChild(inp("タグ（カンマ区切り）",r.tags,i=>{ r.tags=i.value; save(); },"grow"));
+  card.appendChild(r5);
+  /* 3層メモ */
+  const det=document.createElement("details");
+  if(r.open) det.setAttribute("open","");
+  det.addEventListener("toggle",()=>{ r.open=det.open; save(); });
+  const sum=document.createElement("summary"); sum.textContent="📝 3層メモ（要約・批判・引用）";
+  det.appendChild(sum);
+  [["要約（この文献は何を言っているか）","sum"],["批判・自分の考え（どこが使える？どこが弱い？）","crit"],["引用したい一文（ページ番号もメモ）","quote"]].forEach(m=>{
+   const la=document.createElement("label"); la.textContent=m[0]; det.appendChild(la);
+   const ta=document.createElement("textarea"); ta.value=r[m[1]]||"";
+   ta.addEventListener("input",()=>{ r[m[1]]=ta.value; save(); });
+   det.appendChild(ta);
+  });
+  card.appendChild(det);
+  list.appendChild(card);
+ });
+ if(!st.refs.length){
+  const e=document.createElement("div"); e.className="hint";
+  e.textContent="文献がまだありません。「＋ 文献を追加」から登録しましょう。読んだらすぐ登録、が鉄則です。";
+  list.appendChild(e);
+ }
+ $("cnt").textContent=st.refs.length;
+ $("cntV").textContent=arr.length;
+}
+$("btnAdd").onclick=()=>{
+ const y=String(new Date().getFullYear());
+ st.refs.unshift({type:"article",author:"",year:y,title:"",src:"",pages:"",url:"",tags:"",star:0,sum:"",crit:"",quote:"",key:genKey("",y),open:true});
+ save(); render();
+};
+$("q").addEventListener("input",render);
+$("sort").addEventListener("change",render);
+
+/* ---------- BibTeX ---------- */
+function bibType(t){ return t==="article"?"@article":t==="book"?"@book":"@misc"; }
+function bibtex(){
+ return st.refs.map(r=>{
+  const f=[];
+  if(r.author) f.push("  author = {"+r.author.split(/[;、]/).map(s=>s.trim()).filter(Boolean).join(" and ")+"}");
+  if(r.title) f.push("  title = {"+r.title+"}");
+  if(r.year) f.push("  year = {"+r.year+"}");
+  if(r.src){
+   if(r.type==="article") f.push("  journal = {"+r.src+"}");
+   else if(r.type==="book") f.push("  publisher = {"+r.src+"}");
+   else f.push("  howpublished = {"+r.src+"}");
+  }
+  if(r.pages) f.push("  pages = {"+r.pages+"}");
+  if(r.url) f.push("  url = {"+r.url+"}");
+  return bibType(r.type)+"{"+(r.key||"ref")+",\n"+f.join(",\n")+"\n}";
+ }).join("\n\n");
+}
+
+/* ---------- 入出力（iPad対応） ---------- */
+let ovlMode="export", ovlName="editone_bunken.json";
+function openOvl(mode,title,text,name){
+ ovlMode=mode; ovlName=name||"editone_bunken.json";
+ $("ovlTitle").textContent=title;
+ $("ovlText").value=text;
+ $("ovlPick").classList.toggle("hidden", mode!=="import");
+ $("ovlLoad").classList.toggle("hidden", mode!=="import");
+ $("ovlCopy").classList.toggle("hidden", mode==="import");
+ $("ovlDl").classList.toggle("hidden", mode==="import");
+ $("ovl").classList.remove("hidden");
+}
+$("btnExport").onclick=()=>openOvl("export","書き出し（バックアップ）",JSON.stringify(st,null,1),"editone_bunken.json");
+$("btnBib").onclick=()=>{
+ if(!st.refs.length){ toast("文献がまだありません"); return; }
+ openOvl("bib","BibTeX書き出し（literature.bib）",bibtex(),"literature.bib");
+};
+$("btnImport").onclick=()=>openOvl("import","読み込み（JSONを貼り付けかファイル選択）","","");
+$("ovlClose").onclick=()=>$("ovl").classList.add("hidden");
+$("ovlCopy").onclick=()=>{
+ const t=$("ovlText"); t.focus(); t.select();
+ const done=()=>toast("コピーしました");
+ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t.value).then(done,()=>{ document.execCommand("copy"); done(); }); }
+ else{ document.execCommand("copy"); done(); }
+};
+$("ovlDl").onclick=()=>{
+ try{
+  const blob=new Blob([$("ovlText").value],{type:"text/plain"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=ovlName; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast("ダウンロードを開始しました（保存されない場合はコピーを使ってください）");
+ }catch(e){ toast("ダウンロードできませんでした。コピーを使ってください"); }
+};
+$("ovlPick").onclick=()=>$("ovlFile").click();
+$("ovlFile").addEventListener("change",e=>{
+ const f=e.target.files[0]; if(!f) return;
+ const r=new FileReader();
+ r.onload=()=>{ $("ovlText").value=r.result; };
+ r.readAsText(f); e.target.value="";
+});
+$("ovlLoad").onclick=()=>{
+ try{
+  const d=JSON.parse($("ovlText").value);
+  if(!d||!Array.isArray(d.refs)) throw 0;
+  if(!confirm("現在の文献一覧を読み込んだ内容で置き換えますか？")) return;
+  st=d;
+  if(!Array.isArray(st.refs)) st.refs=[];
+  save(); render();
+  $("ovl").classList.add("hidden");
+  toast("読み込みました");
+ }catch(err){ toast("読み込みに失敗しました（JSON形式を確認してください）"); }
+};
+
+render();
+</script>
+</body>
+</html>

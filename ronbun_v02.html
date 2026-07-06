@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>EDIT ONE｜執筆エディタ v0.2</title>
+<style>
+:root{--bg:#14161a;--panel:#1f232b;--line:#343a46;--tx:#e8eaee;--sub:#98a2b3;--ac:#5b8cff;--ok:#3fb27f;--warn:#e0a34e}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);display:flex;flex-direction:column;overflow:hidden}
+button{cursor:pointer;border:1px solid var(--line);background:#2a3040;color:var(--tx);border-radius:8px;padding:6px 10px;font-size:13px}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+button.mini{padding:2px 7px;font-size:11px;border-radius:6px}
+input,select,textarea{background:#171a20;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px}
+header{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{font-size:15px}
+#project{width:170px}
+#status{font-size:11px;color:var(--sub);margin-left:auto}
+#guide{background:#233046;border-bottom:1px solid var(--line);padding:8px 12px;font-size:12px;color:#cfe0ff;display:flex;gap:10px;align-items:center}
+#dash{display:flex;gap:14px;align-items:center;padding:7px 12px;background:var(--panel);border-bottom:1px solid var(--line);font-size:12px;color:var(--sub);flex-wrap:wrap}
+#pbar{width:180px;height:10px;background:#171a20;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+#pfill{height:100%;width:0%;background:var(--warn);transition:width .3s}
+main{flex:1;display:flex;min-height:0;position:relative}
+#tree{width:280px;min-width:230px;border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:10px}
+.ch{margin-bottom:10px}
+.chrow{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:bold;padding:4px 2px}
+.chrow span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec{display:flex;align-items:center;gap:6px;padding:6px 8px;margin:2px 0 2px 10px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid transparent}
+.sec:hover{background:#262b36}
+.sec.sel{background:#2b3448;border-color:var(--ac)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sec b{flex:1;font-weight:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cnt{color:var(--sub);font-size:11px}
+#ed{flex:1;display:flex;flex-direction:column;min-width:0;padding:12px;gap:8px}
+#edhead{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#sTitle{flex:1;min-width:160px;font-size:15px}
+#edtools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#snip{display:none;gap:6px;flex-wrap:wrap}
+body.texmode #snip{display:flex}
+#sWrap{flex:1;position:relative;display:flex;min-height:0;background:#171a20;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+#sText{flex:1;resize:none;line-height:1.9;font-size:15px;padding:12px;background:transparent;border:none;outline:none;width:100%}
+#hl{position:absolute;inset:0;padding:12px;margin:0;overflow:auto;white-space:pre-wrap;word-break:break-word;display:none;pointer-events:none;line-height:1.9;font-size:15px;color:var(--tx)}
+body.texmode #hl{display:block}
+body.texmode #sText{color:transparent;caret-color:#fff}
+.texfont{font-family:Menlo,Consolas,monospace!important;font-size:13px!important;line-height:1.7!important}
+#hl .k{color:#8ab4ff}#hl .c{color:#7f8ea3}#hl .m{color:#ffd28a}
+#refpanel{width:270px;min-width:220px;border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:10px;display:none}
+body.refon #refpanel{display:block}
+#refpanel h3{font-size:13px}
+#refpanel h4{font-size:12px;color:var(--sub);margin:10px 0 4px}
+.memo{font-size:12px;background:#171a20;border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:4px 0;white-space:pre-wrap}
+.none{font-size:11px;color:var(--sub)}
+.crow{display:flex;gap:8px;align-items:flex-start;padding:6px 4px;border-bottom:1px solid var(--line);font-size:12px}
+.crow>span{flex:1;min-width:0}
+#focusbar{display:none;align-items:center;gap:10px;padding:7px 12px;background:#233046;border-bottom:1px solid var(--line);font-size:12px;color:#cfe0ff}
+body.focus #tree,body.focus #dash,body.focus #guide,body.focus #refpanel{display:none!important}
+body.focus #focusbar{display:flex}
+#m_pad{display:flex;flex-wrap:wrap;gap:6px}
+.fr{display:inline-block;text-align:center;vertical-align:middle;padding:0 3px}
+.fr>span{display:block;font-size:.92em}
+.fr .dn{border-top:1px solid var(--tx)}
+.ov{border-top:1px solid var(--tx)}
+.sq{border-top:1px solid var(--tx);padding:0 2px}
+.del{background:#4a2430}.add{background:#1f3a2c}
+#sn_diff{font-size:12px;max-height:220px;overflow:auto;margin-top:8px}
+#edfoot{font-size:12px;color:var(--sub);display:flex;gap:14px;flex-wrap:wrap}
+#empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:13px;text-align:center;line-height:2}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20}
+.modal.on{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:760px;width:94%;max-height:92vh;overflow-y:auto;padding:16px}
+.mbox h2{font-size:15px;margin-bottom:10px}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
+legend{font-size:12px;color:var(--sub);padding:0 6px}
+.opt{display:flex;align-items:flex-start;gap:8px;padding:5px 2px;font-size:13px}
+.opt small{color:var(--sub);display:block;font-size:11px}
+.opt input{margin-top:3px}
+#wout{width:100%;height:200px;font-family:Menlo,Consolas,monospace;font-size:12px;line-height:1.5;resize:vertical;white-space:pre;margin-top:10px}
+.mrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2b3448;border:1px solid var(--ac);color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:30}
+#burger{display:none}
+@media(max-width:900px){#refpanel{position:absolute;right:0;top:0;bottom:0;z-index:9;box-shadow:-4px 0 14px rgba(0,0,0,.4)}}
+@media(max-width:760px){
+#burger{display:inline-block}
+#tree{position:absolute;left:0;top:0;bottom:0;z-index:10;transform:translateX(-105%);transition:transform .2s;box-shadow:4px 0 14px rgba(0,0,0,.4)}
+#tree.open{transform:none}
+}
+</style>
+</head>
+<body>
+<header>
+<button id="burger">☰</button>
+<h1>✍️ 執筆エディタ v0.2</h1>
+<input id="project" placeholder="論文タイトル（作業名）">
+<select id="tplSel">
+<option value="" selected disabled>構成テンプレート…</option>
+<option value="imrad">卒論・理系（IMRaD）</option>
+<option value="jinbun">人文系論文</option>
+<option value="tankyu">探究レポート（高校）</option>
+</select>
+<button id="pipeBtn">📥 構想</button>
+<button id="wizBtn" class="pri">📦 LaTeX</button>
+<button id="texBtn">⬇ .tex</button>
+<button id="findBtn">🔍</button>
+<button id="expBtn">💾</button>
+<button id="impBtn">📂</button>
+<input type="file" id="impFile" accept=".json" style="display:none">
+<span id="status">自動保存で動作中</span>
+</header>
+<div id="guide" style="display:none">
+<b>はじめての方へ:</b><span>① 「構成テンプレート…」か「📥 構想」で章立てを作る → ② 左の一覧で節をタップ → ③ 書くだけ。保存は全自動。「📚 引用」で文献挿入、「🎯 集中」で今の節だけに集中できます。</span>
+<button class="mini" id="guideOff">閉じる</button>
+</div>
+<div id="dash">
+<div id="pbar"><div id="pfill"></div></div>
+<span id="pstat">0 / 0 字（0%）</span>
+<span id="ptoday">今日 0 字</span>
+<span id="pest">完成予想 —</span>
+<span id="psec">節 0 / 0 完了</span>
+</div>
+<div id="focusbar"><span id="fbTxt">🎯 集中モード</span><button class="mini" id="fbOff">解除</button></div>
+<main>
+<div id="tree"></div>
+<div id="ed">
+<div id="edhead">
+<input id="sTitle" placeholder="節のタイトル">
+<label style="font-size:12px;color:var(--sub)">目標 <input id="sTarget" type="number" min="0" style="width:84px"> 字</label>
+<select id="sStatus"><option>未着手</option><option>下書き</option><option>推敲済み</option></select>
+</div>
+<div id="edtools">
+<button class="mini" id="modeBtn">📝 構造</button>
+<button class="mini" id="refBtn">👁 参照</button>
+<button class="mini" id="citeBtn">📚 引用</button>
+<button class="mini" id="mathBtn">ƒx 数式</button>
+<button class="mini" id="fnBtn">脚注</button>
+<button class="mini" id="snapBtn">📸</button>
+<button class="mini" id="cmtBtn">💬</button>
+<button class="mini" id="focusBtn">🎯 集中</button>
+</div>
+<div id="snip"></div>
+<div id="sWrap"><pre id="hl" aria-hidden="true"></pre><textarea id="sText" placeholder="ここに本文。書式は気にせず、内容に集中してください（体裁は組版アプリの担当です）"></textarea></div>
+<div id="edfoot"><span id="fCnt">0 字</span><span id="fTarget">目標未設定</span><span>空白・改行は文字数に数えません</span></div>
+</div>
+<div id="empty" style="display:none">左の一覧から節を選ぶか、<br>「構成テンプレート…」または「📥 構想」で章立てを作ってください</div>
+<div id="refpanel"></div>
+</main>
+
+<div class="modal" id="wiz">
+<div class="mbox">
+<h2>📦 LaTeXパッケージウィザード v0.2</h2>
+<p style="font-size:12px;color:var(--sub);margin-bottom:10px">アンケートに答えると必要なパッケージを読み込み済みのテンプレを生成。「📥 エディタへ展開」でこの設定を本体に保存すると、「⬇ .tex」書き出しに本文と結合されます。読み込み順の罠（hyperrefは最後 など）は自動回避。</p>
+<fieldset><legend>Q1. 言語とエンジン</legend>
+<label class="opt"><input type="radio" name="eng" value="lua" checked><span>日本語・LuaLaTeX<small>迷ったらこれ。Overleafでもそのまま動く現代的な定番</small></span></label>
+<label class="opt"><input type="radio" name="eng" value="up"><span>日本語・upLaTeX<small>大学の指定テンプレで使われがちな従来型（uplatex→dvipdfmxの2段階）</small></span></label>
+<label class="opt"><input type="radio" name="eng" value="pdf"><span>英語・pdfLaTeX<small>英語論文の標準</small></span></label>
+</fieldset>
+<fieldset><legend>Q2. 何を書きますか？（あてはまるもの全部）</legend>
+<label class="opt"><input type="checkbox" id="w_math" checked><span>数式を書く<small>amsmath / amssymb / mathtools</small></span></label>
+<label class="opt"><input type="checkbox" id="w_thm"><span>定理・定義・証明を書く<small>amsthm（数学・情報系向け）</small></span></label>
+<label class="opt"><input type="checkbox" id="w_fig" checked><span>図・写真を貼る<small>graphicx</small></span></label>
+<label class="opt"><input type="checkbox" id="w_tab" checked><span>表を組む<small>booktabs / array</small></span></label>
+<label class="opt"><input type="checkbox" id="w_ltab"><span>ページをまたぐ長い表<small>longtable</small></span></label>
+<label class="opt"><input type="checkbox" id="w_unit"><span>単位付きの数値（9.8 m/s² など）<small>siunitx</small></span></label>
+<label class="opt"><input type="checkbox" id="w_code"><span>プログラムのコードを載せる<small>listings</small></span></label>
+<label class="opt"><input type="checkbox" id="w_chem"><span>化学式・反応式<small>mhchem</small></span></label>
+<label class="opt"><input type="checkbox" id="w_color"><span>文字に色を使う<small>xcolor</small></span></label>
+<label class="opt"><input type="checkbox" id="w_geo" checked><span>余白を調整する<small>geometry</small></span></label>
+<label class="opt"><input type="checkbox" id="w_link" checked><span>目次・引用・URLをクリック可能にする<small>hyperref</small></span></label>
+</fieldset>
+<div class="mrow"><button class="pri" id="wGen">✨ テンプレを生成</button><button class="pri" id="wUse">📥 エディタへ展開</button><button id="wCopy">📋 コピー</button><button id="wDl">⬇ .texで保存</button><button id="wClose">閉じる</button></div>
+<textarea id="wout" readonly placeholder="ここに生成結果が表示されます"></textarea>
+<p style="font-size:11px;color:var(--sub);margin-top:8px">PDF化は組版・提出アプリのアプリ内コンパイル（Phase 6で搭載予定）または Overleaf（無料・ブラウザ）で。iPad等で保存できない場合は「コピー」を使ってください。</p>
+</div>
+</div>
+
+<div class="modal" id="cite">
+<div class="mbox">
+<h2>📚 引用を挿入</h2>
+<p style="font-size:12px;color:var(--sub);margin-bottom:8px">文献管理（bunken_v01.html）で登録した文献から選びます。構造モードでは [cite:キー]、LaTeXモードでは citeコマンドが挿入され、組版時に（著者, 年）等の書式へ変換されます。</p>
+<input id="c_q" placeholder="検索（著者・タイトル・キー）" style="width:100%">
+<div id="c_list" style="max-height:300px;overflow-y:auto;margin-top:8px"></div>
+<div class="mrow"><button id="c_close">閉じる</button></div>
+</div>
+</div>
+
+<div class="modal" id="math">
+<div class="mbox">
+<h2>ƒx 数式パレット</h2>
+<p style="font-size:12px;color:var(--sub);margin-bottom:8px">ボタンで部品を組み立てるか、直接LaTeX記法を入力。下に簡易プレビューが出ます（完全な見た目は組版アプリで確認）。</p>
+<div id="m_pad"></div>
+<textarea id="m_in" style="width:100%;height:70px;font-family:Menlo,Consolas,monospace;font-size:13px;margin-top:8px"></textarea>
+<div id="m_prev" style="min-height:44px;background:#171a20;border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:8px;font-size:18px"></div>
+<label class="opt" style="margin-top:6px"><input type="checkbox" id="m_blk"><span>別行立て（行の中央に大きく表示）で挿入</span></label>
+<div class="mrow"><button class="pri" id="m_ins">本文へ挿入</button><button id="m_close">閉じる</button></div>
+</div>
+</div>
+
+<div class="modal" id="snap">
+<div class="mbox">
+<h2 id="sn_title">📸 スナップショット</h2>
+<p style="font-size:12px;color:var(--sub);margin-bottom:8px">節の「版」を手動保存できます。大きく書き直す前に保存しておけば、見比べていつでも戻せます。</p>
+<div class="mrow"><button class="pri" id="sn_add">📸 今の内容を保存</button><button id="sn_close">閉じる</button></div>
+<div id="sn_list" style="margin-top:8px"></div>
+<div id="sn_diff"></div>
+</div>
+</div>
+
+<div class="modal" id="cmt">
+<div class="mbox">
+<h2 id="cm_title">💬 コメント</h2>
+<p style="font-size:12px;color:var(--sub);margin-bottom:8px">この節へのメモ・指導教員やゼミの指摘を残せます（チーム同期で共有可能）。</p>
+<div id="cm_list" style="max-height:240px;overflow-y:auto"></div>
+<textarea id="cm_in" placeholder="コメントを書く" style="width:100%;height:60px;margin-top:8px"></textarea>
+<div class="mrow"><button class="pri" id="cm_add">追加</button><button id="cm_close">閉じる</button></div>
+</div>
+</div>
+
+<div class="modal" id="find">
+<div class="mbox">
+<h2>🔍 検索・置換（全節横断）</h2>
+<input id="f_q" placeholder="検索語" style="width:100%">
+<input id="f_r" placeholder="置換後（置換する場合）" style="width:100%;margin-top:6px">
+<label class="opt" style="margin-top:6px"><input type="checkbox" id="f_re"><span>正規表現を使う</span></label>
+<div class="mrow"><button class="pri" id="f_find">検索</button><button id="f_rep">すべて置換</button><button id="f_close">閉じる</button></div>
+<div id="f_out" style="max-height:260px;overflow-y:auto;margin-top:8px"></div>
+</div>
+</div>
+
+<div class="modal" id="txtm">
+<div class="mbox">
+<h2 id="txtTitle">テキスト</h2>
+<p style="font-size:12px;color:var(--sub)">この端末では自動ダウンロードができないため、内容を表示しています。「📋 コピー」してメモ帳等に保存してください。</p>
+<textarea id="txtBody" readonly style="width:100%;height:260px;font-family:Menlo,Consolas,monospace;font-size:12px;margin-top:8px"></textarea>
+<div class="mrow"><button class="pri" id="txtCopy">📋 コピー</button><button id="txtClose">閉じる</button></div>
+</div>
+</div>
+<div id="toast"></div>
+
+<script>
+const LS="editone_ronbun_v02",OLD="editone_ronbun_v01",REFS="editone_ronbun_refs_v01",PIPE="editone_ronbun_pipe_v01";
+const $=id=>document.getElementById(id);
+const uid=()=>Math.random().toString(36).slice(2,10);
+const B="\\";
+function norm(d){d.daily=d.daily||{};d.preamble=d.preamble||"";d.chapters.forEach(c=>{c.sections.forEach(s=>{if(!s.mode)s.mode="txt";if(!Array.isArray(s.cmts))s.cmts=[];if(!Array.isArray(s.snaps))s.snaps=[];});});return d;}
+function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d&&Array.isArray(d.chapters))return norm(d);}catch(e){}
+try{const o=JSON.parse(localStorage.getItem(OLD));if(o&&Array.isArray(o.chapters)){const d=norm(JSON.parse(JSON.stringify(o)));d._mig=true;return d;}}catch(e){}
+return norm({project:"",chapters:[],daily:{},lastTotal:0,sel:null,guided:false});}
+let st=load();let saveT=null;let toastT=null;
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){$("status").textContent="⚠ 保存できません（容量超過の可能性。💾書き出しを推奨）";}}
+function toast(m){const t=$("toast");t.textContent=m;t.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity=0,2200);}
+const esc=t=>(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const cnt=t=>(t||"").replace(/\s/g,"").length;
+const secs=()=>st.chapters.reduce((a,c)=>a.concat(c.sections),[]);
+const grand=()=>secs().reduce((a,s)=>a+cnt(s.text),0);
+const grandT=()=>secs().reduce((a,s)=>a+(parseInt(s.target)||0),0);
+function tkey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function trackDaily(){const t=grand();const diff=t-(st.lastTotal||0);if(diff>0){const k=tkey();st.daily[k]=(st.daily[k]||0)+diff;}st.lastTotal=t;}
+function scheduleSave(){$("status").textContent="保存中…";clearTimeout(saveT);saveT=setTimeout(()=>{trackDaily();persist();$("status").textContent="自動保存済み "+new Date().toLocaleTimeString();renderDash();renderTree();},500);}
+function findSec(id){if(!id)return null;for(const c of st.chapters){for(const s of c.sections){if(s.id===id)return{c:c,s:s};}}return null;}
+
+function renderDash(){const g=grand(),t=grandT();const pct=t>0?Math.min(100,Math.round(g/t*100)):0;$("pfill").style.width=pct+"%";$("pfill").style.background=pct>=50?"var(--ok)":"var(--warn)";$("pstat").textContent=g.toLocaleString()+" / "+t.toLocaleString()+" 字（"+pct+"%）";$("ptoday").textContent="今日 "+((st.daily[tkey()]||0).toLocaleString())+" 字";const done=secs().filter(s=>s.status==="推敲済み").length;$("psec").textContent="節 "+done+" / "+secs().length+" 完了";$("pest").textContent="完成予想 "+estimate();}
+function estimate(){const T=grandT();if(T<=0)return "—";const rem=T-grand();if(rem<=0)return "目標達成 🎉";let sum=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);sum+=st.daily[tkey(d)]||0;}if(sum<=0)return "—（書き始めると予測します）";const avg=sum/7;const days=Math.ceil(rem/avg);const d=new Date();d.setDate(d.getDate()+days);return (d.getMonth()+1)+"/"+d.getDate()+" ごろ（1日平均 "+Math.round(avg)+" 字）";}
+
+function mini(t,fn){const b=document.createElement("button");b.className="mini";b.textContent=t;b.onclick=fn;return b;}
+function renderTree(){const tr=$("tree");tr.innerHTML="";st.chapters.forEach((c,ci)=>{const ch=document.createElement("div");ch.className="ch";const row=document.createElement("div");row.className="chrow";const nm=document.createElement("span");nm.textContent="📁 "+c.title;row.appendChild(nm);
+row.appendChild(mini("✎",()=>{const v=prompt("章のタイトル",c.title);if(v!==null){c.title=v.trim()||c.title;persist();renderTree();}}));
+row.appendChild(mini("＋節",()=>addSec(c)));
+row.appendChild(mini("↑",()=>moveCh(ci,-1)));
+row.appendChild(mini("↓",()=>moveCh(ci,1)));
+row.appendChild(mini("✕",()=>delCh(c)));
+ch.appendChild(row);
+c.sections.forEach((s,si)=>{const el=document.createElement("div");el.className="sec"+(st.sel===s.id?" sel":"");const d=document.createElement("span");d.className="dot";d.style.background=s.status==="推敲済み"?"var(--ok)":(s.status==="下書き"?"var(--warn)":"#555c6b");el.appendChild(d);const b=document.createElement("b");b.textContent=(s.mode==="tex"?"🔣 ":"")+s.title;el.appendChild(b);const cn=document.createElement("span");cn.className="cnt";cn.textContent=cnt(s.text)+"/"+(s.target||0);el.appendChild(cn);
+el.appendChild(mini("↑",ev=>{ev.stopPropagation();moveSec(c,si,-1);}));
+el.appendChild(mini("↓",ev=>{ev.stopPropagation();moveSec(c,si,1);}));
+el.appendChild(mini("✕",ev=>{ev.stopPropagation();delSec(c,s);}));
+el.onclick=()=>{st.sel=s.id;persist();renderTree();renderEd();if(window.innerWidth<=760)$("tree").classList.remove("open");};
+ch.appendChild(el);});
+tr.appendChild(ch);});
+const add=document.createElement("button");add.textContent="＋ 章を追加";add.style.width="100%";add.onclick=()=>{const v=prompt("章のタイトル","新しい章");if(v===null)return;st.chapters.push({id:uid(),title:v.trim()||"新しい章",sections:[]});persist();renderTree();};tr.appendChild(add);}
+
+function addSec(c){const s={id:uid(),title:"新しい節",target:800,status:"未着手",text:"",mode:"txt",cmts:[],snaps:[]};c.sections.push(s);st.sel=s.id;persist();renderTree();renderEd();renderDash();}
+function moveCh(i,d){const j=i+d;if(j<0||j>=st.chapters.length)return;const a=st.chapters;const x=a[i];a[i]=a[j];a[j]=x;persist();renderTree();}
+function moveSec(c,i,d){const j=i+d;if(j<0||j>=c.sections.length)return;const a=c.sections;const x=a[i];a[i]=a[j];a[j]=x;persist();renderTree();}
+function delCh(c){const has=c.sections.some(s=>cnt(s.text)>0);if(!confirm("章「"+c.title+"」を削除します。"+(has?"本文も消えます。":"")+"よろしいですか？"))return;st.chapters=st.chapters.filter(x=>x!==c);if(!findSec(st.sel))st.sel=null;st.lastTotal=grand();persist();renderTree();renderEd();renderDash();}
+function delSec(c,s){if(cnt(s.text)>0&&!confirm("節「"+s.title+"」を削除します。本文も消えます。よろしいですか？"))return;c.sections=c.sections.filter(x=>x!==s);if(st.sel===s.id)st.sel=null;st.lastTotal=grand();persist();renderTree();renderEd();renderDash();}
+
+function renderEd(){const f=findSec(st.sel);$("ed").style.display=f?"flex":"none";$("empty").style.display=f?"none":"flex";if(!f){document.body.classList.remove("texmode");return;}const s=f.s;$("sTitle").value=s.title;$("sTarget").value=s.target||0;$("sStatus").value=s.status;$("sText").value=s.text||"";applyMode(s);badges(s);foot(s);renderRef();}
+function badges(s){$("snapBtn").textContent="📸"+(s.snaps.length?" "+s.snaps.length:"");$("cmtBtn").textContent="💬"+(s.cmts.length?" "+s.cmts.length:"");$("modeBtn").textContent=s.mode==="tex"?"🔣 LaTeX":"📝 構造";}
+function applyMode(s){const tex=s.mode==="tex";document.body.classList.toggle("texmode",tex);$("sText").classList.toggle("texfont",tex);$("hl").classList.toggle("texfont",tex);paint();}
+function paint(){if(!document.body.classList.contains("texmode"))return;$("hl").innerHTML=hlHtml($("sText").value)+"\n";$("hl").scrollTop=$("sText").scrollTop;}
+function hlHtml(t){return esc(t).replace(/(%[^\n]*)/g,'<span class="c">$1</span>').replace(/(\${1,2}[^$\n]*\${1,2})/g,'<span class="m">$1</span>').replace(/(\\[a-zA-Z]+)/g,'<span class="k">$1</span>');}
+function foot(s){const c=cnt(s.text);$("fCnt").textContent=c.toLocaleString()+" 字";const t=parseInt(s.target)||0;$("fTarget").textContent=t>0?(c>=t?"目標クリア ✅":"目標まで あと "+(t-c).toLocaleString()+" 字"):"目標未設定";}
+$("sTitle").oninput=e=>{const f=findSec(st.sel);if(!f)return;f.s.title=e.target.value;scheduleSave();};
+$("sTarget").oninput=e=>{const f=findSec(st.sel);if(!f)return;f.s.target=parseInt(e.target.value)||0;foot(f.s);scheduleSave();};
+$("sStatus").onchange=e=>{const f=findSec(st.sel);if(!f)return;f.s.status=e.target.value;scheduleSave();};
+$("sText").oninput=e=>{const f=findSec(st.sel);if(!f)return;f.s.text=e.target.value;foot(f.s);paint();scheduleSave();};
+$("sText").onscroll=()=>{$("hl").scrollTop=$("sText").scrollTop;};
+$("project").oninput=e=>{st.project=e.target.value;scheduleSave();};
+$("modeBtn").onclick=()=>{const f=findSec(st.sel);if(!f){toast("先に節を選んでください");return;}f.s.mode=f.s.mode==="tex"?"txt":"tex";applyMode(f.s);badges(f.s);persist();renderTree();toast(f.s.mode==="tex"?"LaTeXコードモード：色分け表示・スニペットバーが使えます":"構造モード：内容に集中。体裁は組版担当");};
+$("refBtn").onclick=()=>{document.body.classList.toggle("refon");renderRef();};
+
+const TPL={
+imrad:{name:"卒論・理系（IMRaD）",ch:[["要旨",[["要旨",400]]],["序論",[["研究背景",1200],["先行研究と問題意識",1000],["本研究の目的",600]]],["方法",[["対象・材料",800],["手順",1000],["分析方法",800]]],["結果",[["結果の概要",800],["詳細な結果",1600]]],["考察",[["結果の解釈",1200],["先行研究との比較",1000],["本研究の限界と今後の課題",700]]],["結論",[["まとめ",500]]]]},
+jinbun:{name:"人文系論文",ch:[["序論",[["問題設定",1000],["先行研究の整理",1500]]],["本論Ⅰ",[["論点の提示と検討",2000]]],["本論Ⅱ",[["考察の展開",2000]]],["結論",[["結論と今後の展望",1000]]]]},
+tankyu:{name:"探究レポート（高校）",ch:[["導入",[["きっかけと問い",400],["仮説",300]]],["調査",[["調べたこと",800],["調査・実験の方法",600]]],["結果と考察",[["結果",700],["考察",700]]],["まとめ",[["結論と振り返り",500],["参考にした資料",200]]]]}};
+$("tplSel").onchange=e=>{const k=e.target.value;e.target.selectedIndex=0;if(!TPL[k])return;if(grand()>0&&!confirm("現在の章立てと本文を「"+TPL[k].name+"」で置き換えます。よろしいですか？（💾書き出しでバックアップ推奨）"))return;st.chapters=TPL[k].ch.map(c=>({id:uid(),title:c[0],sections:c[1].map(s=>({id:uid(),title:s[0],target:s[1],status:"未着手",text:"",mode:"txt",cmts:[],snaps:[]}))}));st.sel=st.chapters[0].sections[0].id;st.lastTotal=grand();persist();renderTree();renderEd();renderDash();toast("テンプレートを適用しました（目標 "+grandT().toLocaleString()+" 字）");};
+
+function insertText(t){const f=findSec(st.sel);if(!f){toast("先に節を選んでください");return;}const ta=$("sText");const p=ta.selectionStart||0,q=ta.selectionEnd||p;ta.value=ta.value.slice(0,p)+t+ta.value.slice(q);f.s.text=ta.value;ta.focus();ta.selectionStart=ta.selectionEnd=p+t.length;foot(f.s);paint();scheduleSave();}
+function getRefs(){try{const d=JSON.parse(localStorage.getItem(REFS));if(d&&Array.isArray(d.refs))return d.refs;}catch(e){}return[];}
+function getPipe(){try{const d=JSON.parse(localStorage.getItem(PIPE));if(d&&d.outline&&Array.isArray(d.outline.chapters))return d;}catch(e){}return null;}
+
+$("citeBtn").onclick=()=>{if(!findSec(st.sel)){toast("先に節を選んでください");return;}renderCite();$("cite").classList.add("on");};
+$("c_q").oninput=()=>renderCite();
+$("c_close").onclick=()=>$("cite").classList.remove("on");
+function renderCite(){const q=$("c_q").value.trim().toLowerCase();const list=$("c_list");list.innerHTML="";const refs=getRefs().filter(r=>!q||((r.author||"")+" "+(r.title||"")+" "+(r.key||"")).toLowerCase().includes(q));
+if(!refs.length){list.innerHTML='<p class="none">文献がありません。文献管理（bunken_v01.html）で登録して保存すると、ここに表示されます（同じ端末・同じフォルダで開くこと）。</p>';return;}
+refs.forEach(r=>{const d=document.createElement("div");d.className="crow";const info=document.createElement("span");info.innerHTML="<b>"+esc(r.key||"")+"</b> "+esc((r.author||"")+"（"+(r.year||"?")+"）"+(r.title||""));d.appendChild(info);d.appendChild(mini("挿入",()=>{const f=findSec(st.sel);if(!f)return;const t=f.s.mode==="tex"?B+"cite{"+(r.key||"")+"}":"[cite:"+(r.key||"")+"]";insertText(t);$("cite").classList.remove("on");toast("引用を挿入しました（"+(r.key||"")+"）");}));list.appendChild(d);});}
+
+function renderRef(){if(!document.body.classList.contains("refon"))return;const el=$("refpanel");const f=findSec(st.sel);let h='<h3>👁 参照パネル</h3>';
+if(f){let memo=f.s.memo||"";if(!memo){const p=getPipe();if(p)p.outline.chapters.forEach(c=>(c.sections||[]).forEach(x=>{if(x.title===f.s.title&&x.memo)memo=x.memo;}));}
+h+='<h4>🧠 構想メモ（'+esc(f.s.title)+'）</h4>'+(memo?'<p class="memo">'+esc(memo)+'</p>':'<p class="none">この節のメモは見つかりません（構想ボードの節タイトルと一致すると表示されます）</p>');}
+const refs=getRefs();h+='<h4>📚 文献（'+refs.length+'件）</h4>';refs.slice(0,12).forEach(r=>{h+='<p class="memo"><b>'+esc(r.key||"")+'</b> '+esc((r.author||"")+"（"+(r.year||"?")+"）")+'</p>';});
+if(!refs.length)h+='<p class="none">文献管理で登録すると表示されます</p>';
+el.innerHTML=h;}
+const GK={alpha:"α",beta:"β",gamma:"γ",delta:"δ",epsilon:"ε",zeta:"ζ",eta:"η",theta:"θ",kappa:"κ",lambda:"λ",mu:"μ",nu:"ν",xi:"ξ",pi:"π",rho:"ρ",sigma:"σ",tau:"τ",phi:"φ",chi:"χ",psi:"ψ",omega:"ω",Gamma:"Γ",Delta:"Δ",Theta:"Θ",Lambda:"Λ",Pi:"Π",Sigma:"Σ",Phi:"Φ",Omega:"Ω"};
+const SY={times:"×",cdot:"·",div:"÷",pm:"±",mp:"∓",le:"≤",leq:"≤",ge:"≥",geq:"≥",ne:"≠",neq:"≠",to:"→",rightarrow:"→",infty:"∞",sum:"Σ",prod:"Π",int:"∫",partial:"∂",nabla:"∇",approx:"≈",sim:"∼",propto:"∝",subset:"⊂",cup:"∪",cap:"∩",forall:"∀",exists:"∃",lim:"lim"};
+function mGroup(s,i){while(s[i]===" ")i++;if(s[i]==="{"){const r=mParse(s,i+1,"}");return[r[0],r[1]];}if(s[i]===B){let j=i+1,n="";while(j<s.length&&/[a-zA-Z]/.test(s[j])){n+=s[j];j++;}return[GK[n]||SY[n]||"<i>"+esc(n)+"</i>",j];}return[s[i]?"<i>"+esc(s[i])+"</i>":"",i+1];}
+function mParse(s,i,stop){let h="";while(i<s.length){const ch=s[i];
+if(stop&&ch===stop)return[h,i+1];
+if(ch===B){let j=i+1,name="";while(j<s.length&&/[a-zA-Z]/.test(s[j])){name+=s[j];j++;}
+if(name==="frac"){let r=mGroup(s,j);const a=r[0];j=r[1];r=mGroup(s,j);const b2=r[0];j=r[1];h+='<span class="fr"><span>'+a+'</span><span class="dn">'+b2+'</span></span>';i=j;continue;}
+if(name==="sqrt"){const r=mGroup(s,j);h+='√<span class="sq">'+r[0]+'</span>';i=r[1];continue;}
+if(name==="overline"){const r=mGroup(s,j);h+='<span class="ov">'+r[0]+'</span>';i=r[1];continue;}
+if(name==="left"||name==="right"){i=j;continue;}
+if(GK[name]){h+=GK[name];i=j;continue;}
+if(SY[name]){h+=SY[name];i=j;continue;}
+if(name){h+="<i>"+esc(name)+"</i>";i=j;continue;}
+h+=esc(s[j]||"");i=j+1;continue;}
+if(ch==="^"){const r=mGroup(s,i+1);h+="<sup>"+r[0]+"</sup>";i=r[1];continue;}
+if(ch==="_"){const r=mGroup(s,i+1);h+="<sub>"+r[0]+"</sub>";i=r[1];continue;}
+if(ch==="{"){const r=mParse(s,i+1,"}");h+=r[0];i=r[1];continue;}
+if(/[a-zA-Z]/.test(ch)){h+="<i>"+ch+"</i>";i++;continue;}
+h+=esc(ch);i++;continue;}
+return[h,i];}
+function mrender(t){return mParse(t||"",0,null)[0];}
+const PAD=[["分数",B+"frac{a}{b}"],["上付き","x^{2}"],["下付き","x_{i}"],["√",B+"sqrt{x}"],["Σ",B+"sum_{i=1}^{n}"],["∫",B+"int_{a}^{b}"],["×",B+"times"],["±",B+"pm"],["≦",B+"le"],["≧",B+"ge"],["≠",B+"ne"],["→",B+"to"],["∞",B+"infty"],["α",B+"alpha"],["β",B+"beta"],["θ",B+"theta"],["λ",B+"lambda"],["μ",B+"mu"],["π",B+"pi"],["σ",B+"sigma"],["x̄",B+"overline{x}"]];
+PAD.forEach(p=>{$("m_pad").appendChild(mini(p[0],()=>{const t=$("m_in");t.value=(t.value?t.value+" ":"")+p[1];mPrev();}));});
+function mPrev(){$("m_prev").innerHTML=mrender($("m_in").value)||'<span class="none">ここにプレビューが出ます</span>';}
+$("m_in").oninput=mPrev;
+$("mathBtn").onclick=()=>{if(!findSec(st.sel)){toast("先に節を選んでください");return;}mPrev();$("math").classList.add("on");};
+$("m_close").onclick=()=>$("math").classList.remove("on");
+$("m_ins").onclick=()=>{const v=$("m_in").value.trim();if(!v){toast("数式が空です");return;}insertText($("m_blk").checked?"\n$$ "+v+" $$\n":"$"+v+"$");$("math").classList.remove("on");toast("数式を挿入しました");};
+
+const SNIP=[["$…$","$x$"],["数式ブロック","\n$$  $$\n"],["箇条書き","\n"+B+"begin{itemize}\n  "+B+"item \n"+B+"end{itemize}\n"],["図","\n"+B+"begin{figure}[htbp]\n  "+B+"centering\n  "+B+"includegraphics[width=0.8"+B+"linewidth]{figure1.png}\n  "+B+"caption{図の説明}\n"+B+"end{figure}\n"],["表","\n"+B+"begin{table}[htbp]\n  "+B+"centering "+B+"caption{表の説明}\n  "+B+"begin{tabular}{lcc} "+B+"toprule\n  項目 & 条件A & 条件B "+B+B+" "+B+"midrule\n  平均 & 1.2 & 3.4 "+B+B+" "+B+"bottomrule\n  "+B+"end{tabular}\n"+B+"end{table}\n"],["環境…",null]];
+SNIP.forEach(p=>{$("snip").appendChild(mini(p[0],()=>{if(p[1]===null){const v=prompt("環境名（例：equation / quote / center）","equation");if(!v)return;insertText("\n"+B+"begin{"+v+"}\n  \n"+B+"end{"+v+"}\n");return;}insertText(p[1]);}));});
+
+$("fnBtn").onclick=()=>{const f=findSec(st.sel);if(!f){toast("先に節を選んでください");return;}insertText(f.s.mode==="tex"?B+"footnote{ここに脚注}":"[脚注: ここに内容]");toast("脚注を挿入しました（組版時にページ下部へ配置）");};
+
+$("snapBtn").onclick=()=>{if(!findSec(st.sel)){toast("先に節を選んでください");return;}renderSnap();$("snap").classList.add("on");};
+$("sn_close").onclick=()=>$("snap").classList.remove("on");
+$("sn_add").onclick=()=>{const f=findSec(st.sel);if(!f)return;f.s.snaps.push({ts:Date.now(),text:f.s.text||""});persist();renderSnap();badges(f.s);toast("今の内容を保存しました");};
+function renderSnap(){const f=findSec(st.sel);if(!f)return;const s=f.s;$("sn_title").textContent="📸 スナップショット（"+s.title+"）";const l=$("sn_list");l.innerHTML="";$("sn_diff").innerHTML="";
+s.snaps.slice().reverse().forEach(sn=>{const d=document.createElement("div");d.className="crow";const info=document.createElement("span");info.textContent=new Date(sn.ts).toLocaleString()+"（"+cnt(sn.text)+" 字）";d.appendChild(info);
+d.appendChild(mini("差分",()=>{$("sn_diff").innerHTML=diffHtml(sn.text,s.text);}));
+d.appendChild(mini("復元",()=>{if(!confirm("この版に戻しますか？（今の内容は自動でスナップショットに保存されます）"))return;s.snaps.push({ts:Date.now(),text:s.text||""});s.text=sn.text;st.lastTotal=grand();persist();renderEd();renderSnap();toast("復元しました");}));
+d.appendChild(mini("✕",()=>{if(!confirm("この版を削除しますか？"))return;const i=s.snaps.indexOf(sn);if(i>=0)s.snaps.splice(i,1);persist();renderSnap();badges(s);}));
+l.appendChild(d);});
+if(!s.snaps.length)l.innerHTML='<p class="none">まだ版がありません。「📸 今の内容を保存」で執筆の節目を残せます。</p>';}
+function diffHtml(a,b){const A=(a||"").split("\n"),Bl=(b||"").split("\n");const sB=new Set(Bl),sA=new Set(A);let h='<p class="none">簡易差分：赤＝選んだ版にだけある行／緑＝今の本文にだけある行</p>';A.forEach(l=>{h+='<div class="'+(sB.has(l)?"":"del")+'">'+esc(l||" ")+"</div>";});Bl.forEach(l=>{if(!sA.has(l))h+='<div class="add">'+esc(l||" ")+"</div>";});return h;}
+
+$("cmtBtn").onclick=()=>{if(!findSec(st.sel)){toast("先に節を選んでください");return;}renderCmt();$("cmt").classList.add("on");};
+$("cm_close").onclick=()=>$("cmt").classList.remove("on");
+function renderCmt(){const f=findSec(st.sel);if(!f)return;const s=f.s;$("cm_title").textContent="💬 コメント（"+s.title+"）";const l=$("cm_list");l.innerHTML="";s.cmts.forEach(c=>{const d=document.createElement("div");d.className="crow";const sp=document.createElement("span");sp.innerHTML='<small style="color:var(--sub)">'+new Date(c.ts).toLocaleString()+'</small><br>'+esc(c.text);d.appendChild(sp);d.appendChild(mini("✕",()=>{if(!confirm("このコメントを削除しますか？"))return;s.cmts.splice(s.cmts.indexOf(c),1);persist();renderCmt();badges(s);}));l.appendChild(d);});if(!s.cmts.length)l.innerHTML='<p class="none">コメントはまだありません。指導の指摘・あとで直すメモなどを残せます。</p>';}
+$("cm_add").onclick=()=>{const v=$("cm_in").value.trim();if(!v)return;const f=findSec(st.sel);if(!f)return;f.s.cmts.push({ts:Date.now(),text:v});$("cm_in").value="";persist();renderCmt();badges(f.s);};
+
+$("findBtn").onclick=()=>{$("find").classList.add("on");$("f_q").focus();};
+$("f_close").onclick=()=>$("find").classList.remove("on");
+function makeRe(){const q=$("f_q").value;if(!q){toast("検索語を入力してください");return null;}try{return $("f_re").checked?new RegExp(q,"g"):new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"g");}catch(e){toast("正規表現が不正です");return null;}}
+$("f_find").onclick=()=>{const re=makeRe();if(!re)return;const out=$("f_out");out.innerHTML="";let n=0;st.chapters.forEach(c=>c.sections.forEach(s=>{re.lastIndex=0;let m,shown=0;while((m=re.exec(s.text||""))&&shown<3){n++;shown++;const a=Math.max(0,m.index-15),b2=Math.min((s.text||"").length,m.index+m[0].length+15);const d=document.createElement("div");d.className="crow";const sp=document.createElement("span");sp.innerHTML="<b>"+esc(c.title+" › "+s.title)+"</b><br><small>…"+esc((s.text||"").slice(a,b2))+"…</small>";d.appendChild(sp);d.appendChild(mini("開く",()=>{st.sel=s.id;persist();renderTree();renderEd();$("find").classList.remove("on");}));out.appendChild(d);if(m.index===re.lastIndex)re.lastIndex++;}}));
+if(!n)out.innerHTML='<p class="none">見つかりませんでした</p>';else toast(n+" 件見つかりました（各節最大3件表示）");};
+$("f_rep").onclick=()=>{const re=makeRe();if(!re)return;let n=0;secs().forEach(s=>{n+=((s.text||"").match(re)||[]).length;});if(!n){toast("置換対象が見つかりません");return;}if(!confirm(n+" 件を「"+$("f_r").value+"」に置換します。よろしいですか？"))return;const re2=makeRe();secs().forEach(s=>{s.text=(s.text||"").replace(re2,$("f_r").value);});st.lastTotal=grand();persist();renderTree();renderEd();renderDash();toast(n+" 件置換しました");};
+
+function suggest(){let best=null,br=99;secs().forEach(s=>{if(s.status==="推敲済み")return;const t=parseInt(s.target)||0;const r=t>0?cnt(s.text)/t:(cnt(s.text)>0?1:0);if(best===null||r<br){best=s;br=r;}});return best;}
+$("focusBtn").onclick=()=>{const on=document.body.classList.toggle("focus");if(!on)return;if(!findSec(st.sel)){const s=suggest();if(s){st.sel=s.id;renderTree();renderEd();}}
+const cur=findSec(st.sel);$("fbTxt").textContent=cur?"🎯 集中モード — 今日はこの節だけ：「"+cur.s.title+"」":"🎯 集中モード";};
+$("fbOff").onclick=()=>document.body.classList.remove("focus");
+
+$("pipeBtn").onclick=()=>{const p=getPipe();if(!p||!p.outline.chapters.length){toast("構想ボードの受け渡しデータが見つかりません（kousou_v01.htmlで保存すると作られます）");return;}
+if(!confirm("構想ボードの構成（"+p.outline.chapters.length+"章）を取り込みます。同じタイトルの節の本文・状態・コメントは引き継ぎます。よろしいですか？（💾書き出しでバックアップ推奨）"))return;
+const map={};secs().forEach(s=>{if(!map[s.title])map[s.title]=s;});
+st.chapters=p.outline.chapters.map(c=>({id:uid(),title:c.title||"章",sections:(c.sections||[]).map(x=>{const o=map[x.title];return{id:uid(),title:x.title||"節",target:parseInt(x.target)||0,status:o?o.status:"未着手",text:o?o.text:"",mode:o?o.mode:"txt",cmts:o?o.cmts:[],snaps:o?o.snaps:[],memo:x.memo||""};})}));
+if(!st.project&&p.project){st.project=p.project;$("project").value=st.project;}
+const first=secs()[0];st.sel=first?first.id:null;st.lastTotal=grand();persist();renderTree();renderEd();renderDash();toast("構想ボードの構成を取り込みました");};
+
+function escTex(t){return(t||"").replace(/\\/g,"@BS@").replace(/([%&#_{}])/g,B+"$1").replace(/~/g,B+"textasciitilde{}").replace(/\^/g,B+"textasciicircum{}").replace(/@BS@/g,B+"textbackslash{}");}
+function texOfTxt(t){const M=[];t=(t||"").replace(/\$\$?[\s\S]*?\$\$?/g,m=>{M.push(m);return ""+(M.length-1)+"";});t=escTex(t);t=t.replace(/(\d+)/g,(x,i)=>M[+i]);t=t.replace(/\[cite:([^\]]+)\]/g,B+"cite{$1}");t=t.replace(/\[脚注:\s*([^\]]*)\]/g,B+"footnote{$1}");return t;}
+function defPre(){return ["% !TEX program = lualatex",B+"documentclass[a4paper,11pt]{ltjsarticle} % 日本語（LuaLaTeX）",B+"usepackage{amsmath,amssymb} % 数式の基本",B+"usepackage{graphicx} % 図",B+"usepackage{booktabs} % 表",B+"usepackage[margin=25mm]{geometry} % 余白",B+"usepackage{hyperref} % リンク（最後に読み込む）"].join("\n");}
+$("texBtn").onclick=()=>{if(!st.chapters.length){toast("章立てがありません");return;}
+const L=[];L.push(st.preamble||defPre());L.push("");L.push(B+"title{"+escTex(st.project||"無題")+"}");L.push(B+"author{ここに氏名}");L.push("");L.push(B+"begin{document}");L.push(B+"maketitle");
+st.chapters.forEach(c=>{L.push("");L.push(B+"section{"+escTex(c.title)+"}");c.sections.forEach(s=>{L.push("");L.push(B+"subsection{"+escTex(s.title)+"}");L.push("");L.push(s.mode==="tex"?(s.text||""):texOfTxt(s.text));});});
+L.push("");L.push("% 参考文献：文献管理のBibTeX書き出し（literature.bib）と組み合わせて使えます（組版アプリが自動化予定）");L.push(B+"end{document}");
+const name=((st.project||"ronbun").replace(/[\\/:*?"<>|]/g,"_"))+".tex";download(name,L.join("\n"),"text/x-tex");};
+
+$("wizBtn").onclick=()=>$("wiz").classList.add("on");
+$("wClose").onclick=()=>$("wiz").classList.remove("on");
+function wc(id){return $("w_"+id).checked;}
+function genPreLines(){const e=document.querySelector('input[name="eng"]:checked').value;const g=(e==="up")?"[dvipdfmx]":"";const th=(e==="pdf")?"Theorem":"定理";const L=[];
+if(e==="lua"){L.push("% !TEX program = lualatex");L.push(B+"documentclass[a4paper,11pt]{ltjsarticle} % 日本語（LuaLaTeX）の標準的な文書クラス");}
+else if(e==="up"){L.push("% !TEX program = uplatex");L.push("% ※ uplatex → dvipdfmx の2段階でPDFになります");L.push(B+"documentclass[uplatex,a4paper,11pt]{jsarticle} % 日本語（upLaTeX）の標準的な文書クラス");}
+else{L.push(B+"documentclass[a4paper,11pt]{article} % 英語論文の標準的な文書クラス");}
+L.push("");L.push("% ===== EDIT ONE パッケージウィザード v0.2 が生成 =====");
+if(wc("geo"))L.push(B+"usepackage[margin=25mm]{geometry} % 余白の調整（margin= の数値で変更）");
+if(wc("math")||wc("thm")){L.push(B+"usepackage{amsmath,amssymb} % 数式の基本（align環境・数学記号）"+(wc("math")?"":"（定理環境に必要なため自動追加）"));L.push(B+"usepackage{mathtools} % amsmathの拡張（かっこ・矢印など）");}
+if(wc("thm")){L.push(B+"usepackage{amsthm} % 定理・補題・証明の環境");L.push(B+"newtheorem{theorem}{"+th+"} % 例：begin{theorem}〜end{theorem}で使う");}
+if(wc("fig"))L.push(B+"usepackage"+g+"{graphicx} % 図の貼り付け（includegraphics）");
+if(wc("tab"))L.push(B+"usepackage{booktabs,array} % 罫線がきれいな表（toprule・midrule・bottomrule）");
+if(wc("ltab"))L.push(B+"usepackage{longtable} % ページをまたぐ長い表");
+if(wc("unit"))L.push(B+"usepackage{siunitx} % 単位付き数値を正しく組む（例：SI{9.8}{m/s^2}）");
+if(wc("code")){L.push(B+"usepackage{listings} % プログラムコードの掲載");L.push(B+"lstset{basicstyle="+B+"ttfamily"+B+"small,frame=single,breaklines=true} % コードの見た目の基本設定");}
+if(wc("chem"))L.push(B+"usepackage[version=4]{mhchem} % 化学式（例：ce{2H2 + O2 -> 2H2O}）");
+if(wc("color"))L.push(B+"usepackage"+g+"{xcolor} % 文字色・背景色");
+if(wc("link"))L.push(B+"usepackage"+g+"{hyperref} % 目次・引用・URLをクリック可能に ※原則いちばん最後に読み込む");
+return L;}
+function genTex(){const L=genPreLines().slice();
+L.push("");L.push(B+"title{ここに論文タイトル}");L.push(B+"author{ここに氏名}");L.push("");L.push(B+"begin{document}");L.push(B+"maketitle");L.push("");L.push(B+"section{はじめに}");L.push("ここから本文を書き始めます。");
+if(wc("math")){L.push("");L.push("% --- 数式の書き方サンプル ---");L.push(B+"begin{equation}");L.push("  E = mc^{2}");L.push(B+"end{equation}");}
+L.push("");L.push(B+"end{document}");
+$("wout").value=L.join("\n");toast("テンプレを生成しました");}
+$("wGen").onclick=genTex;
+$("wCopy").onclick=()=>{if(!$("wout").value)genTex();copyText($("wout").value);};
+$("wDl").onclick=()=>{if(!$("wout").value)genTex();download("main.tex",$("wout").value,"text/x-tex");};
+$("wUse").onclick=()=>{st.preamble=genPreLines().join("\n");persist();$("wiz").classList.remove("on");toast("エディタへ展開しました。「⬇ .tex」で本文と結合されます");};
+
+function showText(title,body){$("txtTitle").textContent=title;$("txtBody").value=body;$("txtm").classList.add("on");}
+$("txtCopy").onclick=()=>copyText($("txtBody").value);
+$("txtClose").onclick=()=>$("txtm").classList.remove("on");
+function fallbackCopy(t){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("コピーしました");}catch(e){toast("コピーできませんでした");}document.body.removeChild(ta);}
+function copyText(t){if(!t)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>toast("コピーしました"),()=>fallbackCopy(t));}else fallbackCopy(t);}
+function download(name,text,mime){try{const b=new Blob([text],{type:mime||"text/plain"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(a.href),3000);toast("保存しました。見当たらない場合はダウンロード履歴を確認");}catch(e){showText(name,text);}}
+$("expBtn").onclick=()=>{trackDaily();persist();const name=((st.project||"ronbun").replace(/[\\/:*?"<>|]/g,"_"))+"_ronbun.json";download(name,JSON.stringify(st,null,1),"application/json");};
+$("impBtn").onclick=()=>$("impFile").click();
+$("impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.chapters))throw 0;st=norm(d);st.lastTotal=grand();persist();$("project").value=st.project||"";renderTree();renderEd();renderDash();toast("読み込みました（v0.1形式にも対応）");}catch(err){alert("読み込めませんでした。このアプリで書き出したJSONを選んでください。");}};r.readAsText(f);e.target.value="";};
+
+$("burger").onclick=()=>$("tree").classList.toggle("open");
+if(!st.guided){$("guide").style.display="flex";}
+$("guideOff").onclick=()=>{st.guided=true;persist();$("guide").style.display="none";};
+$("project").value=st.project||"";
+$("m_in").placeholder="例："+B+"frac{a}{b} + "+B+"sqrt{x^{2}+1}";
+if(st._mig){delete st._mig;persist();toast("v0.1のデータを引き継ぎました（元のデータもそのまま残っています）");}
+renderTree();renderEd();renderDash();
+</script>
+</body>
+</html>
