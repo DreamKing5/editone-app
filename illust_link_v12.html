@@ -130,7 +130,7 @@ body.rsp .pcOnly{display:none}
 	<button class='big sub' id='rlCtrl'>🎛 このスマホを「操作パネル」にする</button>
 	<button class='big sub' id='rlView'>👀 観客モード（見るだけ）</button>
 	<button class='big sub' id='rlSolo'>📱 1台だけで描く（ソロモード）</button>
-	<p class='note'>PCで「あいことば」を発行→スマホカメラでQRを読む（または6桁入力）。何台でも同じあいことばでつながります。</p>
+	<p class='note'>PC側で「あいことば」を発行→スマホで6桁を入力→接続完了。何台でも同じあいことばでつながります。</p>
 </div>
 <div id='pcUI' class='hide'>
 	<div id='bar'>
@@ -179,7 +179,7 @@ body.rsp .pcOnly{display:none}
 		<div id='colorPal'></div>
 	</div>
 	<div id='pcWrap'><canvas id='pcCv'></canvas></div>
-	<div id='help'>B/E=ペン/消し G=塗り A=自動選択 W=投げ縄 R=グラデ C=図形 S=スポイト(Alt+クリックでも) V=線つかみ H=補正 Q=ゆがみ U=ブラシ工房 T=トーン I=フィルター K=定規(万華鏡/パース) D=人形・三面図 O=画像 J=参照 M=作品 Y=左右反転 Z=グリッド [ ]=太さ +/-=選択拡縮 P=色替え Enter=選択塗り Delete=線/選択消し Esc=解除 N=新規レイヤー L=パネル F=全体 Space+ドラッグ=移動 ホイール=拡縮 Ctrl+Z/Y</div>
+	<div id='help'>B/E=ペン/消し G=塗り A=自動選択 W=投げ縄 R=グラデ C=図形 S=スポイト(Alt+クリックでも) V=線つかみ H=補正 Q=ゆがみ U=ブラシ工房 T=トーン I=フィルター K=定規(万華鏡/パース) D=人形・三面図 O=画像 J=参照 M=作品 Y=左右反転 Z=グリッド [ ]=太さ +/-=選択拡縮 P=色替え Enter=選択塗り Delete=線/選択消し Esc=解除 N=新規レイヤー L=パネル F=全体 Space+ドラッグ=移動 ホイール=拡縮 Alt+ホイール・,・.=回転 0=回転リセット X=ベクター消しゴム ↑↓=レイヤー切替 Ctrl+Z/Y ※選んだツールはスマホにも同期。スマホ: 2本指ひねり=回転（水平付近で自動スナップ） 2本指タップ=戻す 3本指タップ=やり直し</div>
 </div>
 
 <div id='spUI' class='hide'>
@@ -365,26 +365,34 @@ body.rsp .pcOnly{display:none}
 </div>
 
 <div id='panel' class='hide'>
-	<h2>🔗 接続</h2>
+	<h2>🔗 2台をつなぐ</h2>
 	<div id='pcPane' class='hide'>
-		<p>スマホでQRを読むか、6桁のあいことばを入力してもらってください。何台でも接続できます。</p>
-		<div id='qr'></div>
-		<div id='codeBig'>------</div>
-		<button id='reGen'>🔄 あいことばを作り直す</button>
+		<h3>① あいことば接続（かんたん・推奨）</h3>
+		<button id='bHost'>あいことばを発行する</button>
+		<div id='codeShowWrap' class='hide'>スマホ側でこの6桁を入力→ <b id='codeShow'></b></div>
+		<div class='hint'>初回のみネット接続が必要です（無料の仲介サーバーに一瞬だけ挨拶します）。つながった後の絵のデータは端末の間だけを流れます。何台でも同じあいことばで接続できます。</div>
+		<h3>② 手渡しコード接続（ネット無し・同じWi-Fi内）</h3>
+		<ol>
+			<li>「コード1を作る」→出てきた文字を全部コピーしてスマホに送る（メモアプリ等で）</li>
+			<li>スマホで作られた「コード2」を下の欄に貼り「コード2を取り込む」</li>
+		</ol>
+		<button id='bMan1'>コード1を作る</button>
+		<textarea id='man1' placeholder='コード1（ここに表示されます。全部コピーしてスマホへ）'></textarea>
+		<textarea id='man2pc' placeholder='スマホからもらったコード2をここに貼る'></textarea>
+		<button id='bMan3'>コード2を取り込む</button>
 	</div>
 	<div id='spPane' class='hide'>
-		<p>PCに表示された6桁のあいことばを入力：</p>
-		<input id='codeIn' inputmode='numeric' maxlength='6' placeholder='000000'>
-		<button id='joinBtn' class='big'>つなぐ</button>
-	</div>
-	<div id='mpc' class='hide'>
-		<p>🤝 手渡し接続（通信がうまくいかないとき）</p>
-		<textarea id='mpOut' readonly></textarea>
-		<textarea id='mpIn' placeholder='相手の文字列を貼り付け'></textarea>
-		<button id='mpGo'>手渡しでつなぐ</button>
+		<h3>① あいことば接続（かんたん・推奨）</h3>
+		<input id='codeIn' inputmode='numeric' maxlength='6' placeholder='6桁'>
+		<button id='bJoin'>接続する</button>
+		<h3>② 手渡しコード接続（ネット無し）</h3>
+		<textarea id='man1sp' placeholder='PCのコード1をここに貼る'></textarea>
+		<button id='bMan2'>コード2を作る</button>
+		<textarea id='man2' placeholder='コード2（ここに表示されます。全部コピーしてPCへ）'></textarea>
 	</div>
 	<div id='panelStat'></div>
-	<button id='pClose'>✕ 閉じる</button>
+	<button id='pClose'>閉じる</button>
+	<div class='hint'>接続しなくても描けます（後から接続すると丸ごと同期されます）。接続が切れたらこのパネルからもう一度つないでください。</div>
 </div>
 
 <div id='toast'></div>
@@ -588,7 +596,8 @@ function drawSelOv(g){if(selTintCv&&!selFloat){g.save();g.globalAlpha=0.3;g.draw
 function drawLiveOv(g){if(live.shapePv){g.save();g.strokeStyle=pen.c;g.lineWidth=Math.max(1,pen.sz);g.setLineDash([8/view.s,6/view.s]);var sp=live.shapePv;g.beginPath();g.moveTo(sp[0].x,sp[0].y);for(var i=1;i<sp.length;i++)g.lineTo(sp[i].x,sp[i].y);g.stroke();g.setLineDash([]);g.restore()}
 if(live.pts&&live.pts.length&&live.pen){drawStrokeOp(g,{id:'live',pts:live.pts,pen:live.pen,sym:live.sym},1)}
 if(live.poly&&live.poly.length>1){g.save();g.strokeStyle='rgba(76,141,255,0.9)';g.lineWidth=2/view.s;g.setLineDash([10/view.s,7/view.s]);g.beginPath();g.moveTo(live.poly[0][0],live.poly[0][1]);for(var j=1;j<live.poly.length;j++)g.lineTo(live.poly[j][0],live.poly[j][1]);g.stroke();g.setLineDash([]);g.restore()}
-if(live.gradPv){g.save();g.strokeStyle='rgba(76,141,255,0.9)';g.lineWidth=2/view.s;g.beginPath();g.moveTo(live.gradPv[0],live.gradPv[1]);g.lineTo(live.gradPv[2],live.gradPv[3]);g.stroke();g.restore()}}
+if(live.gradPv){g.save();g.strokeStyle='rgba(76,141,255,0.9)';g.lineWidth=2/view.s;g.beginPath();g.moveTo(live.gradPv[0],live.gradPv[1]);g.lineTo(live.gradPv[2],live.gradPv[3]);g.stroke();g.restore()}
+Object.keys(rlive).forEach(function(k8){var r8=rlive[k8];if(Date.now()-(r8.at||0)>4000){delete rlive[k8];return}if(r8.pts&&r8.pts.length&&r8.pen)drawStrokeOp(g,{id:'lv'+k8,pts:r8.pts,pen:r8.pen},1)})}
 function drawEditSel(g){if(!editSel)return;var s=editSel;if(!s.pts)return;g.save();g.strokeStyle='rgba(255,170,60,0.9)';g.lineWidth=Math.max(2/view.s,(s.pen.sz||6)+3);g.globalAlpha=0.45;g.lineCap='round';fullPath(g,s.pts);g.stroke();g.restore()}
 function render(){if(!cv||!bCv)return;var dpr=window.devicePixelRatio||1;var cw=cv.clientWidth,ch=cv.clientHeight;if(cv.width!==Math.round(cw*dpr)||cv.height!==Math.round(ch*dpr)){cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr)}
 ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#14171c';ctx.fillRect(0,0,cv.width,cv.height);
@@ -601,15 +610,17 @@ function sendExcept(ex,m){for(var i=0;i<conns.length;i++){if(conns[i]!==ex){try{
 function collectImgs(){var imgs={};doc.strokes.forEach(function(s){if(s.t==='img'&&imgCache[s.imgId]&&imgCache[s.imgId].data)imgs[s.imgId]=imgCache[s.imgId].data});return imgs}
 function sendFull(c){if(!doc)return;var m={t:'full',doc:doc,imgs:collectImgs(),rul:rul,dolls:dolls,sanmen:sanmen,pal:pal,brs:myBrs,selms:selMS,bg:doc.bg};try{if(c)c.send(m);else send(m)}catch(e){}}
 function layersSync(){send({t:'layers',layers:doc.layers});buildLyList();need=true}
-function onMsg(c,m){if(!m||!m.t)return;if(role==='pc'&&['op','undo','redo','clear','selms','rul','doll','bg','pal','brs','imgdata','layers','sel','pen','sedit','sdel','tool'].indexOf(m.t)>=0)sendExcept(c,m);
-if(m.t==='op'){doOp(m.op,true);return}
+function onMsg(c,m){if(!m||!m.t)return;if(role==='pc'&&['op','undo','redo','clear','selms','rul','doll','bg','pal','brs','imgdata','layers','sel','pen','sedit','sdel','tool','lv','lvend'].indexOf(m.t)>=0)sendExcept(c,m);
+if(m.t==='op'){if(m.op&&m.op.id)delete rlive[m.op.id];doOp(m.op,true);return}
+if(m.t==='lv'){rlive[m.id]={pts:m.pts,pen:m.pen,at:Date.now()};need=true;return}
+if(m.t==='lvend'){delete rlive[m.id];need=true;return}
 if(m.t==='undo'){undoCore(true);return}
 if(m.t==='redo'){redoCore(true);return}
 if(m.t==='clear'){clearAll(true);return}
 if(m.t==='full'){doc=m.doc;var imgs=m.imgs||{};Object.keys(imgs).forEach(function(k){if(!imgCache[k])imgLoad(k,imgs[k])});if(m.rul)rul=m.rul;if(m.dolls)dolls=m.dolls;if(m.sanmen)sanmen=m.sanmen;if(m.pal)pal=m.pal;if(m.brs)myBrs=m.brs;redoStk=[];tlLog=[];selLid='';ensureLy();repaint();buildLyList();buildPal();buildMyBr();if(m.selms)setSelFromMS(m.selms,true);refreshUI();if(role==='ctrl')buildCtrl2();toast('同期しました');return}
 if(m.t==='layers'){doc.layers=m.layers;ensureLy();repaint();buildLyList();return}
 if(m.t==='sel'){selLid=m.lid;ensureLy();buildLyList();return}
-if(m.t==='selms'){setSelFromMS(m.ms,true);toast(m.ms?'選択範囲が共有されました（この端末でも効果を使えます）':'選択解除');return}
+if(m.t==='selms'){setSelFromMS(m.ms,true);if(role!=='ctrl'&&role!=='view')selCtlShow(!!m.ms);toast(m.ms?'選択範囲が共有されました（この端末でも効果を使えます）':'選択解除');return}
 if(m.t==='rul'){rul=m.rul;need=true;toast('定規: '+rul.type);refreshRulUi();return}
 if(m.t==='doll'){if(m.dolls)dolls=m.dolls;if(m.sanmen)sanmen=m.sanmen;if(dIdx>=dolls.length)dIdx=0;need=true;return}
 if(m.t==='bg'){doc.bg=m.bg;need=true;save();return}
@@ -619,13 +630,13 @@ if(m.t==='imgdata'){if(!imgCache[m.imgId])imgLoad(m.imgId,m.data);return}
 if(m.t==='pen'){for(var k9 in m.pen){pen[k9]=m.pen[k9]}refreshUI();return}
 if(m.t==='sedit'){var st9=null;for(var i9=0;i9<doc.strokes.length;i9++){if(doc.strokes[i9].id===m.id)st9=doc.strokes[i9]}if(st9){if(m.pts)st9.pts=m.pts;if(m.pen)st9.pen=m.pen;repaint()}return}
 if(m.t==='sdel'){doc.strokes=doc.strokes.filter(function(s){return s.id!==m.id});repaint();save();return}
-if(m.t==='tool'){if(role==='pc'||role==='sp')setTool(m.tool==='er'?'er':'pen');return}
+if(m.t==='tool'){if(role==='pc'||role==='sp'||role==='solo'){setTool(m.tool,true);if(role!=='pc')toast('PC側: '+toolJp(m.tool))}return}
 if(m.t==='hello'){if(role==='pc')sendFull(c);return}}
-live={};var ptrs={},pinch=null,panSt=null,strokeSt=null,shapeSt=null,gradSt=null,dollDragSt=null,sanmenDrag=null;
+live={};var ptrs={},pinch=null,panSt=null,strokeSt=null,shapeSt=null,gradSt=null,dollDragSt=null,sanmenDrag=null,tapN=0,tapT=0,tapMoved=false,rlive={};
 function toDoc(sx,sy){var dx=sx-view.x,dy=sy-view.y;var r=view.r||0;var c=Math.cos(-r),s2=Math.sin(-r);var ux=(dx*c-dy*s2)/view.s,uy=(dx*s2+dy*c)/view.s;if(flipView)ux=W-ux;return {x:ux,y:uy}}
 function viewFwd(x,y){var fx=flipView?W-x:x;var c=Math.cos(view.r||0),s2=Math.sin(view.r||0);return {x:(fx*c-y*s2)*view.s,y:(fx*s2+y*c)*view.s}}
 function zoomAt(f,cxs,cys){var dc=toDoc(cxs,cys);view.s=Math.max(0.04,Math.min(8,view.s*f));var q=viewFwd(dc.x,dc.y);view.x=cxs-q.x;view.y=cys-q.y;need=true}
-function rotateView(da,cxs,cys){var dc=toDoc(cxs,cys);view.r=(view.r||0)+da;var q=viewFwd(dc.x,dc.y);view.x=cxs-q.x;view.y=cys-q.y;need=true;toast('回転 '+Math.round((view.r||0)*180/Math.PI)+'°')}
+function rotateView(da,cxs,cys){var dc=toDoc(cxs,cys);var nr=(view.r||0)+da;var sn=Math.round(nr/(Math.PI/2))*(Math.PI/2);if(Math.abs(nr-sn)<0.045)nr=sn;view.r=nr;var q=viewFwd(dc.x,dc.y);view.x=cxs-q.x;view.y=cys-q.y;need=true;toast('回転 '+Math.round((view.r||0)*180/Math.PI)+'°')}
 function resetRot(){var cw=cv.clientWidth,ch=cv.clientHeight;rotateView(-(view.r||0),cw/2,ch/2);toast('回転リセット')}
 function fitView(){if(!cv)return;var cw=cv.clientWidth,ch=cv.clientHeight;if(cw<10)return;var s=Math.min(cw/W,ch/H)*0.92;view.s=s;view.r=0;view.x=(cw-W*s)/2;view.y=(ch-H*s)/2;need=true}
 function stabF(pts){var n=Math.max(0,stabV|0);if(n<1||pts.length<3)return pts.slice();var out=[];for(var i=0;i<pts.length;i++){var x=0,y=0,p=0,c=0;for(var j=Math.max(0,i-n);j<=Math.min(pts.length-1,i+n);j++){x+=pts[j].x;y+=pts[j].y;p+=pts[j].p;c++}out.push({x:x/c,y:y/c,p:p/c})}out[0]=pts[0];out[out.length-1]=pts[pts.length-1];return out}
@@ -640,7 +651,7 @@ function spoit(x,y){compose();var xi=Math.round(x),yi=Math.round(y);if(xi<0||yi<
 function dSeg(px,py,a,b){var dx=b.x-a.x,dy=b.y-a.y;var L=dx*dx+dy*dy;if(L===0)return Math.sqrt((px-a.x)*(px-a.x)+(py-a.y)*(py-a.y));var t=Math.max(0,Math.min(1,((px-a.x)*dx+(py-a.y)*dy)/L));var qx=a.x+dx*t,qy=a.y+dy*t;return Math.sqrt((px-qx)*(px-qx)+(py-qy)*(py-qy))}
 function hitStroke(x,y){for(var i=doc.strokes.length-1;i>=0;i--){var s=doc.strokes[i];if(s.t!=='s'||s.lid!==selLid||!s.pts||s.pts.length<2)continue;var tol=Math.max(10/view.s,(s.pen.sz||6)/2+6);for(var j=1;j<s.pts.length;j++){if(dSeg(x,y,s.pts[j-1],s.pts[j])<tol)return s}}return null}
 function nearestIdx(s,x,y){var bi=0,bd=1e18;for(var i=0;i<s.pts.length;i++){var d=(s.pts[i].x-x)*(s.pts[i].x-x)+(s.pts[i].y-y)*(s.pts[i].y-y);if(d<bd){bd=d;bi=i}}return bi}
-function cutStroke(x,y){var s=hitStroke(x,y);if(!s){toast('切断する線がありません');return}if(!ownOk(s.lid))return;var i=nearestIdx(s,x,y);var A=s.pts.slice(0,Math.max(2,i)),B=s.pts.slice(Math.min(s.pts.length-2,i+1));doc.strokes=doc.strokes.filter(function(q){return q.id!==s.id});send({t:'sdel',id:s.id});if(A.length>=2)doOp({t:'s',id:uid(),lid:s.lid,pts:A,pen:s.pen,sym:s.sym});if(B.length>=2)doOp({t:'s',id:uid(),lid:s.lid,pts:B,pen:s.pen,sym:s.sym});repaint();toast('ベクター消しゴム: 線を分割')}
+function cutStroke(x,y){var s=hitStroke(x,y);if(!s){toast('切断する線がありません');return}if(!ownOk(lyById(s.lid)))return;var i=nearestIdx(s,x,y);var A=s.pts.slice(0,Math.max(2,i)),B=s.pts.slice(Math.min(s.pts.length-2,i+1));doc.strokes=doc.strokes.filter(function(q){return q.id!==s.id});send({t:'sdel',id:s.id});if(A.length>=2)doOp({t:'s',id:uid(),lid:s.lid,pts:A,pen:s.pen,sym:s.sym});if(B.length>=2)doOp({t:'s',id:uid(),lid:s.lid,pts:B,pen:s.pen,sym:s.sym});repaint();toast('ベクター消しゴム: 線を分割')}
 function shapePts(kind,x0,y0,x1,y1){var pts=[];function P(x,y){pts.push({x:x,y:y,p:0.7})}
 if(kind==='line'){P(x0,y0);P(x1,y1)}
 else if(kind==='rect'){P(x0,y0);P(x1,y0);P(x1,y1);P(x0,y1);P(x0,y0)}
@@ -666,7 +677,9 @@ else if(k==='rl1'){P.rl1=ang(J.hipR,q)}
 else if(k==='rl2'){P.rl2=ang(J.kneeR,q)-(P.rl1||0)}
 need=true}
 function pDown(e){if(!doc)return;var rc=cv.getBoundingClientRect();var sx=e.clientX-rc.left,sy=e.clientY-rc.top;ptrs[e.pointerId]={sx:sx,sy:sy};cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);
-var keys=Object.keys(ptrs);if(e.pointerType==='touch'&&keys.length===2){strokeSt=null;live={};var p1=ptrs[keys[0]],p2=ptrs[keys[1]];pinch={d:Math.sqrt((p1.sx-p2.sx)*(p1.sx-p2.sx)+(p1.sy-p2.sy)*(p1.sy-p2.sy)),a:Math.atan2(p2.sy-p1.sy,p2.sx-p1.sx),cx:(p1.sx+p2.sx)/2,cy:(p1.sy+p2.sy)/2,ids:[keys[0],keys[1]]};need=true;return}
+var keys=Object.keys(ptrs);if(e.pointerType==='touch'){if(keys.length===1){tapT=Date.now();tapN=1;tapMoved=false}else{tapN=Math.max(tapN,keys.length)}}
+if(e.pointerType==='touch'&&keys.length===2){strokeSt=null;live.pts=null;live.pen=null;live.poly=null;gradSt=null;shapeSt=null;var p1=ptrs[keys[0]],p2=ptrs[keys[1]];pinch={d:Math.sqrt((p1.sx-p2.sx)*(p1.sx-p2.sx)+(p1.sy-p2.sy)*(p1.sy-p2.sy)),a:Math.atan2(p2.sy-p1.sy,p2.sx-p1.sx),cx:(p1.sx+p2.sx)/2,cy:(p1.sy+p2.sy)/2,rr:(view.r||0),ids:[keys[0],keys[1]]};need=true;return}
+if(e.pointerType==='touch'&&keys.length===3){strokeSt=null;pinch=null;need=true;return}
 if(keys.length>1)return;
 var d=toDoc(sx,sy);var pr=(e.pressure&&e.pressure>0)?e.pressure:0.6;
 if(role==='view'||spaceDown||tool==='hand'||e.button===1){panSt={sx:sx,sy:sy,vx:view.x,vy:view.y};return}
@@ -682,9 +695,9 @@ if(tool==='shape'){shapeSt={x:d.x,y:d.y};return}
 if(tool==='selmv'){if(!selMask){toast('先に選択してください');return}if(!selFloat)liftSel();selDrag={x:d.x,y:d.y,dx0:selFC.dx,dy0:selFC.dy};return}
 if(tool==='edit'){if(e.shiftKey&&typeof cutStroke==='function'&&false){}var s=hitStroke(d.x,d.y);if(s){editSel=s;editDrag={x:d.x,y:d.y,orig:s.pts.map(function(p){return {x:p.x,y:p.y,p:p.p}})};updateEditCtl()}else{editSel=null;updateEditCtl()}need=true;return}
 if(tool==='warp'){var lw=lyById(selLid);if(lw&&(lw.lock||!ownOk(lw))){toast('このレイヤーには使えません');return}strokeSt={raw:[{x:d.x,y:d.y,p:pr}],first:{x:d.x,y:d.y},warp:true};return}
-if(tool==='pen'||tool==='er'){if(!ownOk(selLid))return;strokeSt={raw:[{x:d.x,y:d.y,p:pr}],first:{x:d.x,y:d.y}};var pn={};for(var k in pen){pn[k]=pen[k]}if(tool==='er')pn.mode='erase';live.pen=pn;live.pts=strokeSt.raw;return}}
+if(tool==='pen'||tool==='er'){var lp0=lyById(selLid);if(lp0&&(lp0.lock||!ownOk(lp0))){toast(lp0.lock?'🔒 ロック中のレイヤーです':'このレイヤーの担当外です');return}strokeSt={id:uid(),raw:[{x:d.x,y:d.y,p:pr}],first:{x:d.x,y:d.y},lastSend:0};var pn={};for(var k in pen){pn[k]=pen[k]}if(tool==='er')pn.mode='erase';live.pen=pn;live.pts=strokeSt.raw;live.sym=(rul.type==='sym'||rul.type==='kalei')?{type:rul.type,n:rul.n||2,cx:rul.cx,cy:rul.cy}:null;return}}
 function pMove(e){var rc=cv.getBoundingClientRect();var sx=e.clientX-rc.left,sy=e.clientY-rc.top;if(!ptrs[e.pointerId]){return}ptrs[e.pointerId]={sx:sx,sy:sy};
-if(pinch){var p1=ptrs[pinch.ids[0]],p2=ptrs[pinch.ids[1]];if(!p1||!p2)return;var dd=Math.sqrt((p1.sx-p2.sx)*(p1.sx-p2.sx)+(p1.sy-p2.sy)*(p1.sy-p2.sy));var aa=Math.atan2(p2.sy-p1.sy,p2.sx-p1.sx);var ncx=(p1.sx+p2.sx)/2,ncy=(p1.sy+p2.sy)/2;zoomAt(dd/(pinch.d||1),ncx,ncy);var da=aa-pinch.a;if(Math.abs(da)>0.003){var dc=toDoc(ncx,ncy);view.r=(view.r||0)+(flipView?-da:da);var q=viewFwd(dc.x,dc.y);view.x=ncx-q.x;view.y=ncy-q.y}view.x+=ncx-pinch.cx;view.y+=ncy-pinch.cy;pinch.d=dd;pinch.a=aa;pinch.cx=ncx;pinch.cy=ncy;need=true;return}
+if(pinch){var p1=ptrs[pinch.ids[0]],p2=ptrs[pinch.ids[1]];if(!p1||!p2)return;var dd=Math.sqrt((p1.sx-p2.sx)*(p1.sx-p2.sx)+(p1.sy-p2.sy)*(p1.sy-p2.sy));var aa=Math.atan2(p2.sy-p1.sy,p2.sx-p1.sx);var ncx=(p1.sx+p2.sx)/2,ncy=(p1.sy+p2.sy)/2;if(Math.abs(dd-pinch.d)>12||Math.abs(ncx-pinch.cx)>12||Math.abs(ncy-pinch.cy)>12)tapMoved=true;zoomAt(dd/(pinch.d||1),ncx,ncy);var da=aa-pinch.a;if(da>Math.PI)da-=Math.PI*2;if(da<-Math.PI)da+=Math.PI*2;if(Math.abs(da)>0.06)tapMoved=true;if(Math.abs(da)>0.003){var dc=toDoc(ncx,ncy);pinch.rr=(pinch.rr===undefined?(view.r||0):pinch.rr)+(flipView?-da:da);var sn=Math.round(pinch.rr/(Math.PI/2))*(Math.PI/2);view.r=(Math.abs(pinch.rr-sn)<0.08)?sn:pinch.rr;var q=viewFwd(dc.x,dc.y);view.x=ncx-q.x;view.y=ncy-q.y}view.x+=ncx-pinch.cx;view.y+=ncy-pinch.cy;pinch.d=dd;pinch.a=aa;pinch.cx=ncx;pinch.cy=ncy;need=true;return}
 if(panSt){view.x=panSt.vx+(sx-panSt.sx);view.y=panSt.vy+(sy-panSt.sy);need=true;return}
 var d=toDoc(sx,sy);var pr=(e.pressure&&e.pressure>0)?e.pressure:0.6;
 if(sanmenDrag){sanmen.x=d.x;sanmen.y=d.y;need=true;return}
@@ -694,23 +707,25 @@ if(gradSt){live.gradPv=[gradSt.x,gradSt.y,d.x,d.y];need=true;return}
 if(shapeSt){live.shapePv=shapePts(pen.shape||'line',shapeSt.x,shapeSt.y,d.x,d.y);need=true;return}
 if(selDrag&&selFC){selFC.dx=selDrag.dx0+(d.x-selDrag.x);selFC.dy=selDrag.dy0+(d.y-selDrag.y);need=true;selCtlSync();return}
 if(editDrag&&editSel){var dx=d.x-editDrag.x,dy=d.y-editDrag.y;editSel.pts=editDrag.orig.map(function(p){return {x:p.x+dx,y:p.y+dy,p:p.p}});need=true;return}
-if(strokeSt){var sp=snapRul({x:d.x,y:d.y,p:pr},strokeSt.first);strokeSt.raw.push(sp);live.pts=stabF(strokeSt.raw);need=true;return}}
+if(strokeSt){var sp2=snapRul({x:d.x,y:d.y,p:pr},strokeSt.first);strokeSt.raw.push(sp2);live.pts=stabF(strokeSt.raw);if(!strokeSt.warp&&live.pen&&strokeSt.id){var nw9=Date.now();if(nw9-(strokeSt.lastSend||0)>90){strokeSt.lastSend=nw9;send({t:'lv',id:strokeSt.id,pts:live.pts,pen:live.pen})}}need=true;return}}
 function pUp(e){delete ptrs[e.pointerId];
+if(e.pointerType==='touch'&&Object.keys(ptrs).length===0&&tapN>=2){var nTap=tapN;tapN=0;pinch=null;if(!tapMoved&&(Date.now()-tapT)<450){strokeSt=null;live.pts=null;live.pen=null;panSt=null;if(nTap===2){undoCore();toast('2本指タップ: ひとつ戻しました')}else{redoCore();toast('3本指タップ: やり直しました')}return}}
 if(pinch){if(Object.keys(ptrs).length<2)pinch=null;return}
 if(panSt){panSt=null;return}
 if(sanmenDrag){sanmenDrag=null;dollSync();return}
 if(dollDragSt){dollDragSt=null;dollSync();return}
 if(live.poly){if(live.poly.length>2){setSelFromMS({kind:'poly',poly:live.poly});toast('投げ縄選択');selCtlShow(true)}live.poly=null;need=true;return}
 if(gradSt){var rc=cv.getBoundingClientRect();var d=toDoc(e.clientX-rc.left,e.clientY-rc.top);doOp({t:'grad',id:uid(),lid:selLid,x1:gradSt.x,y1:gradSt.y,x2:d.x,y2:d.y,c:pen.c,c2:pen.c2,ms:selMS});gradSt=null;live.gradPv=null;return}
-if(shapeSt){if(live.shapePv&&live.shapePv.length>1&&ownOk(selLid)){var pn2={};for(var k2 in pen){pn2[k2]=pen[k2]}pn2.taper=0;doOp({t:'s',id:uid(),lid:selLid,pts:live.shapePv,pen:pn2})}shapeSt=null;live.shapePv=null;need=true;return}
+if(shapeSt){if(live.shapePv&&live.shapePv.length>1&&ownOk(lyById(selLid))){var pn2={};for(var k2 in pen){pn2[k2]=pen[k2]}pn2.taper=0;doOp({t:'s',id:uid(),lid:selLid,pts:live.shapePv,pen:pn2})}shapeSt=null;live.shapePv=null;need=true;return}
 if(selDrag){selDrag=null;return}
 if(editDrag&&editSel){send({t:'sedit',id:editSel.id,pts:editSel.pts});editDrag=null;repaint();save();return}
 if(strokeSt&&strokeSt.warp){if(strokeSt.raw.length>1)doOp({t:'warp',id:uid(),lid:selLid,pts:resample(strokeSt.raw,6),mode:warpMode,sz:Math.max(24,pen.sz*2.5)});strokeSt=null;need=true;return}
-if(strokeSt){var pts=stabF(strokeSt.raw);if(pts.length===1)pts.push({x:pts[0].x+0.15,y:pts[0].y+0.15,p:pts[0].p});var pn={};for(var k in pen){pn[k]=pen[k]}if(tool==='er')pn.mode='erase';var sym=null;if(rul.type==='sym'||rul.type==='kalei')sym={n:rul.n||2,cx:rul.cx,cy:rul.cy,kal:rul.type==='kalei'};doOp({t:'s',id:uid(),lid:selLid,pts:pts,pen:pn,sym:sym});pushPal(pen.c);strokeSt=null;live.pts=null;live.pen=null;need=true;return}}
+if(strokeSt){var pts=stabF(strokeSt.raw);if(pts.length===1)pts.push({x:pts[0].x+0.15,y:pts[0].y+0.15,p:pts[0].p});var pn={};for(var k in pen){pn[k]=pen[k]}if(tool==='er')pn.mode='erase';var sym=null;if(rul.type==='sym'||rul.type==='kalei')sym={type:rul.type,n:rul.n||2,cx:rul.cx,cy:rul.cy};doOp({t:'s',id:strokeSt.id||uid(),lid:selLid,pts:pts,pen:pn,sym:sym});send({t:'lvend',id:strokeSt.id});pushPal(pen.c);strokeSt=null;live.pts=null;live.pen=null;live.sym=null;need=true;return}}
 function onWheel(e){e.preventDefault();var rc=cv.getBoundingClientRect();var sx=e.clientX-rc.left,sy=e.clientY-rc.top;if(e.altKey){rotateView((e.deltaY>0?-3:3)*Math.PI/180,sx,sy)}else{zoomAt(e.deltaY>0?0.9:1.1,sx,sy)}}
 function bindCv(){cv.addEventListener('pointerdown',pDown);cv.addEventListener('pointermove',pMove);cv.addEventListener('pointerup',pUp);cv.addEventListener('pointercancel',pUp);cv.addEventListener('wheel',onWheel,{passive:false});cv.addEventListener('contextmenu',function(e){e.preventDefault()})}
 var TB={bPen:'pen',bEr:'er',bFill:'fill',bWand:'wand',bLasso:'sel',bSelMv:'selmv',bGrad:'grad',bShape:'shape',bSpoit:'spoit',bEdit:'edit',bWarp:'warp'};
-function setTool(t){tool=t;Object.keys(TB).forEach(function(id){var el=$(id);if(el)el.classList.toggle('on',TB[id]===t)});var wc=$('warpCtrl');if(wc)wc.classList.toggle('hide',t!=='warp');if(t!=='edit'){editSel=null;updateEditCtl()}need=true}
+function toolJp(t){if(t==='er')return '消しゴム';if(t==='fill')return '塗りつぶし';if(t==='wand')return '自動選択';if(t==='sel')return '投げ縄';if(t==='selmv')return '選択移動';if(t==='grad')return 'グラデ';if(t==='shape')return '図形';if(t==='spoit')return 'スポイト';if(t==='edit')return '線つかみ';if(t==='warp')return 'ゆがみ';return 'ペン'}
+function setTool(t,remote){tool=t;Object.keys(TB).forEach(function(id){var el=$(id);if(el)el.classList.toggle('on',TB[id]===t)});var wc=$('warpCtrl');if(wc)wc.classList.toggle('hide',t!=='warp');if(t!=='edit'){editSel=null;updateEditCtl()}if(!remote)send({t:'tool',tool:t});need=true}
 function togglePanel(id){var el=$(id);if(el)el.classList.toggle('hide')}
 function pushPen(){send({t:'pen',pen:pen})}
 function pushPal(c){if(!c)return;var i=pal.indexOf(c);if(i===0)return;if(i>0)pal.splice(i,1);pal.unshift(c);if(pal.length>20)pal.length=20;buildPal();send({t:'pal',pal:pal});save()}
@@ -803,6 +818,8 @@ else if(k==='p'){var t2=pen.c;pen.c=pen.c2;pen.c2=t2;refreshUI();pushPen()}
 else if(e.key==='Enter'){if(selMask)selFill()}
 else if(e.key==='Delete'||e.key==='Backspace'){delSel()}
 else if(e.key==='Escape'){if(editSel){editSel=null;updateEditCtl();need=true}else selCancel()}
+else if(e.key==='ArrowUp'){var iU=lyIdx(selLid)+1;if(iU<doc.layers.length){selLid=doc.layers[iU].id;send({t:'sel',lid:selLid});buildLyList();toast('レイヤー: '+lyById(selLid).name)}e.preventDefault()}
+else if(e.key==='ArrowDown'){var iD=lyIdx(selLid)-1;if(iD>=0){selLid=doc.layers[iD].id;send({t:'sel',lid:selLid});buildLyList();toast('レイヤー: '+lyById(selLid).name)}e.preventDefault()}
 else if(e.key===','){rotateView(-5*Math.PI/180,cv.clientWidth/2,cv.clientHeight/2)}
 else if(e.key==='.'){rotateView(5*Math.PI/180,cv.clientWidth/2,cv.clientHeight/2)}
 else if(e.key==='0'){resetRot()}});
@@ -937,7 +954,13 @@ $('bTLZip').onclick=function(){tlZip()};
 $('bTLPng').onclick=function(){dlCanvas(exportPng(1,true),(fileName||'editone')+'_toka.png');toast('背景透過のPNGを書き出しました')}}
 function loadScript(src){return new Promise(function(res){var s=document.createElement('script');s.src=src;s.onload=function(){res(true)};s.onerror=function(){res(false)};document.head.appendChild(s)})}
 async function loadPeer(){if(window.Peer)return true;return loadScript('https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js')}
-async function loadQR(){if(window.QRCode)return true;return loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')}
+function b64e(s){return btoa(unescape(encodeURIComponent(s)))}
+function b64d(s){return decodeURIComponent(escape(atob(s)))}
+var mpcPc=null;
+function dcWrap(d){var w={send:function(m){try{d.send(JSON.stringify(m))}catch(e){}}};d.onopen=function(){if(conns.indexOf(w)<0)conns.push(w);setStat(true);var ps=$('panelStat');if(ps)ps.textContent='✅ つながりました！（手渡し接続）';toast('つながりました！（手渡し接続）');if(role!=='pc')w.send({t:'hello',role:role})};d.onmessage=function(ev){if(typeof ev.data==='string'){var m=null;try{m=JSON.parse(ev.data)}catch(e){}if(m)onMsg(w,m)}};d.onclose=function(){conns=conns.filter(function(x){return x!==w});if(!conns.length)setStat(false);toast('相手との接続が切れました')};return w}
+function man1Make(){mpcPc=new RTCPeerConnection({iceServers:[]});dcWrap(mpcPc.createDataChannel('il'));mpcPc.onicecandidate=function(ev){if(!ev.candidate){$('man1').value=b64e(JSON.stringify(mpcPc.localDescription))}};mpcPc.createOffer().then(function(o){return mpcPc.setLocalDescription(o)})}
+function man2Make(){var t=$('man1sp').value.trim();if(!t){toast('コード1を貼ってください');return}var p=new RTCPeerConnection({iceServers:[]});p.ondatachannel=function(ev){dcWrap(ev.channel)};p.onicecandidate=function(ev){if(!ev.candidate){$('man2').value=b64e(JSON.stringify(p.localDescription))}};try{p.setRemoteDescription(JSON.parse(b64d(t))).then(function(){return p.createAnswer()}).then(function(a){return p.setLocalDescription(a)}).catch(function(){toast('コード1が正しくありません')})}catch(e){toast('コード1が正しくありません')}}
+function man3Take(){var t=$('man2pc').value.trim();if(!t||!mpcPc){toast('先にコード1を作り、コード2を貼ってください');return}try{mpcPc.setRemoteDescription(JSON.parse(b64d(t))).catch(function(){toast('コード2が正しくありません')})}catch(e){toast('コード2が正しくありません')}}
 var peer=null,myCode='',autoJoinCode='';
 if(location.hash&&location.hash.indexOf('#j')===0)autoJoinCode=location.hash.slice(2);
 function peerName(code){return 'editone-illust-v12-'+code}
@@ -946,12 +969,12 @@ function hookConn(c){c.on('data',function(m){onMsg(c,m)});c.on('open',function()
 async function pcListen(){var ps=$('panelStat');if(!(await loadPeer())){if(ps)ps.textContent='⚠ 通信ライブラリを読み込めません（電波を確認）';return}
 if(peer){try{peer.destroy()}catch(e){}}
 myCode=String(Math.floor(100000+Math.random()*900000));
-$('codeBig').textContent=myCode.slice(0,3)+' '+myCode.slice(3);if(ps)ps.textContent='相手の接続を待っています…';
+var csw=$('codeShowWrap');if(csw)csw.classList.remove('hide');$('codeShow').textContent=myCode;if(ps)ps.textContent='相手の接続を待っています…';
 peer=new Peer(peerName(myCode),{config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]}});
-peer.on('open',function(){genQR();var mo=$('mpOut');if(mo)mo.value=myCode});
+peer.on('open',function(){});
 peer.on('connection',function(c){hookConn(c)});
 peer.on('error',function(e){if(ps)ps.textContent='⚠ 接続エラー（'+((e&&e.type)||'')+'）。あいことばを作り直してみてください'})}
-async function genQR(){if(!(await loadQR()))return;var q=$('qr');if(!q)return;q.innerHTML='';var url=location.origin+location.pathname+'#j'+myCode;try{new QRCode(q,{text:url,width:150,height:150})}catch(e){}}
+
 async function join(code){code=String(code||'').replace(/[^0-9]/g,'');var ps=$('panelStat');
 if(code.length!==6){toast('6桁のあいことばを入れてください');return}
 if(!(await loadPeer())){toast('通信ライブラリを読み込めませんでした');return}
@@ -960,11 +983,13 @@ if(ps)ps.textContent='接続中…';
 peer=new Peer({config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]}});
 peer.on('open',function(){var c=peer.connect(peerName(code),{reliable:true});hookConn(c);c.on('open',function(){c.send({t:'hello',role:role});setTimeout(function(){$('panel').classList.add('hide')},600)})});
 peer.on('error',function(e){if(ps)ps.textContent='⚠ つながりません（'+((e&&e.type)||'')+'）。あいことばを確認してもう一度'})}
-function openConnPanel(){$('panel').classList.remove('hide');if(role==='pc'){$('pcPane').classList.remove('hide');$('spPane').classList.add('hide');$('mpc').classList.remove('hide');if(!myCode)pcListen()}else{$('spPane').classList.remove('hide');$('pcPane').classList.add('hide');$('mpc').classList.add('hide')}}
+function openConnPanel(){$('panel').classList.remove('hide');if(role==='pc'){$('pcPane').classList.remove('hide');$('spPane').classList.add('hide')}else{$('spPane').classList.remove('hide');$('pcPane').classList.add('hide')}}
 function bindConn(){var bl=$('bLink');if(bl)bl.onclick=openConnPanel;var sl=$('spLink');if(sl)sl.onclick=openConnPanel;var cl=$('ctrlLink');if(cl)cl.onclick=openConnPanel;
-$('reGen').onclick=function(){pcListen()};
-$('joinBtn').onclick=function(){join($('codeIn').value)};
-$('mpGo').onclick=function(){join($('mpIn').value)};
+$('bHost').onclick=function(){pcListen()};
+$('bJoin').onclick=function(){join($('codeIn').value)};
+$('bMan1').onclick=function(){man1Make()};
+$('bMan2').onclick=function(){man2Make()};
+$('bMan3').onclick=function(){man3Take()};
 $('pClose').onclick=function(){$('panel').classList.add('hide')}}
 function bindDial(el,rot,val,min,max,get,set){if(!el)return;var last=null;function ang(e){var r=el.getBoundingClientRect();return Math.atan2(e.clientY-(r.top+r.height/2),e.clientX-(r.left+r.width/2))}
 el.addEventListener('pointerdown',function(e){last=ang(e);try{el.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
@@ -983,7 +1008,7 @@ var clz=$('cLys');if(clz&&doc){clz.innerHTML='';for(var i=doc.layers.length-1;i>
 var cb=$('cBrs');if(cb){cb.innerHTML='';myBrs.forEach(function(b){var bt=document.createElement('button');bt.textContent=b.name||brName(b.br);bt.onclick=function(){pen.br=b.br;pen.sz=b.sz;pen.c=b.c;pen.taper=b.taper||0;pen.opa=b.opa===undefined?1:b.opa;send({t:'pen',pen:{br:b.br,sz:b.sz,c:b.c,taper:pen.taper,opa:pen.opa}});toast(bt.textContent)};cb.appendChild(bt)})}}
 function showUI(id){['home','pcUI','spUI','ctrlUI'].forEach(function(x){var el=$(x);if(el)el.classList.toggle('hide',x!==id)})}
 async function bootCanvas(canvasId){cv=$(canvasId);ctx=cv.getContext('2d');bindCv();await initDoc();buildBrSel();buildPal();buildMyBr();buildMyPoses();buildLyList();refreshUI();refreshRulUi();repaint();setTimeout(function(){fitView()},80);tick()}
-async function startPc(){role='pc';document.body.classList.add('rpc');showUI('pcUI');bindAll();bindFile();bindTl();bindConn();await bootCanvas('pcCv');openConnPanel()}
+async function startPc(){role='pc';document.body.classList.add('rpc');showUI('pcUI');bindAll();bindFile();bindTl();bindConn();await bootCanvas('pcCv')}
 async function startSp(solo){role=solo?'solo':'sp';document.body.classList.add('rsp');showUI('spUI');bindAll();bindFile();bindTl();bindConn();if(solo){$('soloBar').classList.remove('hide');bindSolo();var sl=$('spLink');if(sl)sl.classList.add('hide')}await bootCanvas('spCv');if(!solo){if(autoJoinCode){var ci=$('codeIn');if(ci)ci.value=autoJoinCode;join(autoJoinCode)}else{openConnPanel()}}}
 async function startCtrl(){role='ctrl';showUI('ctrlUI');doc=newDoc();ensureLy();bindConn();buildCtrl();refreshUI();if(autoJoinCode){join(autoJoinCode)}else{openConnPanel()}}
 async function startView(){role='view';document.body.classList.add('rsp');showUI('spUI');bindConn();await bootCanvas('spCv');if(autoJoinCode){join(autoJoinCode)}else{openConnPanel()}}
