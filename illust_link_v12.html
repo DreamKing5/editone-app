@@ -116,6 +116,11 @@ button.big.sub{opacity:.8}
 .cLy{padding:12px;font-size:14px;text-align:left}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0e1116;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;max-width:90vw}
 #toast.show{opacity:.95}
+#tabUI{position:fixed;left:0;top:0;width:100%;height:100%;z-index:28;background:#07090d}
+#tabCv{position:absolute;left:0;top:0;width:100%;height:100%;touch-action:none}
+#bTabExit{position:absolute;right:10px;bottom:10px;z-index:29;opacity:.6}
+#tabHint{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:92%;font-size:11px;color:#39414f;pointer-events:none;text-align:center;line-height:1.7}
+#bTabMode{position:fixed;right:10px;top:52px;z-index:30;font-size:13px;padding:7px 11px}
 body.rpc .spOnly{display:none}
 body.rsp .pcOnly{display:none}
 </style>
@@ -179,13 +184,19 @@ body.rsp .pcOnly{display:none}
 		<div id='colorPal'></div>
 	</div>
 	<div id='pcWrap'><canvas id='pcCv'></canvas></div>
-	<div id='help'>B/E=ペン/消し G=塗り A=自動選択 W=投げ縄 R=グラデ C=図形 S=スポイト(Alt+クリックでも) V=線つかみ H=補正 Q=ゆがみ U=ブラシ工房 T=トーン I=フィルター K=定規(万華鏡/パース) D=人形・三面図 O=画像 J=参照 M=作品 Y=左右反転 Z=グリッド [ ]=太さ +/-=選択拡縮 P=色替え Enter=選択塗り Delete=線/選択消し Esc=解除 N=新規レイヤー L=パネル F=全体 Space+ドラッグ=移動 ホイール=拡縮 Alt+ホイール・,・.=回転 0=回転リセット X=ベクター消しゴム ↑↓=レイヤー切替 Ctrl+Z/Y ※選んだツールはスマホにも同期。スマホ: 2本指ひねり=回転（水平付近で自動スナップ） 2本指タップ=戻す 3本指タップ=やり直し</div>
+	<div id='help'>B/E=ペン/消し G=塗り A=自動選択 W=投げ縄 R=グラデ C=図形 S=スポイト(Alt+クリックでも) V=線つかみ H=補正 Q=ゆがみ U=ブラシ工房 T=トーン I=フィルター K=定規(万華鏡/パース) D=人形・三面図 O=画像 J=参照 M=作品 Y=左右反転 Z=グリッド [ ]=太さ +/-=選択拡縮 P=色替え Enter=選択塗り Delete=線/選択消し Esc=解除 N=新規レイヤー L=パネル F=全体 Space+ドラッグ=移動 ホイール=拡縮 Alt+ホイール・,・.=回転 0=回転リセット X=ベクター消しゴム ↑↓=レイヤー切替 Ctrl+Z/Y ※選んだツールはスマホにも同期。スマホ: 2本指ひねり=回転（水平付近で自動スナップ） 2本指タップ=戻す 3本指タップ=やり直し 🖊板タブ=スマホ右上のボタンで「画面に何も映さないペンタブ」になりPCにリアルタイム表示</div>
 </div>
 
 <div id='spUI' class='hide'>
 	<canvas id='spCv'></canvas>
 	<div id='spDot' class='off'></div>
 	<button id='spLink'>🔗 接続</button>
+	<button id='bTabMode'>🖊 板タブ</button>
+	<div id='tabUI' class='hide'>
+		<canvas id='tabCv'></canvas>
+		<div id='tabHint'>🖊 板タブモード：この画面に描くとPCにリアルタイムで映ります（この画面には何も表示されません）<br>枠の中がキャンバス全体です。2本指タップ=戻す / 3本指タップ=やり直し</div>
+		<button id='bTabExit'>✕ 板タブ終了</button>
+	</div>
 	<div id='soloBar' class='hide'>
 		<button id='sPen'>✏️</button>
 		<button id='sEr'>🧽</button>
@@ -904,6 +915,20 @@ $('sLy').onclick=function(){togglePanel('lyPanel');buildLyList()};
 $('sFile').onclick=function(){openFilePanel()};
 $('sUndo').onclick=function(){undoCore()};$('sRedo').onclick=function(){redoCore()};
 $('sPng').onclick=function(){savePng()}}
+var tabOn=false,tabFitV=null,tabSt=null,tabPtrs={},tabTapN=0,tabTapT=0,tabTapMoved=false;
+function tabFit(){var c=$('tabCv');if(!c)return null;var dpr=window.devicePixelRatio||1;var cw=c.clientWidth,ch=c.clientHeight;if(c.width!==Math.round(cw*dpr)||c.height!==Math.round(ch*dpr)){c.width=Math.round(cw*dpr);c.height=Math.round(ch*dpr)}var s=Math.min(cw/W,ch/H)*0.97;tabFitV={s:s,ox:(cw-W*s)/2,oy:(ch-H*s)/2};return tabFitV}
+function tabFrame(){var c=$('tabCv');if(!c||!tabFitV)return;var dpr=window.devicePixelRatio||1;var g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,c.clientWidth,c.clientHeight);g.strokeStyle='rgba(76,141,255,0.22)';g.lineWidth=1.5;g.strokeRect(tabFitV.ox,tabFitV.oy,W*tabFitV.s,H*tabFitV.s)}
+function tabDocPt(e){var c=$('tabCv');var rc=c.getBoundingClientRect();var f=tabFitV||tabFit();var x=(e.clientX-rc.left-f.ox)/f.s,y=(e.clientY-rc.top-f.oy)/f.s;return {x:Math.max(0,Math.min(W,x)),y:Math.max(0,Math.min(H,y)),p:(e.pressure&&e.pressure>0)?e.pressure:0.6}}
+function tabPen(){var pn={};for(var k in pen){pn[k]=pen[k]}if(tool==='er')pn.mode='erase';return pn}
+function tabEnter(on){tabOn=on;var u=$('tabUI');if(u)u.classList.toggle('hide',!on);var b=$('bTabMode');if(b)b.classList.toggle('hide',on);if(on){tabFit();tabFrame();toast(conns.length?'🖊 板タブモード: この画面に描くとPCに映ります':'🖊 板タブモード（未接続です。先に🔗接続するとPCに映ります）')}else{toast('板タブを終了しました');need=true}}
+function tabDown(e){if(!doc)return;e.preventDefault();var c=$('tabCv');c.setPointerCapture&&c.setPointerCapture(e.pointerId);tabPtrs[e.pointerId]={x:e.clientX,y:e.clientY};var n=Object.keys(tabPtrs).length;if(n===1){tabTapT=Date.now();tabTapN=1;tabTapMoved=false}else{tabTapN=Math.max(tabTapN,n);if(tabSt){send({t:'lvend',id:tabSt.id});tabSt=null}return}
+if(role==='view'){toast('観客モードでは描けません');return}
+var lp=lyById(selLid);if(lp&&(lp.lock||!ownOk(lp))){toast(lp.lock?'🔒 ロック中のレイヤーです':'このレイヤーの担当外です');return}
+var d=tabDocPt(e);tabSt={id:uid(),raw:[d],first:{x:d.x,y:d.y},lastSend:0}}
+function tabMove(e){var o=tabPtrs[e.pointerId];if(!o)return;if(Math.abs(e.clientX-o.x)>12||Math.abs(e.clientY-o.y)>12)tabTapMoved=true;if(!tabSt||Object.keys(tabPtrs).length>1)return;var d=tabDocPt(e);var sp=snapRul(d,tabSt.first);tabSt.raw.push(sp);var nw=Date.now();if(nw-(tabSt.lastSend||0)>60){tabSt.lastSend=nw;send({t:'lv',id:tabSt.id,pts:stabF(tabSt.raw),pen:tabPen()})}}
+function tabUp(e){delete tabPtrs[e.pointerId];if(Object.keys(tabPtrs).length===0&&tabTapN>=2){var n2=tabTapN;tabTapN=0;tabSt=null;if(!tabTapMoved&&(Date.now()-tabTapT)<450){if(n2===2){undoCore();toast('2本指タップ: ひとつ戻しました')}else{redoCore();toast('3本指タップ: やり直しました')}}return}
+if(!tabSt)return;var st=tabSt;tabSt=null;var pts=stabF(st.raw);if(pts.length===1)pts.push({x:pts[0].x+0.15,y:pts[0].y+0.15,p:pts[0].p});var sym=null;if(rul.type==='sym'||rul.type==='kalei')sym={type:rul.type,n:rul.n||2,cx:rul.cx,cy:rul.cy};doOp({t:'s',id:st.id,lid:selLid,pts:pts,pen:tabPen(),sym:sym});send({t:'lvend',id:st.id});pushPal(pen.c)}
+(function(){var bm=$('bTabMode'),bx=$('bTabExit'),tc=$('tabCv');if(!bm||!bx||!tc)return;bm.onclick=function(){tabEnter(true)};bx.onclick=function(){tabEnter(false)};tc.addEventListener('pointerdown',tabDown);tc.addEventListener('pointermove',tabMove);tc.addEventListener('pointerup',tabUp);tc.addEventListener('pointercancel',tabUp);tc.addEventListener('contextmenu',function(e){e.preventDefault()});window.addEventListener('resize',function(){if(tabOn){tabFit();tabFrame()}})})();
 function bindAll(){bindBar();bindKeys();bindLy();bindRul();bindDoll();bindBr();bindFx();bindWarp();bindEdit();bindSelCtl();bindImg()}
 function openFilePanel(){refreshFiles().then(function(){buildFileList();$('filePanel').classList.remove('hide')})}
 function fmtDate(t){var d=new Date(t||0);return (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+('0'+d.getMinutes()).slice(-2)}
