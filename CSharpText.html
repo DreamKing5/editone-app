@@ -359,6 +359,124 @@ span.c-kw:hover{border-bottom-color:var(--c-kw)}
   .ex-stamp{width:70px;height:70px;font-size:19px}
 }
 
+/* ==========================================================
+   Phase 3 — 冒険の記録・称号・エラー辞典接続
+   ========================================================== */
+.toasts{ position:fixed; right:18px; bottom:18px; z-index:90; display:flex; flex-direction:column; gap:10px; }
+.toast{ display:flex; gap:12px; align-items:center; background:var(--paper); border:1px solid var(--brass);
+  border-left:3px solid var(--brass); padding:10px 18px 10px 14px; box-shadow:0 8px 26px rgba(0,0,0,.22);
+  opacity:0; transform:translateY(10px); transition:opacity .35s ease, transform .35s ease; max-width:320px; }
+.toast.show{ opacity:1; transform:none; }
+.toast .t-orn{ color:var(--brass); font-size:19px; }
+.toast b{ display:block; font-size:10px; letter-spacing:.18em; color:var(--brass); font-weight:600; }
+.toast .t-name{ font-size:15px; }
+
+.con-lookup{ margin-left:12px; font-family:inherit; font-size:11px; padding:1px 9px; background:transparent;
+  border:1px solid rgba(194,163,91,.55); color:#c2a35b; cursor:pointer; }
+.con-lookup:hover{ background:rgba(194,163,91,.16); }
+
+.log-stats{ padding:2px 14px 10px; }
+.log-stat{ display:grid; grid-template-columns:1fr auto; row-gap:3px; margin-bottom:10px; font-size:12.5px; }
+.log-stat .ls-l{ letter-spacing:.06em; }
+.log-stat .ls-v{ color:var(--brass); }
+.log-stat .ls-bar{ grid-column:1/-1; height:4px; background:var(--line); position:relative; }
+.log-stat .ls-bar i{ position:absolute; left:0; top:0; bottom:0; background:var(--brass); }
+
+.log-intro{ color:var(--ink); opacity:.75; font-size:14px; margin:0 0 8px; }
+.dmap{ margin:24px 0 8px; position:relative; padding-left:20px; }
+.dmap::before{ content:""; position:absolute; left:4px; top:14px; bottom:14px; width:1px; background:var(--line2); }
+.droom{ position:relative; border:1px solid var(--line2); margin:0 0 14px; padding:12px 16px 13px; cursor:pointer;
+  transition:border-color .15s ease; }
+.droom:hover{ border-color:var(--brass); }
+.droom::before{ content:""; position:absolute; left:-16px; top:50%; width:16px; height:1px; background:var(--line2); }
+.droom::after{ content:""; position:absolute; left:-16px; top:50%; transform:translate(-50%,-50%); width:9px; height:9px;
+  border:1.5px solid var(--brass); background:var(--paper); border-radius:50%; }
+.droom.complete::after{ background:var(--brass); }
+.droom.complete{ border-color:var(--brass); box-shadow:inset 0 0 0 1px rgba(194,163,91,.25); }
+.droom .dr-no{ font-size:10.5px; letter-spacing:.2em; color:var(--brass); }
+.droom .dr-nm{ font-size:16px; margin:2px 0 0; }
+.droom .dr-badges{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.db{ font-size:11px; padding:1px 9px; border:1px solid var(--line2); opacity:.5; }
+.db.on{ border-color:var(--brass); color:var(--brass); opacity:1; }
+
+.log-sec{ margin:36px 0 14px; font-size:19px; font-weight:600; border-bottom:1px solid var(--line2); padding-bottom:7px; }
+.tgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:12px; }
+.tmedal{ border:1px solid var(--line2); padding:14px 16px; opacity:.5; display:flex; flex-direction:column; gap:3px; }
+.tmedal.got{ opacity:1; border-color:var(--brass); box-shadow:inset 0 0 0 1px rgba(194,163,91,.25); }
+.tmedal .tm-seal{ color:var(--brass); font-size:17px; line-height:1; }
+.tmedal b{ font-size:14.5px; }
+.tmedal .tm-d{ font-size:12px; opacity:.7; }
+
+@keyframes stampin{ 0%{ transform:rotate(-11deg) scale(1.7); opacity:0; }
+  60%{ transform:rotate(-11deg) scale(.96); opacity:1; }
+  100%{ transform:rotate(-11deg) scale(1); opacity:1; } }
+.ex-stamp{ animation:stampin .3s ease-out both; }
+
+@media (max-width:960px){
+  .toasts{ right:10px; bottom:10px; left:10px; }
+  .toast{ max-width:none; }
+}
+
+
+/* ========== Phase 4 — 仕上げ・賢者の問答・伏線ノート ========== */
+@keyframes docIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.doc{animation:docIn .38s ease both}
+button:active{transform:translateY(1px)}
+.exlist button .exnm{display:inline-block;transition:transform .18s ease}
+.exlist button:hover .exnm{transform:translateX(3px)}
+.tmedal{transition:transform .2s ease,box-shadow .2s ease}
+.tmedal.got:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.15)}
+.droom{transition:transform .2s ease,border-color .2s ease}
+.droom:hover{transform:translateX(3px)}
+.db{transition:opacity .25s ease}
+
+.lognav{list-style:none;margin:0 0 8px;padding:0}
+.lognav li.cur button{border-color:var(--brass);color:var(--brass)}
+
+.qrow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:10px 0;background:rgba(143,115,40,.045)}
+.qrow.mastered{border-color:var(--brass)}
+.qr-ch{font-size:.7rem;letter-spacing:.14em;color:var(--brass);white-space:nowrap}
+.qr-nm{flex:1;font-weight:600;min-width:0}
+.qr-st{font-size:.78rem;opacity:.72;white-space:nowrap}
+.qgo{font:inherit;font-size:.82rem;padding:6px 14px;border:1px solid var(--brass);border-radius:6px;background:transparent;color:var(--brass);cursor:pointer;white-space:nowrap}
+.qgo:hover{background:var(--brass);color:var(--paper)}
+
+.qcard{border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin:18px 0}
+.qprog{font-size:.72rem;letter-spacing:.16em;color:var(--brass);margin-bottom:10px}
+.qtext{font-size:1.05rem;font-weight:600;margin-bottom:12px;line-height:1.9}
+.qcode{margin:0 0 12px}
+.qchoice{display:block;width:100%;text-align:left;font:inherit;font-size:.95rem;padding:10px 14px;margin:8px 0;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.qchoice:hover:not(:disabled){border-color:var(--brass)}
+.qchoice:disabled{cursor:default;opacity:.82}
+.qchoice.sel-ok{border-color:#3f7d4e;background:rgba(63,125,78,.1);opacity:1}
+.qchoice.sel-ng{border-color:#a2453b;background:rgba(162,69,59,.08);animation:qshake .3s ease;opacity:1}
+.qchoice.reveal{border-color:#3f7d4e;opacity:1}
+@keyframes qshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.qmark{float:right;font-weight:700}
+.qfeed{min-height:1.4em;margin-top:10px;font-size:.92rem;line-height:1.9}
+.qfeed .ok{color:#3f7d4e;font-weight:700}
+.qfeed .ng{color:#a2453b;font-weight:700}
+.qnav{margin-top:14px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.qnav.center{justify-content:center}
+.qresult{text-align:center;padding:34px 24px}
+.qr-big{font-size:1.5rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px}
+.qr-sub{font-size:.95rem;opacity:.85;line-height:1.9}
+
+.fentry{position:relative;border:1px solid var(--line);border-radius:10px;padding:18px 20px 18px 46px;margin:14px 0}
+.fentry::before{content:"❧";position:absolute;left:17px;top:17px;color:var(--brass)}
+.ft-t{font-weight:700;margin-bottom:6px}
+.fmeta{font-size:.75rem;letter-spacing:.08em;color:var(--brass);margin-bottom:6px}
+.fch{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.fq{font-size:.92rem;line-height:1.9;margin-bottom:8px}
+.flock{font-size:.88rem;opacity:.6;border-top:1px dashed var(--line);padding-top:8px;font-style:italic}
+.fpay{font-size:.92rem;line-height:1.9;border-top:1px dashed var(--line);padding-top:8px}
+.fnote{text-align:center}
+
+@media (max-width:640px){
+  .qrow{flex-wrap:wrap}
+  .qr-nm{flex:1 1 100%}
+}
+
 </style>
 </head>
 <body>
@@ -370,6 +488,7 @@ span.c-kw:hover{border-bottom-color:var(--c-kw)}
     <button data-mode="grimoire">魔導書</button>
     <button data-mode="practice">演習</button>
     <button data-mode="dojo">訓練所</button>
+    <button data-mode="log">記録</button>
   </nav>
   <div class="top-tools">
     <button class="searchbtn" id="searchBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="stxt">検索</span><kbd>Ctrl K</kbd></button>
@@ -2823,6 +2942,7 @@ function keyName(ev){
     case "Shift": return "LeftShift";
     case "Enter": return "Return";
   }
+  if(k>="0"&&k<="9") return "Alpha"+k;
   if(k.length===1) return k.toUpperCase();
   return k;
 }
@@ -2851,7 +2971,7 @@ function overlap(a,b){
 var BOUNDS={x:8.2, y:5.2};
 var SCENES=[
 {
-  id:"plaza", title:"練習場の広場", icon:"⚔",
+  id:"plaza", title:"練習場の広場", icon:"⚔", ch:"ch01",
   desc:"まずは歩くことから。矢印キー（または WASD）で勇者を動かしてみよう。speed の値を変えるとどうなる？",
   goal:"自由に歩き回ろう（クリア条件なし）",
   setup:function(w){
@@ -2880,7 +3000,7 @@ var SCENES=[
   ].join("\n")
 },
 {
-  id:"coins", title:"コイン集め", icon:"◉",
+  id:"coins", title:"コイン集め", icon:"◉", ch:"ch03", quest:true,
   desc:"広場に5枚のコインが落ちている。OnTriggerEnter で拾って、全部集めよう。Destroy し忘れると何度も拾えてしまうので注意。",
   goal:"コインを5枚すべて集める",
   setup:function(w){
@@ -2920,7 +3040,7 @@ var SCENES=[
   ].join("\n")
 },
 {
-  id:"goblins", title:"ゴブリンの襲撃", icon:"♟",
+  id:"goblins", title:"ゴブリンの襲撃", icon:"♟", ch:"ch04", quest:true,
   desc:"ゴブリンが追いかけてくる！ 15秒間逃げ切れば勝ち。LeftShift でダッシュできるように改造してみよう。",
   goal:"15秒間つかまらずに逃げ切る",
   setup:function(w){
@@ -2959,6 +3079,250 @@ var SCENES=[
     "",
     "        // 挑戦: LeftShift を押している間だけ speed を2倍にしてみよう",
     "        transform.position += new Vector3(dx, dy, 0) * speed * Time.deltaTime;",
+    "    }",
+    "}"
+  ].join("\n")
+},
+{
+  id:"torches", title:"\u677e\u660e\u306e\u5de1\u56de\u8def", icon:"\u2756", ch:"ch06", quest:true,
+  desc:"\u56db\u9685\u306e\u677e\u660e\u306b\u706b\u3092\u3068\u3082\u305d\u3046\u3002\u4eca\u56de\u306f\u624b\u3067\u306f\u6b69\u304b\u306a\u3044\u3002List<Vector3> \u306b\u5de1\u56de\u8def\u3092\u8a70\u3081\u3066\u3001\u52c7\u8005\u306b\u81ea\u52d5\u3067\u6b69\u304b\u305b\u308b\u3002\u2026\u3060\u304c\u30eb\u30fc\u30c8\u304c1\u304b\u6240\u6b20\u3051\u3066\u3044\u308b\u3088\u3046\u3060\u3002",
+  goal:"4\u672c\u306e\u677e\u660e\u3059\u3079\u3066\u306b\u706b\u3092\u3068\u3082\u3059",
+  setup:function(w){
+    addObj(w,{name:"Player", tag:"Player", x:0, y:0, shape:"player", color:"#c2a35b"});
+    var pos=[[-7,4.4],[7,4.4],[7,-4.4],[-7,-4.4]];
+    for(var i=0;i<pos.length;i++)
+      addObj(w,{name:"Torch"+(i+1), tag:"Torch", x:pos[i][0], y:pos[i][1], w:0.9, h:1.2, shape:"torch", lit:false});
+  },
+  update:function(w){
+    var p=player(w); if(!p) return;
+    var lit=0, total=0;
+    for(var i=0;i<w.objects.length;i++){
+      var o=w.objects[i];
+      if(o.tag!=="Torch") continue;
+      total++;
+      if(!o.lit && overlap(o,p)) o.lit=true;
+      if(o.lit) lit++;
+    }
+    w.hud=["\u706f\u3057\u305f\u677e\u660e: "+lit+" / "+total];
+    if(total>0&&lit===total&&w.state==="run"){ w.state="clear"; w.banner="\u5de1\u56de\u8def\u3001\u5b8c\u6210\uff01"; }
+  },
+  starter:[
+    "// \u52c7\u8005\u306f List \u306b\u8a70\u3081\u305f\u5de1\u56de\u8def\u3092\u81ea\u52d5\u3067\u6b69\u304f",
+    "class TorchPatrol : MonoBehaviour {",
+    "    List<Vector3> route = new List<Vector3>();",
+    "    int index = 0;",
+    "    float speed = 4.0f;",
+    "",
+    "    void Start() {",
+    "        route.Add(new Vector3(-7, 4.4f, 0));   // \u5de6\u4e0a\u306e\u677e\u660e",
+    "        route.Add(new Vector3(7, 4.4f, 0));    // \u53f3\u4e0a\u306e\u677e\u660e",
+    "        route.Add(new Vector3(7, -4.4f, 0));   // \u53f3\u4e0b\u306e\u677e\u660e",
+    "        // TODO: \u5de6\u4e0b (-7, -4.4) \u3078\u306e\u4e00\u6b69\u304c\u62dc\u3051\u3066\u3044\u308b\u3002route.Add \u3057\u3088\u3046",
+    "        Debug.Log($\"\u5de1\u56de\u8def: {route.Count} \u5730\u70b9\");",
+    "    }",
+    "",
+    "    void Update() {",
+    "        if (index >= route.Count) { return; }",
+    "        Vector3 goal = route[index];",
+    "        Vector3 diff = goal - transform.position;",
+    "        if (diff.magnitude < 0.3f) {",
+    "            index++;",
+    "            return;",
+    "        }",
+    "        transform.position += diff.normalized * speed * Time.deltaTime;",
+    "    }",
+    "}"
+  ].join("\n")
+},
+{
+  id:"swords", title:"\u4e09\u5263\u306e\u5c01\u5370", icon:"\u2020", ch:"ch05", quest:true,
+  desc:"\u4e09\u4f53\u306e\u5c01\u5370\u30b4\u30fc\u30ec\u30e0\u306f\u3001\u305d\u308c\u305e\u308c\u5bfe\u5fdc\u3059\u308b\u4f1d\u8aac\u306e\u5263\u3067\u3057\u304b\u7815\u3051\u306a\u3044\u3002\u6570\u5b57\u30ad\u30fc 1/2/3 \u3067\u5263\u3092\u5207\u308a\u66ff\u3048\u3066\u304b\u3089\u4f53\u5f53\u305f\u308a\u3060\u3002\u8d64\u306e\u30eb\u30fc\u30f3\u306b\u306f\u708e\u3001\u9752\u306b\u306f\u6c37\u3001\u7dd1\u306b\u306f\u98a8\u3002",
+  goal:"3\u4f53\u306e\u5c01\u5370\u30b4\u30fc\u30ec\u30e0\u3092\u3059\u3079\u3066\u7815\u304f",
+  setup:function(w){
+    addObj(w,{name:"Player", tag:"Player", x:0, y:-3.5, shape:"player", color:"#c2a35b"});
+    addObj(w,{name:"RubyGolem", tag:"Golem", weak:"Flame", x:-5.5, y:2.5, w:1.4, h:1.7, shape:"golem", rune:"#c4574d"});
+    addObj(w,{name:"IceGolem",  tag:"Golem", weak:"Frost", x:0,    y:3.2, w:1.4, h:1.7, shape:"golem", rune:"#5b8fb8"});
+    addObj(w,{name:"GaleGolem", tag:"Golem", weak:"Gale",  x:5.5,  y:2.5, w:1.4, h:1.7, shape:"golem", rune:"#6f9f63"});
+  },
+  update:function(w){
+    var p=player(w); if(!p) return;
+    var names={Flame:"\u708e\u306e\u5263", Frost:"\u6c37\u306e\u5263", Gale:"\u98a8\u306e\u5263"};
+    var left=0;
+    for(var i=0;i<w.objects.length;i++){
+      var o=w.objects[i];
+      if(!o.alive||o.tag!=="Golem") continue;
+      if(overlap(o,p)){
+        if(p.tag===o.weak){ o.alive=false; continue; }
+        var dx=p.x-o.x, dy=p.y-o.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+        p.x+=dx/d*0.35; p.y+=dy/d*0.35;
+      }
+      left++;
+    }
+    w.hud=["\u88c5\u5099: "+(names[p.tag]||"\u7d20\u624b"), "\u306e\u3053\u308a\u30b4\u30fc\u30ec\u30e0: "+left+" \u4f53"];
+    if(left===0&&w.state==="run"){ w.state="clear"; w.banner="\u4e09\u3064\u306e\u5c01\u5370\u3092\u7834\u3063\u305f\uff01"; }
+  },
+  starter:[
+    "class SwordMaster : MonoBehaviour {",
+    "    float speed = 5.0f;",
+    "",
+    "    void Update() {",
+    "        // --- \u6570\u5b57\u30ad\u30fc\u3067\u5263\u3092\u5207\u308a\u66ff\u3048\u308b ---",
+    "        if (Input.GetKeyDown(KeyCode.Alpha1)) { Equip(\"Flame\"); }",
+    "        // TODO: 2 \u3067 \"Frost\"\uff08\u6c37\uff09\u30013 \u3067 \"Gale\"\uff08\u98a8\uff09\u3082\u88c5\u5099\u3067\u304d\u308b\u3088\u3046\u306b\u3057\u3088\u3046",
+    "",
+    "        float dx = 0;",
+    "        float dy = 0;",
+    "        if (Input.GetKey(KeyCode.LeftArrow))  { dx = -1; }",
+    "        if (Input.GetKey(KeyCode.RightArrow)) { dx = 1; }",
+    "        if (Input.GetKey(KeyCode.UpArrow))    { dy = 1; }",
+    "        if (Input.GetKey(KeyCode.DownArrow))  { dy = -1; }",
+    "        transform.position += new Vector3(dx, dy, 0) * speed * Time.deltaTime;",
+    "    }",
+    "",
+    "    void Equip(string sword) {",
+    "        gameObject.tag = sword;",
+    "        switch (sword) {",
+    "            case \"Flame\": Debug.Log(\"\u708e\u306e\u5263\u3092\u69cb\u3048\u305f\"); break;",
+    "            case \"Frost\": Debug.Log(\"\u6c37\u306e\u5263\u3092\u69cb\u3048\u305f\"); break;",
+    "            case \"Gale\":  Debug.Log(\"\u98a8\u306e\u5263\u3092\u69cb\u3048\u305f\"); break;",
+    "        }",
+    "    }",
+    "}"
+  ].join("\n")
+},
+{
+  id:"slimes", title:"\u30b9\u30e9\u30a4\u30e0\u306e\u5927\u8131\u8d70", icon:"\u274d", ch:"ch09", quest:true,
+  desc:"\u6a3d\u304b\u3089\u9003\u3052\u305f\u30b9\u30e9\u30a4\u30e0\u304c6\u5339\u3002\u540c\u3058\u300c\u9003\u3052\u308b\u300d\u3067\u3082\u3001\u305d\u308c\u305e\u308c\u52d5\u304d\u65b9\u304c\u9055\u3046\uff08\u591a\u614b\u3068\u3044\u3046\u3084\u3064\u3060\uff09\u300240\u79d2\u4ee5\u5185\u306b\u5168\u90e8\u3064\u304b\u307e\u3048\u3088\u3046\u3002",
+  goal:"40\u79d2\u4ee5\u5185\u306b\u30b9\u30e9\u30a4\u30e0\u30926\u5339\u3064\u304b\u307e\u3048\u308b",
+  setup:function(w){
+    addObj(w,{name:"Player", tag:"Player", x:0, y:0, shape:"player", color:"#c2a35b"});
+    var defs=[
+      {x:-6,y:3,  kind:"h",      col:"#7fae6d"},
+      {x:6, y:3,  kind:"v",      col:"#6d9fae"},
+      {x:-6,y:-3, kind:"circle", col:"#ae8d6d"},
+      {x:6, y:-3, kind:"zig",    col:"#9d6dae"},
+      {x:0, y:4,  kind:"dash",   col:"#ae6d76"},
+      {x:0, y:-4, kind:"sine",   col:"#a8ae6d"}
+    ];
+    for(var i=0;i<defs.length;i++){
+      var d=defs[i];
+      addObj(w,{name:"Slime"+(i+1), tag:"Slime", x:d.x, y:d.y, w:0.8, h:0.7,
+                shape:"slime", color:d.col, kind:d.kind, seed:i*1.7,
+                dirx:(i%2?1:-1), diry:(i%3?1:-1)});
+    }
+  },
+  update:function(w,dt){
+    var p=player(w); if(!p||w.state!=="run") return;
+    var left=0;
+    for(var i=0;i<w.objects.length;i++){
+      var o=w.objects[i];
+      if(!o.alive||o.tag!=="Slime") continue;
+      var sp=2.2;
+      if(o.kind==="h"){ o.x+=o.dirx*sp*dt; if(Math.abs(o.x)>7.6) o.dirx*=-1; }
+      else if(o.kind==="v"){ o.y+=o.diry*sp*dt; if(Math.abs(o.y)>4.6) o.diry*=-1; }
+      else if(o.kind==="circle"){ o.x+=Math.cos(w.time*1.4+o.seed)*2.6*dt; o.y+=Math.sin(w.time*1.4+o.seed)*2.6*dt; }
+      else if(o.kind==="zig"){ o.x+=o.dirx*sp*dt; o.y+=o.diry*sp*0.8*dt; if(Math.abs(o.x)>7.6) o.dirx*=-1; if(Math.abs(o.y)>4.6) o.diry*=-1; }
+      else if(o.kind==="dash"){ var b=Math.sin(w.time*2+o.seed); o.x+=(b>0.3?4.5:0.8)*o.dirx*dt; if(Math.abs(o.x)>7.6) o.dirx*=-1; }
+      else { o.y+=Math.sin(w.time*2.2+o.seed)*3*dt; o.x+=o.dirx*1.2*dt; if(Math.abs(o.x)>7.6) o.dirx*=-1; }
+      /* \u8fd1\u3065\u304f\u3068\u9003\u3052\u308b */
+      var ex=o.x-p.x, ey=o.y-p.y, d=Math.sqrt(ex*ex+ey*ey)||1;
+      if(d<2.2){ o.x+=ex/d*1.6*dt; o.y+=ey/d*1.6*dt; }
+      o.x=Math.max(-7.8,Math.min(7.8,o.x)); o.y=Math.max(-4.8,Math.min(4.8,o.y));
+      if(overlap(o,p)){ o.alive=false; continue; }
+      left++;
+    }
+    var remain=Math.max(0, 40-w.time);
+    w.hud=["\u306e\u3053\u308a\u30b9\u30e9\u30a4\u30e0: "+left+" \u5339", "\u3042\u3068 "+remain.toFixed(1)+" \u79d2"];
+    if(left===0&&w.state==="run"){ w.state="clear"; w.banner="\u5168\u30b9\u30e9\u30a4\u30e0\u78ba\u4fdd\uff01"; }
+    else if(remain<=0&&w.state==="run"){ w.state="fail"; w.banner="\u9003\u3052\u3089\u308c\u305f\u2026\u3082\u3046\u4e00\u5ea6\uff01"; }
+  },
+  starter:[
+    "class SlimeCatcher : MonoBehaviour {",
+    "    float speed = 5.5f;",
+    "    int caught = 0;",
+    "",
+    "    void Update() {",
+    "        float dx = 0;",
+    "        float dy = 0;",
+    "        if (Input.GetKey(KeyCode.LeftArrow))  { dx = -1; }",
+    "        if (Input.GetKey(KeyCode.RightArrow)) { dx = 1; }",
+    "        if (Input.GetKey(KeyCode.UpArrow))    { dy = 1; }",
+    "        if (Input.GetKey(KeyCode.DownArrow))  { dy = -1; }",
+    "",
+    "        float s = speed;",
+    "        // \u6311\u6226: LeftShift \u3092\u62bc\u3057\u3066\u3044\u308b\u9593\u306f 1.8 \u500d\u306e\u30c0\u30c3\u30b7\u30e5\u306b\u3057\u3066\u307f\u3088\u3046",
+    "",
+    "        transform.position += new Vector3(dx, dy, 0) * s * Time.deltaTime;",
+    "    }",
+    "",
+    "    void OnTriggerEnter(Collider other) {",
+    "        if (other.CompareTag(\"Slime\")) {",
+    "            caught++;",
+    "            Debug.Log($\"\u3064\u304b\u307e\u3048\u305f\uff01 {caught} \u5339\u76ee\uff08{other.name}\uff09\");",
+    "        }",
+    "    }",
+    "}"
+  ].join("\n")
+},
+{
+  id:"escape", title:"\u30c0\u30f3\u30b8\u30e7\u30f3\u8131\u51fa", icon:"\u2302", ch:"ch13", quest:true,
+  desc:"\u6700\u7d42\u8a66\u9a13\u3060\u3002\u898b\u5f35\u308a\u306e\u30b4\u30d6\u30ea\u30f3\u306b\u89e6\u308c\u305a\u306b\u3001\u5de6\u4e0a\u306e\u9375\u3092\u53d6\u3063\u3066\u53f3\u306e\u6249\u304b\u3089\u8131\u51fa\u305b\u3088\u3002\u89e6\u308c\u305f\u3089\u3084\u308a\u76f4\u3057\u3002",
+  goal:"\u9375\u3092\u624b\u306b\u5165\u308c\u3066\u3001\u6249\u304b\u3089\u8131\u51fa\u3059\u308b",
+  setup:function(w){
+    addObj(w,{name:"Player", tag:"Player", x:-7, y:-4.3, shape:"player", color:"#c2a35b"});
+    addObj(w,{name:"Key",  tag:"Key",  x:-7,  y:4.3, w:0.7, h:0.7, shape:"keyitem"});
+    addObj(w,{name:"Door", tag:"Door", x:7.6, y:0,   w:0.9, h:1.9, shape:"door"});
+    addObj(w,{name:"Guard1", tag:"Guard", x:-3.5, y:0,  shape:"goblin", color:"#6f8f5a", axis:"v", range:4.2, spd:3.2, dir:1});
+    addObj(w,{name:"Guard2", tag:"Guard", x:0.5,  y:2,  shape:"goblin", color:"#6f8f5a", axis:"v", range:2.6, spd:2.2, dir:-1});
+    addObj(w,{name:"Guard3", tag:"Guard", x:4,    y:-2, shape:"goblin", color:"#6f8f5a", axis:"h", range:3.4, spd:2.6, dir:1});
+  },
+  update:function(w,dt){
+    var p=player(w); if(!p||w.state!=="run") return;
+    for(var i=0;i<w.objects.length;i++){
+      var o=w.objects[i];
+      if(!o.alive||o.tag!=="Guard") continue;
+      if(o.base==null) o.base=(o.axis==="v")?o.y:o.x;
+      if(o.axis==="v"){ o.y+=o.dir*o.spd*dt; if(o.y>o.base+o.range||o.y<o.base-o.range) o.dir*=-1; }
+      else{ o.x+=o.dir*o.spd*dt; if(o.x>o.base+o.range||o.x<o.base-o.range) o.dir*=-1; }
+      if(overlap(o,p)){ w.state="fail"; w.banner="\u898b\u3064\u304b\u3063\u305f\u2026\uff01\u3082\u3046\u4e00\u5ea6\uff01"; }
+    }
+    var k=findObj(w,"Key");
+    if(k&&overlap(k,p)){ k.alive=false; w.hasKey=true; }
+    var hud=["\u9375: "+(w.hasKey?"\u624b\u306b\u5165\u308c\u305f":"\u307e\u3060")];
+    var d0=findObj(w,"Door");
+    if(d0&&overlap(d0,p)){
+      if(w.hasKey){ w.state="clear"; w.banner="\u8131\u51fa\u6210\u529f\uff01\u5352\u696d\u304a\u3081\u3067\u3068\u3046\uff01"; }
+      else hud.push("\u6249\u306f\u56fa\u304f\u9589\u3056\u3055\u308c\u3066\u3044\u308b\u2026\u9375\u304c\u8981\u308b");
+    }
+    w.hud=hud;
+  },
+  starter:[
+    "class Escaper : MonoBehaviour {",
+    "    float speed = 5.0f;",
+    "    bool hasKey = false;",
+    "",
+    "    void Start() {",
+    "        Debug.Log(\"\u6700\u7d42\u8a66\u9a13\u958b\u59cb\u3002\u898b\u5f35\u308a\u306b\u89e6\u308c\u305f\u3089\u5931\u683c\u3060\u3002\");",
+    "    }",
+    "",
+    "    void Update() {",
+    "        float dx = 0;",
+    "        float dy = 0;",
+    "        if (Input.GetKey(KeyCode.LeftArrow))  { dx = -1; }",
+    "        if (Input.GetKey(KeyCode.RightArrow)) { dx = 1; }",
+    "        if (Input.GetKey(KeyCode.UpArrow))    { dy = 1; }",
+    "        if (Input.GetKey(KeyCode.DownArrow))  { dy = -1; }",
+    "        transform.position += new Vector3(dx, dy, 0) * speed * Time.deltaTime;",
+    "    }",
+    "",
+    "    void OnTriggerEnter(Collider other) {",
+    "        if (other.CompareTag(\"Key\")) {",
+    "            hasKey = true;",
+    "            Debug.Log(\"\u9375\u3092\u624b\u306b\u5165\u308c\u305f\uff01\u53f3\u306e\u6249\u3078\uff01\");",
+    "        }",
+    "        if (other.CompareTag(\"Door\") && hasKey) {",
+    "            Debug.Log(\"\u6249\u304c\u958b\u3044\u305f\u2014\u2014\u8131\u51fa\u6210\u529f\uff01\");",
+    "        }",
     "    }",
     "}"
   ].join("\n")
@@ -3091,6 +3455,82 @@ function render(ctx, cv, w){
         ctx.fillRect(-16, -14, 32, 14);
         ctx.strokeStyle="#4a3a1a"; ctx.lineWidth=1.5;
         ctx.strokeRect(-16, -14, 32, 14);
+        break;
+      }
+      case "torch":{
+        ctx.fillStyle="#5a4a28"; ctx.fillRect(-2.5,-8,5,26);
+        ctx.fillStyle="#7a6437";
+        ctx.beginPath(); ctx.arc(0,-10,7,Math.PI,0); ctx.fill();
+        if(o.lit){
+          var fl=Math.sin(w.time*9+o.x)*2;
+          ctx.fillStyle="rgba(240,190,90,.08)";
+          ctx.beginPath(); ctx.arc(0,-14,34,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle="#e0913f";
+          ctx.beginPath(); ctx.moveTo(-6,-12); ctx.quadraticCurveTo(0,-30-fl,6,-12); ctx.closePath(); ctx.fill();
+          ctx.fillStyle="#f3c04b";
+          ctx.beginPath(); ctx.moveTo(-3,-12); ctx.quadraticCurveTo(0,-22-fl,3,-12); ctx.closePath(); ctx.fill();
+        }else{
+          ctx.fillStyle="#3a3f4a";
+          ctx.beginPath(); ctx.arc(0,-13,4,0,Math.PI*2); ctx.fill();
+        }
+        break;
+      }
+      case "golem":{
+        ctx.fillStyle="rgba(0,0,0,.35)";
+        ctx.beginPath(); ctx.ellipse(0, 24, 20, 5, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle="#6e7480";
+        ctx.beginPath(); ctx.moveTo(-20,22); ctx.quadraticCurveTo(-24,-18,0,-26);
+        ctx.quadraticCurveTo(24,-18,20,22); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle="#4c515b"; ctx.lineWidth=2; ctx.stroke();
+        ctx.fillStyle=o.rune||"#c4574d";
+        ctx.save(); ctx.rotate(Math.PI/4); ctx.fillRect(-6.5,-6.5,13,13); ctx.restore();
+        ctx.fillStyle="#e8d9b0";
+        ctx.fillRect(-11,-16,5,3); ctx.fillRect(6,-16,5,3);
+        break;
+      }
+      case "slime":{
+        var sq=1+Math.sin(w.time*6+o.seed)*0.12;
+        var ry=11*sq, rx=13/sq;
+        ctx.fillStyle="rgba(0,0,0,.3)";
+        ctx.beginPath(); ctx.ellipse(0,12,13,4,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=o.color;
+        ctx.beginPath(); ctx.ellipse(0, 12-ry, rx, ry, 0, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.fillStyle="#20261c";
+        ctx.beginPath(); ctx.arc(-4,12-ry-1,1.8,0,Math.PI*2); ctx.arc(4,12-ry-1,1.8,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle="rgba(255,255,255,.35)";
+        ctx.beginPath(); ctx.arc(-rx*0.4, 12-ry*1.4, 2.5, 0, Math.PI*2); ctx.fill();
+        break;
+      }
+      case "keyitem":{
+        var bob=Math.sin(w.time*3)*3;
+        ctx.fillStyle="rgba(217,179,84,.08)";
+        ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.fill();
+        ctx.save(); ctx.translate(0,bob); ctx.rotate(-0.5);
+        ctx.strokeStyle="#d9b354"; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(-6,0,5,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-1,0); ctx.lineTo(12,0); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(8,5); ctx.moveTo(12,0); ctx.lineTo(12,5); ctx.stroke();
+        ctx.restore();
+        break;
+      }
+      case "door":{
+        var open=!!w.hasKey;
+        ctx.fillStyle="#3a3123";
+        ctx.beginPath(); ctx.moveTo(-16,36); ctx.lineTo(-16,-16);
+        ctx.quadraticCurveTo(0,-40,16,-16); ctx.lineTo(16,36); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle=open?"#e0c377":"#8f7328"; ctx.lineWidth=3; ctx.stroke();
+        ctx.strokeStyle="rgba(194,163,91,.3)"; ctx.lineWidth=1;
+        for(var dx0=-10;dx0<=10;dx0+=5){
+          ctx.beginPath(); ctx.moveTo(dx0,34); ctx.lineTo(dx0,-14-(10-Math.abs(dx0))); ctx.stroke();
+        }
+        ctx.fillStyle=open?"#e0c377":"#171c26";
+        ctx.beginPath(); ctx.arc(0,4,3.5,0,Math.PI*2); ctx.fill();
+        ctx.fillRect(-1.5,4,3,8);
+        if(open){
+          ctx.fillStyle="rgba(224,195,119,.12)";
+          ctx.beginPath(); ctx.arc(0,0,40,0,Math.PI*2); ctx.fill();
+        }
         break;
       }
       default:{
@@ -3680,6 +4120,10 @@ function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.classNa
 /* ---------- サイドバー ---------- */
 function renderSidebar(){
   var sb = $("#sidebar"); sb.innerHTML="";
+  if(state.mode==="log"){
+    if(window.Phase3) Phase3.renderSidebar(sb);
+    return;
+  }
   if(state.mode==="practice"||state.mode==="dojo"){
     if(window.Phase2) Phase2.renderSidebar(sb);
     return;
@@ -3748,7 +4192,9 @@ function openDoc(id, blockId, scrollTop){
       '<span class="stamp">✓</span><span>'+(state.read[id]?"読了済み — もう一度未読にする":"この章を読み終えた（読了の印を押す）")+'</span>');
     rb.onclick=function(){
       if(state.read[id]) delete state.read[id]; else state.read[id]=1;
-      save("read",state.read); openDoc(id,null,$("#main").scrollTop);
+      save("read",state.read);
+      if(window.Phase3) Phase3.onProgress();
+      openDoc(id,null,$("#main").scrollTop);
     };
     foot.appendChild(rb);
     var nav = el("nav","pagenav");
@@ -3869,6 +4315,10 @@ function jumpToText(docId, q){
   var e = findBlock(docId, q);
   openDoc(docId, e?e.block:null);
 }
+function panelLookup(docId, q){
+  var e = q ? findBlock(docId, q) : null;
+  openPanel(docId, e ? e.block : null);
+}
 
 /* ---------- 検索パレット ---------- */
 var palSel = 0, palHits = [];
@@ -3932,6 +4382,7 @@ function palMove(d){
 function applyTheme(t){
   document.documentElement.setAttribute("data-theme", t);
   save("theme", t);
+  if(window.Phase3) Phase3.onProgress();
   $("#themeBtn").innerHTML = t==="dark" ? SUN : MOON;
   $("#themeBtn").title = t==="dark" ? "昼の工房に戻る" : "夜のダンジョンにする";
 }
@@ -3992,6 +4443,10 @@ function init(){
         if(window.Phase2) Phase2.openMode(m);
         return;
       }
+      if(m==="log"){
+        if(window.Phase3) Phase3.openMode();
+        return;
+      }
       openDoc(m==="lecture" ? (state.bookmark && chById(state.bookmark.doc) ? state.bookmark.doc : CH[0].id) : REF[0].id);
     };
   });
@@ -4002,7 +4457,8 @@ function init(){
 window.APP = {
   state:state, save:save, load:load, highlight:highlight,
   syncTabs:syncTabs, renderSidebar:renderSidebar, openDoc:openDoc,
-  closeSidebarMobile:closeSidebarMobile
+  closeSidebarMobile:closeSidebarMobile,
+  lookup:lookup, panelLookup:panelLookup
 };
 init();
 })();
@@ -4026,6 +4482,7 @@ var dojoCode = APP.load("dojocode", {});
 var curEx = null;      /* 現在の演習 item */
 var curScene = null;   /* 現在のシーン id */
 var dojoHandle = null; /* 実行中の訓練所セッション */
+var questTimer = null; /* クエスト監視 */
 
 function allItems(){
   var out=[];
@@ -4088,7 +4545,13 @@ function makeConsole(){
     push:function(kind, text){
       if(empty.parentNode) empty.remove();
       var cls=kind==="error"?"err":(kind==="warn"?"warn":"log");
-      box.appendChild(el("div","con-line "+cls, esc(text)));
+      var line=el("div","con-line "+cls, esc(text));
+      if(kind==="error"&&window.Phase3){
+        var lk=el("button","con-lookup","辞典で調べる");
+        lk.onclick=function(){ Phase3.lookupError(text); };
+        line.appendChild(lk);
+      }
+      box.appendChild(line);
       box.scrollTop=box.scrollHeight;
     }
   };
@@ -4165,6 +4628,7 @@ function openExercise(id){
     var r=CSharp.run(ed.get(), {maxSteps:2000000});
     (r.outputs||[]).forEach(function(o){ con.push(o.kind, o.text); });
     if(!r.ok&&r.error) con.push("error", r.error.text||r.error.message);
+    if(!r.ok&&window.Phase3) Phase3.bumpErr();
     return r;
   }
   runBtn.onclick=run;
@@ -4179,6 +4643,7 @@ function openExercise(id){
       verdict.appendChild(el("div","ex-stamp","合格"));
       verdict.appendChild(el("div","ex-pass-msg","見事！期待どおりの出力だ。次のお題へ進もう。"));
       APP.renderSidebar();
+      if(window.Phase3) Phase3.onProgress();
     }else{
       var html='<b>まだ合格ではない。</b>';
       if(!r.ok&&r.error){ html+='<br>エラーを直してから再判定しよう。'; }
@@ -4218,10 +4683,12 @@ function openExercise(id){
    ========================================================== */
 function renderDojoSidebar(sb){
   sb.appendChild(el("div","side-label","訓練所 — 動くミニUnity"));
+  var dc=APP.load("dojoclear",{});
   var ul=el("ul","exlist dojo");
   UnityDojo.scenes.forEach(function(s){
-    var li=el("li", curScene===s.id?"cur":"");
-    var b=el("button",null,'<span class="exmark">'+s.icon+'</span><span class="exnm">'+esc(s.title)+'</span>');
+    var cleared=s.quest&&dc[s.id];
+    var li=el("li", (curScene===s.id?"cur ":"")+(cleared?"done":""));
+    var b=el("button",null,'<span class="exmark">'+(cleared?"✓":s.icon)+'</span><span class="exnm">'+esc(s.title)+'</span>');
     b.onclick=function(){ openScene(s.id); APP.closeSidebarMobile(); };
     li.appendChild(b); ul.appendChild(li);
   });
@@ -4234,6 +4701,7 @@ function renderDojoSidebar(sb){
 
 function stopDojo(){
   if(dojoHandle){ dojoHandle.stop(); dojoHandle=null; }
+  if(questTimer){ clearInterval(questTimer); questTimer=null; }
 }
 
 function openScene(id){
@@ -4277,8 +4745,12 @@ function openScene(id){
       sceneId:scene.id,
       code:ed.get(),
       canvas:canvas,
-      onLog:function(o){ con.push(o.kind, o.text); }
+      onLog:function(o){
+        con.push(o.kind, o.text);
+        if(o.kind==="error"&&window.Phase3) Phase3.bumpErr();
+      }
     });
+    watchQuest(scene);
     canvas.focus();
   };
   stopBtn.onclick=function(){ stopDojo(); con.push("log","— 停止した —"); };
@@ -4293,7 +4765,20 @@ function openScene(id){
   APP.renderSidebar();
   /* 初期描画：動かす前に舞台だけ見せる */
   dojoHandle=UnityDojo.start({ sceneId:scene.id, code:scene.starter, canvas:canvas, onLog:function(){} });
+  watchQuest(scene);
   dojoHandle.stop=dojoHandle.stop; /* keep */
+}
+
+function watchQuest(scene){
+  if(questTimer){ clearInterval(questTimer); questTimer=null; }
+  if(!scene.quest) return;
+  questTimer=setInterval(function(){
+    if(!dojoHandle){ clearInterval(questTimer); questTimer=null; return; }
+    if(dojoHandle.world && dojoHandle.world.state==="clear"){
+      clearInterval(questTimer); questTimer=null;
+      if(window.Phase3) Phase3.questCleared(scene.id);
+    }
+  }, 400);
 }
 
 /* ---------- モード入口 ---------- */
@@ -4314,6 +4799,651 @@ function renderSidebar(sb){
 }
 
 return { openMode:openMode, renderSidebar:renderSidebar, stopDojo:stopDojo };
+})();
+
+</script>
+<script>
+/* ==========================================================
+   Phase 3 — 冒険の記録（進行図・称号）とエラー辞典接続
+   依存: window.APP / DATA / EXERCISES / UnityDojo / Phase2
+   ========================================================== */
+var Phase3 = (function(){
+"use strict";
+function $(s,p){ return (p||document).querySelector(s); }
+function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+var titles = APP.load("titles", {});
+
+/* ---------- 集計 ---------- */
+function questScenes(){
+  return UnityDojo.scenes.filter(function(s){ return s.quest; });
+}
+function stats(){
+  var read=0;
+  DATA.chapters.forEach(function(c){ if(APP.state.read[c.id]) read++; });
+  var exdone=APP.load("exdone",{});
+  var exTotal=0, exDone=0;
+  EXERCISES.forEach(function(g){ g.items.forEach(function(it){
+    if(!it.free){ exTotal++; if(exdone[it.id]) exDone++; }
+  }); });
+  var dc=APP.load("dojoclear",{});
+  var qs=questScenes(), qDone=0;
+  qs.forEach(function(s){ if(dc[s.id]) qDone++; });
+  var dark=APP.load("darkseen",false);
+  if(!dark && document.documentElement.getAttribute("data-theme")==="dark"){
+    dark=true; APP.save("darkseen",true);
+  }
+  var p4 = window.Phase4 ? Phase4.reviewStats() : {mastered:0,total:20,due:0,fusenAll:false};
+  return { read:read, chTotal:DATA.chapters.length,
+           exDone:exDone, exTotal:exTotal,
+           qDone:qDone, qTotal:qs.length,
+           quizM:p4.mastered, quizTotal:p4.total, quizDue:p4.due, fusenAll:p4.fusenAll,
+           err:APP.load("errcount",0), dark:dark,
+           exdone:exdone, dojoclear:dc };
+}
+
+/* ---------- 称号 ---------- */
+var TITLES=[
+  {id:"scribe",   name:"見習いの読み手",       desc:"はじめて章を読み終える",             test:function(s){ return s.read>=1; }},
+  {id:"reader",   name:"全巻通読の学徒",       desc:"全20章を読了する",                   test:function(s){ return s.read>=s.chTotal; }},
+  {id:"spell1",   name:"はじめての呪文",       desc:"演習に1問合格する",                  test:function(s){ return s.exDone>=1; }},
+  {id:"spell10",  name:"詠唱の心得",           desc:"演習に10問合格する",                 test:function(s){ return s.exDone>=10; }},
+  {id:"spell25",  name:"魔導の徒",             desc:"演習に25問合格する",                 test:function(s){ return s.exDone>=25; }},
+  {id:"spellAll", name:"大魔導師",             desc:"演習の全問に合格する",               test:function(s){ return s.exTotal>0 && s.exDone>=s.exTotal; }},
+  {id:"quest1",   name:"駆け出し冒険者",       desc:"訓練所のクエストを1つ制覇する",      test:function(s){ return s.qDone>=1; }},
+  {id:"questAll", name:"伝説の勇者",           desc:"訓練所のクエストをすべて制覇する",   test:function(s){ return s.qTotal>0 && s.qDone>=s.qTotal; }},
+  {id:"faller",   name:"七転八起の探究者",     desc:"エラーを10回乗り越える",             test:function(s){ return s.err>=10; }},
+  {id:"night",    name:"夜のダンジョンの住人", desc:"夜のダンジョン（夜テーマ）で学ぶ",   test:function(s){ return s.dark; }},
+  {id:"mondo1",   name:"問答はじめ",         desc:"賢者の問答で章を1つ制覇する",       test:function(s){ return s.quizM>=1; }},
+  {id:"mondoAll", name:"賢者の風格",         desc:"賢者の問答で全章を制覇する",        test:function(s){ return s.quizTotal>0 && s.quizM>=s.quizTotal; }},
+  {id:"fusenme",  name:"伏線の目利き",       desc:"伏線ノートの全伏線を回収する",      test:function(s){ return s.fusenAll; }}
+];
+
+function check(){
+  var s=stats(), fresh=[];
+  TITLES.forEach(function(t){
+    if(!titles[t.id] && t.test(s)){ titles[t.id]=1; fresh.push(t); }
+  });
+  if(fresh.length){
+    APP.save("titles", titles);
+    fresh.forEach(toast);
+    if(APP.state.mode==="log" && (APP.state.logView||"map")==="map") render();
+  }
+  return s;
+}
+function onProgress(){ check(); }
+function bumpErr(){
+  APP.save("errcount", APP.load("errcount",0)+1);
+  check();
+}
+function questCleared(id){
+  var dc=APP.load("dojoclear",{});
+  if(!dc[id]){ dc[id]=1; APP.save("dojoclear",dc); }
+  APP.renderSidebar();
+  check();
+}
+
+/* ---------- 称号トースト ---------- */
+var toastBox=null;
+function toast(t){
+  if(!toastBox){ toastBox=el("div","toasts"); document.body.appendChild(toastBox); }
+  var n=el("div","toast",
+    '<span class="t-orn">✦</span><div><b>称号を授かった</b><span class="t-name">'+esc(t.name)+'</span></div>');
+  toastBox.appendChild(n);
+  setTimeout(function(){ n.classList.add("show"); }, 30);
+  setTimeout(function(){
+    n.classList.remove("show");
+    setTimeout(function(){ n.remove(); }, 400);
+  }, 4200);
+}
+
+/* ---------- エラー辞典接続 ---------- */
+function lookupError(){
+  APP.panelLookup("cheat", "よくあるエラー辞典");
+}
+
+/* ---------- 記録モード ---------- */
+function openMode(){
+  if(window.Phase2) Phase2.stopDojo();
+  APP.state.mode="log";
+  APP.state.logView="map";
+  APP.state.doc=null;
+  APP.syncTabs();
+  render();
+  APP.renderSidebar();
+}
+
+function statRow(label, a, b){
+  var pct=b?Math.round(a/b*100):0;
+  return el("div","log-stat",
+    '<span class="ls-l">'+label+'</span><span class="ls-v">'+a+' / '+b+'</span>'+
+    '<span class="ls-bar"><i style="width:'+pct+'%"></i></span>');
+}
+
+function renderSidebar(sb){
+  var s=check();
+  sb.appendChild(el("div","side-label","冒険の記録"));
+  var box=el("div","log-stats");
+  box.appendChild(statRow("読了", s.read, s.chTotal));
+  box.appendChild(statRow("演習 合格", s.exDone, s.exTotal));
+  box.appendChild(statRow("クエスト", s.qDone, s.qTotal));
+  box.appendChild(statRow("問答 制覇", s.quizM, s.quizTotal));
+  box.appendChild(statRow("称号", Object.keys(titles).length, TITLES.length));
+  sb.appendChild(box);
+  sb.appendChild(el("hr","side-sep"));
+  sb.appendChild(el("div","ex-group","記録の間"));
+  var view=APP.state.logView||"map";
+  var nav=el("ul","exlist lognav");
+  [
+    {id:"map",    orn:"✦", nm:"ダンジョン進行図", go:openMode},
+    {id:"review", orn:"◈", nm:"賢者の問答　（今日の問答 "+s.quizDue+"）", go:function(){ Phase4.openReview(); }},
+    {id:"fusen",  orn:"❧", nm:"伏線ノート", go:function(){ Phase4.openFusen(); }}
+  ].forEach(function(it){
+    var li=el("li", view===it.id?"cur":null);
+    var b=el("button",null,'<span class="ex-orn">'+it.orn+'</span><span class="exnm">'+esc(it.nm)+'</span>');
+    b.onclick=function(){ it.go(); if(APP.closeSidebarMobile) APP.closeSidebarMobile(); };
+    li.appendChild(b); nav.appendChild(li);
+  });
+  sb.appendChild(nav);
+  if(view==="map"){
+    sb.appendChild(el("div","ex-group","進行図の見かた"));
+    sb.appendChild(el("div","dojo-tips",
+      "読 … 読了の印<br>✓ … 演習の合格数<br>⚑ … 訓練所クエスト<br>すべて満たした部屋は灯りがともる"));
+  }
+}
+
+function render(){
+  var main=$("#main");
+  var s=stats();
+  var doc=el("div","doc log-doc");
+  doc.appendChild(el("header","tobira",
+    '<div class="chapno">冒険の記録</div><h1>ダンジョン進行図</h1><div class="orn">✦ ✦ ✦</div>'));
+  doc.appendChild(el("p","log-intro",
+    "部屋（章）をクリックすると本文へ跳べる。読了・演習・クエストの三つを満たすと、その部屋に灯りがともる。"));
+
+  var qByCh={};
+  questScenes().forEach(function(sc){ (qByCh[sc.ch]=qByCh[sc.ch]||[]).push(sc); });
+
+  var map=el("div","dmap");
+  DATA.chapters.forEach(function(c){
+    var exg=null;
+    EXERCISES.forEach(function(g){ if(g.ch===c.id) exg=g; });
+    var exT=0, exD=0;
+    if(exg) exg.items.forEach(function(it){ if(!it.free){ exT++; if(s.exdone[it.id]) exD++; } });
+    var quests=qByCh[c.id]||[];
+    var qOk=!quests.length || quests.every(function(sc){ return s.dojoclear[sc.id]; });
+    var full=!!APP.state.read[c.id] && (exT===0||exD===exT) && qOk;
+
+    var badges='<span class="db read'+(APP.state.read[c.id]?" on":"")+'">読</span>';
+    if(exT) badges+='<span class="db'+(exD===exT?" on":"")+'">✓ '+exD+' / '+exT+'</span>';
+    quests.forEach(function(sc){
+      badges+='<span class="db'+(s.dojoclear[sc.id]?" on":"")+'">⚑ '+esc(sc.title)+'</span>';
+    });
+
+    var room=el("div","droom"+(full?" complete":""),
+      '<div class="dr-no">CHAPTER '+c.num+'</div>'+
+      '<div class="dr-nm">'+esc(c.name)+'</div>'+
+      '<div class="dr-badges">'+badges+'</div>');
+    room.onclick=function(){ APP.openDoc(c.id); };
+    map.appendChild(room);
+  });
+  doc.appendChild(map);
+
+  doc.appendChild(el("div","log-sec","称号の間"));
+  var grid=el("div","tgrid");
+  TITLES.forEach(function(t){
+    var got=!!titles[t.id];
+    grid.appendChild(el("div","tmedal"+(got?" got":""),
+      '<span class="tm-seal">'+(got?"✦":"·")+'</span>'+
+      '<b>'+esc(t.name)+'</b>'+
+      '<span class="tm-d">'+esc(t.desc)+'</span>'));
+  });
+  doc.appendChild(grid);
+
+  main.innerHTML=""; main.appendChild(doc); main.scrollTop=0;
+}
+
+/* 起動時にこれまでの歩みを査定（新しく満たした称号はトーストで授与） */
+setTimeout(check, 400);
+
+return {
+  openMode:openMode, renderSidebar:renderSidebar,
+  lookupError:lookupError, bumpErr:bumpErr,
+  onProgress:onProgress, questCleared:questCleared
+};
+})();
+
+</script>
+<script>
+/* ==========================================================
+   Phase 4 — 賢者の問答（復習クエスト）と伏線ノート
+   依存: window.APP / DATA / Phase2 / Phase3
+   ========================================================== */
+var Phase4 = (function(){
+"use strict";
+function $(s,p){ return (p||document).querySelector(s); }
+function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* ==========================================================
+   問答データ — 各章の「振り返りクイズ」を原文どおり収録
+   （振り返りクイズがない章＝Ch0・10A・13は本文の要点から出題）
+   ========================================================== */
+var QUIZ=[
+{ch:"ch00", qs:[
+  {q:"書いたスクリプトを動かすために必要なのは？",
+   c:["保存するだけでよい","ゲームオブジェクトにアタッチする","印刷して机に貼る"], a:1,
+   x:"スクリプトは「アタッチ」してはじめて舞台に上がる。アタッチ忘れは定番のつまずきどころ。"},
+  {q:"Unityの画面で、ゲームの世界を組み立てる場所は？",
+   c:["Scene ビュー","Console","Project ウィンドウ"], a:0,
+   x:"Console はメッセージやエラーの掲示板、Project は素材置き場。"}
+]},
+{ch:"ch01", qs:[
+  {q:"次のコードは何を保存していますか？", code:"float playerX = 100f;",
+   c:["プレイヤーの色","プレイヤーのX座標","スコア"], a:1},
+  {q:"次の処理の役割は何ですか？", code:"transform.position = new Vector3(playerX, playerY, 0f);",
+   c:["キー入力を読む","変数を作る","画面上の位置へ反映する"], a:2},
+  {q:"bool 型に入る値は何ですか？",
+   c:["数字","true / false","文字列"], a:1}
+]},
+{ch:"ch02", qs:[
+  {q:"hp が 3 のとき、Dead は表示されますか？", code:"if (hp == 0)\n{\n    Debug.Log(\"Dead\");\n}",
+   c:["表示される","表示されない"], a:1},
+  {q:"hp = 0; と hp == 0; の違いは？",
+   c:["前者は代入、後者は比較","どちらも代入","どちらも比較"], a:0,
+   x:"= は「入れる」、== は「等しいか調べる」。if の条件に = を書くのは定番の事故。"},
+  {q:"Mathf.Clamp(playerX, -8f, 8f) には、おまじないコードと共通した何が隠れている？",
+   c:["if文を使って作った関数","乱数","無限ループ"], a:0,
+   x:"Chapter 2 の伏線回収——Clamp の中身は if 文で最小値・最大値を見張る関数だった。"}
+]},
+{ch:"ch03", qs:[
+  {q:"配列の番号は何から始まる？", c:["0","1","好きな数字"], a:0},
+  {q:"同じ処理を繰り返すとき使うのは？", c:["if","for","float"], a:1},
+  {q:"コイン37個問題の原因は？", c:["Unityのバグ","コピー修正忘れ","配列のバグ"], a:1}
+]},
+{ch:"ch04", qs:[
+  {q:"配列のサイズ（箱の数）は作成後に変更できる？",
+   c:["できる","できない（仕様）","Unityなら可能"], a:1},
+  {q:"サイズ3の配列で enemies[3] にアクセスすると？",
+   c:["自動で拡張される","IndexOutOfRangeException が発生","nullが返る"], a:1},
+  {q:"IndexOutOfRangeException が出たとき、まず疑うべきは？",
+   c:["Unityの故障","配列のサイズとインデックスの範囲","パソコンの再起動"], a:1}
+]},
+{ch:"ch04_5", qs:[
+  {q:"tryの中で例外が起きたとき、実行されるのは？",
+   c:["finallyだけ","catchブロック","何も実行されない"], a:1},
+  {q:"try-catchを使う前に、まず考えるべきことは？",
+   c:["ifで防げないか","とにかく全部tryで囲む","エラーを無視する設定を探す"], a:0},
+  {q:"finally はいつ実行される？",
+   c:["成功時のみ","失敗時のみ","成功でも失敗でも必ず"], a:2}
+]},
+{ch:"ch05", qs:[
+  {q:"戻り値がないメソッドの型は？", c:["int","void","string"], a:1},
+  {q:"GetAttackPower(\"氷の剣\") の戻り値は？", c:["40","50","0"], a:0},
+  {q:"同じ処理を3箇所にコピペする代わりにメソッドを使う最大の利点は？",
+   c:["実行速度が上がる","修正が1箇所で済む","文字数が減る"], a:1}
+]},
+{ch:"ch06", qs:[
+  {q:"Listの要素数を調べるのは？", c:[".Length",".Count",".Size"], a:1},
+  {q:"Listに要素を追加するメソッドは？", c:["Add()","Push()","Append()"], a:0},
+  {q:"配列とListの一番大きな違いは？",
+   c:["Listは小数を入れられる","Listは大きさを後から変えられる","配列のほうが新しい機能"], a:1}
+]},
+{ch:"ch06_5", qs:[
+  {q:"enumを使う最大の利点は？",
+   c:["実行が速くなる","選択肢のタイプミスをコンパイル時に発見できる","文字数が減る"], a:1},
+  {q:"switch文の各caseの最後に必要なのは？", c:["return","break","continue"], a:1},
+  {q:"「アイテム名から価格を調べる」のに最適なのは？", c:["List","配列","Dictionary"], a:2}
+]},
+{ch:"ch07", qs:[
+  {q:"次のコードで作られるものは？", code:"Weapon sword = new Weapon();",
+   c:["設計図","実際の武器","List"], a:1},
+  {q:"List<Weapon> は何を表していますか？",
+   c:["Weaponを入れるList","Weaponを削除する命令","Weaponを表示する命令"], a:0}
+]},
+{ch:"ch07_5", qs:[
+  {q:"コンストラクタが呼ばれるのはいつ？",
+   c:["new された瞬間","Updateのたび","ゲーム終了時"], a:0},
+  {q:"コンストラクタの名前のルールは？",
+   c:["自由に決められる","クラス名と同じ","必ずStart"], a:1},
+  {q:"public int Price { get; private set; } の意味は？",
+   c:["読み書き自由","読むのは自由、変更はクラス内のみ","読み書き禁止"], a:1}
+]},
+{ch:"ch08", qs:[
+  {q:"継承とは何をする仕組みですか？",
+   c:["コードを削除する","共通部分をまとめて使い回す","コードを高速化する"], a:1},
+  {q:"isPoisoned を Character クラスに追加したとき、Player・ChaserEnemy・CowardEnemy の全員に影響しますか？",
+   c:["しない（自分だけ）","する（全員に伝わる）","コンパイルエラーになる"], a:1},
+  {q:"親に virtual、子に override を付けた OnUpdate() を、List<Character> に入れた Player や Enemy に foreach で呼ぶと何が起きますか？",
+   c:["全員が親クラスの OnUpdate()（何もしない）を呼ぶ","それぞれの子クラスの OnUpdate() が呼ばれる","エラーになる"], a:1}
+]},
+{ch:"ch08_5", qs:[
+  {q:"Weapon b = a; としてbを変更するとaは？",
+   c:["変わらない","一緒に変わる（同じ実体を指しているから）","エラーになる"], a:1},
+  {q:"NullReferenceException の意味は？",
+   c:["配列の範囲外","何も指していない変数の中身を使おうとした","型が違う"], a:1},
+  {q:"Vector3 は？",
+   c:["参照型（class）","値型（struct）","enum"], a:1}
+]},
+{ch:"ch09", qs:[
+  {q:"virtual の役割は？",
+   c:["削除する","後で変更できるよう予約する","高速化する"], a:1},
+  {q:"override の役割は？",
+   c:["中身を書き換える","リストを作る","継承を禁止する"], a:0},
+  {q:"ポリモーフィズムの最大の利点は？",
+   c:["型判定が増える","管理コードが巨大になる","管理コードを変えずに新種を追加できる"], a:2}
+]},
+{ch:"ch10a", qs:[
+  {q:"インターフェースが、実装するクラスに義務づけるのは？",
+   c:["契約したメソッドを必ず実装すること","MonoBehaviourを継承すること","変数名をそろえること"], a:0,
+   x:"インターフェースは「契約書」。書かれたメソッドを持たないクラスはコンパイルが通らない。"},
+  {q:"1つのクラスが実装できるインターフェースの数は？",
+   c:["1つだけ","いくつでも","実装できない"], a:1,
+   x:"継承（親）は1つだけだが、契約（インターフェース）はいくつでも結べる。"}
+]},
+{ch:"ch10b", qs:[
+  {q:"インターフェースを一言で表すと？",
+   c:["倉庫","契約書","配列","変数"], a:1},
+  {q:"次のうち、Interact() を呼べるのはどれ？",
+   c:["IInteractableを実装した宝箱","普通の木箱"], a:0},
+  {q:"新しく「本棚」を追加。IInteractable を実装していれば、InteractZone側のコードは？",
+   c:["書き換える","書き換えない"], a:1,
+   x:"これがインターフェース最大の強み。"}
+]},
+{ch:"ch11a", qs:[
+  {q:"イベントへの登録に使う演算子は？", c:["+=","-=","=="], a:0},
+  {q:"OnDisable() で -= するのはなぜ？",
+   c:["メモリを増やすため","消えたオブジェクトが呼ばれ続けるのを防ぐため","実行速度のため"], a:1},
+  {q:"Switchは登録者（ダイナマイトやドラゴン）のことを知っている？",
+   c:["全員知っている","知らない（それがイベントの強み）","半分だけ知っている"], a:1}
+]},
+{ch:"ch11b", qs:[
+  {q:"event を付けると外部スクリプトからできなくなるのは？",
+   c:["+= による登録","-= による解除","Invoke() による直接発火"], a:2},
+  {q:"Explode() を private にする目的は？",
+   c:["高速化","外部からの直接呼び出しを防ぐ","メモリ節約"], a:1},
+  {q:"イベント設計で Switch が知っている必要があるのは？",
+   c:["全登録者の中身","「押された」という事実だけ","各機能の実装"], a:1}
+]},
+{ch:"ch12", qs:[
+  {q:"「ゲームオーバーなのに敵が動く」バグの根本原因は？",
+   c:["Unityのバグ","ゲームの状態を一元管理していない","メモリ不足"], a:1},
+  {q:"シングルトン（Instance）の目的は？",
+   c:["実行速度アップ","GameManagerを世界に1つだけにする","見た目を良くする"], a:1},
+  {q:"状態ごとの分岐に適した構文は？", c:["while","switch","try-catch"], a:1}
+]},
+{ch:"ch13", qs:[
+  {q:"「鍵を取ってから扉が開く」のような進行の管理に活躍する仕組みは？",
+   c:["GameManagerと状態管理","乱数","コメント"], a:0,
+   x:"卒業制作は総動員戦。進行は状態、仕掛けはインターフェース、通知はイベントで。"},
+  {q:"新しい仕掛けを増やしても、呼び出し側のコードを変えずに済ませる技術は？",
+   c:["インターフェース","コピペ","グローバル変数"], a:0}
+]}
+];
+
+/* ==========================================================
+   伏線ノート — 張られた場所と回収された場所（原文準拠）
+   回収章を読了するまで、真実は開示されない
+   ========================================================== */
+var FUSEN=[
+{id:"clamp", title:"Mathf.Clamp の正体",
+ plant:{ch:"ch01", text:"Chapter 1で何気なく使っていた Mathf.Clamp()——「画面外に出ない」おまじないとして、正体を明かされぬまま登場した。"},
+ pay:{ch:"ch02", text:"正体は「if文を使って作った関数」だった。最小値より小さければ最小値に、最大値より大きければ最大値に固定する——ifの見張り番である。（Chapter 2・Step D 伏線回収）"}},
+{id:"mono", title:"「: MonoBehaviour」の呪文",
+ plant:{ch:"ch00", text:"Chapter 0 から、クラス名の後ろに必ず書いてきた「: MonoBehaviour」。意味は語られぬまま、旅は続いた。"},
+ pay:{ch:"ch08", text:"この教材最大の伏線回収——あれはずっと「継承」だった。MonoBehaviour を継承していたからこそ、Update() や Start() が使えていたのだ。（Chapter 8・演出②）"}},
+{id:"list", title:"増やせない配列の悩み",
+ plant:{ch:"ch04", text:"「敵を100体出したい」——今の配列では最初から100個確保するしかない。必要になったら追加、不要なら削除がしたいのに……。"},
+ pay:{ch:"ch06", text:"答えは List<T>、「増やせる配列」。魔法の袋は Add で増え、Remove で減り、Count で数えられる。（Chapter 6）"}},
+{id:"null", title:"null が10個？",
+ plant:{ch:"ch04", text:"new string[10] は「空文字が10個」ではなく「null が10個」。——nullの正体は、このときまだ謎のまま。"},
+ pay:{ch:"ch08_5", text:"null は「何も指していない」しるし。参照型の変数は実体への案内板であり、白紙の案内板の先に触れようとすると NullReferenceException が起きる。（Chapter 8.5）"}},
+{id:"poly", title:"同じ命令なのに、違う動き？",
+ plant:{ch:"ch08", text:"List<Character> に Player も敵も入れて foreach で c.OnUpdate()——同じ命令なのに、キャラごとに違う動きをする……？"},
+ pay:{ch:"ch09", text:"その名はポリモーフィズム（多態性）。virtual で予約し override で書き換えれば、管理コードを一切変えずに新種を追加できる。（Chapter 9）"}},
+{id:"unseen", title:"見えないつながり",
+ plant:{ch:"ch10b", text:"「どこかで変更したら、まったく関係ない場所まで壊れた」——開発者を震え上がらせる厄介なバグの予感が告げられた。"},
+ pay:{ch:"ch11a", text:"正体はオブジェクト同士の直接参照が生む「見えないつながり」。イベント（+= / -=）で結びつきをほどき、疎結合で戦う。（Chapter 11A）"}},
+{id:"enumsw", title:"図鑑の enum と switch、再び",
+ plant:{ch:"ch06_5", text:"「ここで覚えた enum と switch は、Chapter 12 のゲーム状態管理でも大活躍します」——教官はそう予告していた。"},
+ pay:{ch:"ch12", text:"GameState を enum で定義し、switch で状態ごとに分岐。「ゲームオーバーなのに敵が動く」バグは、状態の一元管理で退治された。（Chapter 12）"}},
+{id:"single", title:"世界に1つの放送局",
+ plant:{ch:"ch11b", text:"static は「世界に1つ」を表現するのにピッタリ——ただし多用は禁物。整理術は Chapter 12 で学ぶ、と釘を刺された。"},
+ pay:{ch:"ch12", text:"シングルトンとして結実。GameManager.Instance——世界に1つだけの管理者が、ゲームの状態を司る。（Chapter 12）"}}
+];
+
+/* ---------- 共通 ---------- */
+function chInfo(id){
+  var r=null;
+  DATA.chapters.forEach(function(c){ if(c.id===id) r=c; });
+  return r;
+}
+function chLabel(id){
+  var c=chInfo(id);
+  return c ? "Chapter "+c.num+"　"+c.name : id;
+}
+function enter(view){
+  if(window.Phase2) Phase2.stopDojo();
+  APP.state.mode="log";
+  APP.state.logView=view;
+  APP.state.doc=null;
+  APP.syncTabs();
+}
+
+/* ---------- 復習の状態 ---------- */
+var INTERVALS=[1,3,7,14,30]; /* 日 */
+function reviewStats(){
+  var qm=APP.load("quizmaster",{});
+  var rv=APP.load("review",{});
+  var now=Date.now(), due=0;
+  QUIZ.forEach(function(g){
+    var st=rv[g.ch];
+    if(!st||!st.due||st.due<=now) due++;
+  });
+  return { mastered:Object.keys(qm).length, total:QUIZ.length,
+           due:due, fusenAll:APP.load("fusenall",false) };
+}
+function dueLabel(st, qm){
+  if(!st) return "未挑戦";
+  var now=Date.now();
+  if(st.due<=now) return st.lvl>0 ? "復習どき" : "再挑戦を待つ";
+  var d=Math.ceil((st.due-now)/86400000);
+  return (qm?"制覇 ・ ":"")+"次の問答まで "+d+" 日";
+}
+
+/* ---------- 賢者の問答：一覧 ---------- */
+function openReview(){
+  enter("review");
+  renderHome();
+  APP.renderSidebar();
+}
+function renderHome(){
+  var main=$("#main");
+  var rv=APP.load("review",{});
+  var qm=APP.load("quizmaster",{});
+  var now=Date.now();
+  var doc=el("div","doc");
+  doc.appendChild(el("header","tobira",
+    '<div class="chapno">冒険の記録</div><h1>賢者の問答</h1><div class="orn">✦ ✦ ✦</div>'));
+  doc.appendChild(el("p","log-intro",
+    "各章の「振り返りクイズ」を、賢者との問答として受ける。全問正解でその章を制覇。"+
+    "時が経つと賢者はまた問うてくる——忘れかけた頃こそ、復習のしどきだからだ。"));
+
+  var due=[], later=[];
+  QUIZ.forEach(function(g){
+    var st=rv[g.ch];
+    ((!st||!st.due||st.due<=now)?due:later).push(g);
+  });
+
+  function section(title, arr, emptyText){
+    doc.appendChild(el("div","log-sec",title));
+    if(!arr.length){ doc.appendChild(el("p","log-intro",emptyText)); return; }
+    arr.forEach(function(g){
+      var c=chInfo(g.ch), st=rv[g.ch];
+      var row=el("div","qrow"+(qm[g.ch]?" mastered":""));
+      row.appendChild(el("span","qr-ch","CHAPTER "+esc(c.num)));
+      row.appendChild(el("span","qr-nm",esc(c.name)));
+      row.appendChild(el("span","qr-st",esc(dueLabel(st, qm[g.ch]))));
+      var b=el("button","qgo","問答に挑む");
+      b.onclick=function(){ startSession(g); };
+      row.appendChild(b);
+      doc.appendChild(row);
+    });
+  }
+  section("今日の問答", due, "今日の問答はすべて済んだ。よく学んだ——また日を改めて。");
+  section("しばらく休む問答", later, "まだ制覇した問答がない。上の一覧から挑もう。");
+
+  main.innerHTML=""; main.appendChild(doc); main.scrollTop=0;
+}
+
+/* ---------- 賢者の問答：出題 ---------- */
+function startSession(g){
+  var cur=0, ok=0;
+  var main=$("#main");
+  var c=chInfo(g.ch);
+
+  function renderQ(){
+    var q=g.qs[cur];
+    var doc=el("div","doc");
+    doc.appendChild(el("header","tobira",
+      '<div class="chapno">賢者の問答 — CHAPTER '+esc(c.num)+'</div><h1>'+esc(c.name)+'</h1><div class="orn">✦ ✦ ✦</div>'));
+    var card=el("div","qcard");
+    card.appendChild(el("div","qprog","第 "+(cur+1)+" 問 ／ 全 "+g.qs.length+" 問"));
+    card.appendChild(el("div","qtext",esc(q.q)));
+    if(q.code){
+      var pre=el("pre","qcode");
+      var co=el("code");
+      co.innerHTML=APP.highlight(q.code+"\n");
+      pre.appendChild(co); card.appendChild(pre);
+    }
+    var feed=el("div","qfeed");
+    var nav=el("div","qnav");
+    var btns=[];
+    var marks=["A","B","C","D"];
+    q.c.forEach(function(choice,i){
+      var b=el("button","qchoice","<b>"+marks[i]+".</b>　"+esc(choice));
+      b.onclick=function(){
+        btns.forEach(function(x){ x.disabled=true; });
+        if(i===q.a){
+          ok++;
+          b.classList.add("sel-ok");
+          b.innerHTML+='<span class="qmark">〇</span>';
+          feed.innerHTML='<span class="ok">正解。</span>'+(q.x?" "+esc(q.x):"");
+        }else{
+          b.classList.add("sel-ng");
+          b.innerHTML+='<span class="qmark">✕</span>';
+          btns[q.a].classList.add("reveal");
+          feed.innerHTML='<span class="ng">惜しい。</span> 正解は「'+esc(q.c[q.a])+'」。'+(q.x?" "+esc(q.x):"");
+        }
+        var nx=el("button","exbtn primary", cur+1<g.qs.length ? "次の問いへ" : "問答の結果を見る");
+        nx.onclick=function(){ cur++; (cur<g.qs.length?renderQ:finish)(); };
+        nav.appendChild(nx);
+      };
+      btns.push(b); card.appendChild(b);
+    });
+    card.appendChild(feed);
+    card.appendChild(nav);
+    doc.appendChild(card);
+    main.innerHTML=""; main.appendChild(doc); main.scrollTop=0;
+  }
+
+  function finish(){
+    var all = ok===g.qs.length;
+    var rv=APP.load("review",{});
+    var st=rv[g.ch]||{lvl:0};
+    var days=0;
+    if(all){
+      st.lvl=(st.lvl||0)+1;
+      days=INTERVALS[Math.min(st.lvl-1, INTERVALS.length-1)];
+      st.due=Date.now()+days*86400000;
+      var qm=APP.load("quizmaster",{});
+      if(!qm[g.ch]){ qm[g.ch]=1; APP.save("quizmaster",qm); }
+    }else{
+      st.lvl=0;
+      st.due=Date.now();
+    }
+    rv[g.ch]=st; APP.save("review",rv);
+
+    var doc=el("div","doc");
+    doc.appendChild(el("header","tobira",
+      '<div class="chapno">賢者の問答 — CHAPTER '+esc(c.num)+'</div><h1>'+esc(c.name)+'</h1><div class="orn">✦ ✦ ✦</div>'));
+    var res=el("div","qcard qresult");
+    if(all){
+      res.appendChild(el("div","qr-big","見事——この章、制覇。"));
+      res.appendChild(el("div","qr-sub",ok+" ／ "+g.qs.length+" 問正解。賢者は満足げに頷いた。次の問答は "+days+" 日後（間隔は制覇のたびに延びていく）。"));
+    }else{
+      res.appendChild(el("div","qr-big",ok+" ／ "+g.qs.length+" 問正解"));
+      res.appendChild(el("div","qr-sub","「もう一度、本文を読み直してくるがよい」——賢者はそう言って書を閉じた。"));
+    }
+    var nav=el("div","qnav center");
+    var again=el("button","exbtn","もう一度挑む");
+    again.onclick=function(){ startSession(g); };
+    var read=el("button","exbtn","本文を読み直す");
+    read.onclick=function(){ APP.openDoc(g.ch); };
+    var back=el("button","exbtn primary","問答一覧へ");
+    back.onclick=function(){ openReview(); };
+    nav.appendChild(again); nav.appendChild(read); nav.appendChild(back);
+    res.appendChild(nav);
+    doc.appendChild(res);
+    main.innerHTML=""; main.appendChild(doc); main.scrollTop=0;
+
+    if(window.Phase3) Phase3.onProgress();
+    APP.renderSidebar();
+  }
+
+  renderQ();
+}
+
+/* ---------- 伏線ノート ---------- */
+function openFusen(){
+  enter("fusen");
+  renderFusen();
+  APP.renderSidebar();
+}
+function renderFusen(){
+  var main=$("#main");
+  var doc=el("div","doc");
+  doc.appendChild(el("header","tobira",
+    '<div class="chapno">冒険の記録</div><h1>伏線ノート</h1><div class="orn">✦ ✦ ✦</div>'));
+  doc.appendChild(el("p","log-intro",
+    "この物語には、あちこちに糸が張られている。回収の章を読み終えたとき、そのページにだけ真実が記される——ネタバレの心配はいらない。"));
+
+  var revealed=0;
+  FUSEN.forEach(function(f){
+    var box=el("div","fentry");
+    box.appendChild(el("div","ft-t",esc(f.title)));
+    var pm=el("div","fmeta",'張られた場所 — <span class="fch">'+esc(chLabel(f.plant.ch))+'</span>');
+    pm.querySelector(".fch").onclick=function(){ APP.openDoc(f.plant.ch); };
+    box.appendChild(pm);
+    box.appendChild(el("div","fq",esc(f.plant.text)));
+    if(APP.state.read[f.pay.ch]){
+      revealed++;
+      var pay=el("div","fpay",
+        '<div class="fmeta">回収 — <span class="fch">'+esc(chLabel(f.pay.ch))+'</span></div>'+esc(f.pay.text));
+      pay.querySelector(".fch").onclick=function(){ APP.openDoc(f.pay.ch); };
+      box.appendChild(pay);
+    }else{
+      box.appendChild(el("div","flock",
+        "この伏線はまだ回収されていない。「"+esc(chLabel(f.pay.ch))+"」を読み終えたとき、ここに真実が記される。"));
+    }
+    doc.appendChild(box);
+  });
+  doc.appendChild(el("p","log-intro fnote","回収済み "+revealed+" ／ "+FUSEN.length+" 本"));
+
+  main.innerHTML=""; main.appendChild(doc); main.scrollTop=0;
+
+  if(revealed===FUSEN.length && !APP.load("fusenall",false)){
+    APP.save("fusenall",true);
+    if(window.Phase3) Phase3.onProgress();
+  }
+}
+
+return {
+  openReview:openReview,
+  openFusen:openFusen,
+  reviewStats:reviewStats
+};
 })();
 
 </script>
