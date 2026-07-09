@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workbench — コードエディタ</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
+
+<style>
+  :root{
+    --bg-0:#15171c;
+    --bg-1:#1b1e25;
+    --bg-2:#20242d;
+    --line:#2a2f3a;
+    --ink-0:#e7e9ee;
+    --ink-1:#9aa2b1;
+    --ink-2:#5f6779;
+    --teal:#5fb8c4;
+    --amber:#d9a35f;
+    --danger:#d9705f;
+    --mono: 'JetBrains Mono','Fira Code',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+    --sans: 'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    height:100%;
+    margin:0;
+    background:var(--bg-0);
+    color:var(--ink-0);
+    font-family:var(--sans);
+    overflow:hidden;
+  }
+
+  .app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  /* ===== Header / bench rail ===== */
+  header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:10px 16px;
+    background:var(--bg-1);
+    border-bottom:1px solid var(--line);
+    flex-shrink:0;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-right:6px;
+  }
+  .brand .mark{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 3px rgba(95,184,196,.15);
+  }
+  .brand b{
+    font-family:var(--mono);
+    font-size:14px;
+    letter-spacing:.02em;
+    color:var(--ink-0);
+  }
+  .brand span{
+    font-size:11px;
+    color:var(--ink-2);
+    font-family:var(--mono);
+  }
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:1;
+    min-width:0;
+  }
+
+  button.tool, label.tool{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 12px;
+    background:var(--bg-2);
+    border:1px solid var(--line);
+    color:var(--ink-0);
+    border-radius:6px;
+    font-family:var(--sans);
+    font-size:12.5px;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+    white-space:nowrap;
+  }
+  button.tool:hover, label.tool:hover{
+    border-color:var(--teal);
+    background:#242935;
+  }
+  button.tool:active{ transform:translateY(1px); }
+  button.tool.primary{
+    background:linear-gradient(180deg,#6ac3cf,#4a9ea9);
+    border-color:#4a9ea9;
+    color:#0e1418;
+    font-weight:600;
+  }
+  button.tool.primary:hover{ filter:brightness(1.08); }
+  button.tool.danger:hover{ border-color:var(--danger); }
+  button.tool.success{
+    background:linear-gradient(180deg,#7bd39a,#4f9e6c);
+    border-color:#4f9e6c;
+    color:#0e1418;
+    font-weight:600;
+  }
+  button.tool svg{ width:14px;height:14px; flex-shrink:0; }
+  input#fileInput{ display:none; }
+
+  .filename-wrap{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--bg-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:5px 10px;
+    min-width:0;
+    flex:0 1 320px;
+  }
+  .filename-wrap .ext-chip{
+    font-family:var(--mono);
+    font-size:10px;
+    padding:2px 6px;
+    border-radius:4px;
+    background:var(--bg-1);
+    color:var(--amber);
+    border:1px solid var(--line);
+    flex-shrink:0;
+  }
+  #filenameInput{
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--ink-0);
+    font-family:var(--mono);
+    font-size:12.5px;
+    min-width:0;
+    flex:1;
+  }
+
+  .spacer{flex:1;}
+
+  .status-pill{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-2);
+    padding:5px 10px;
+    white-space:nowrap;
+  }
+
+  /* ===== Drop overlay ===== */
+  .dropzone{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(21,23,28,.88);
+    backdrop-filter:blur(2px);
+  }
+  .dropzone.active{ display:flex; }
+  .dropzone .card{
+    border:2px dashed var(--teal);
+    border-radius:14px;
+    padding:48px 64px;
+    text-align:center;
+    color:var(--ink-0);
+    font-family:var(--mono);
+  }
+  .dropzone .card .big{ font-size:16px; margin-bottom:6px; color:var(--teal); }
+  .dropzone .card .small{ font-size:12px; color:var(--ink-1); }
+
+  /* ===== Editor area ===== */
+  main{
+    flex:1;
+    min-height:0;
+    display:flex;
+    position:relative;
+  }
+  .empty-state{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    color:var(--ink-2);
+    pointer-events:none;
+    z-index:2;
+  }
+  .empty-state.hidden{ display:none; }
+  .empty-state svg{ width:46px;height:46px; opacity:.35; }
+  .empty-state .t1{ font-family:var(--mono); font-size:13px; color:var(--ink-1); }
+  .empty-state .t2{ font-size:12px; color:var(--ink-2); }
+
+  #editorHost{
+    flex:1;
+    min-width:0;
+    height:100%;
+  }
+  .CodeMirror{
+    height:100%;
+    font-family:var(--mono);
+    font-size:13.5px;
+    line-height:1.6;
+    background:var(--bg-0) !important;
+  }
+  .CodeMirror-gutters{
+    background:var(--bg-0) !important;
+    border-right:1px solid var(--line) !important;
+  }
+
+  /* ===== Footer status bar ===== */
+  footer{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:6px 16px;
+    background:var(--bg-1);
+    border-top:1px solid var(--line);
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-2);
+    flex-shrink:0;
+  }
+  footer .dot{ width:5px;height:5px;border-radius:50%; background:var(--ink-2); }
+  footer .dot.dirty{ background:var(--amber); }
+  footer .grow{flex:1;}
+  select#modeSelect, select#themeToggle{
+    background:var(--bg-2);
+    color:var(--ink-1);
+    border:1px solid var(--line);
+    border-radius:4px;
+    font-family:var(--mono);
+    font-size:11px;
+    padding:3px 6px;
+  }
+
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:var(--bg-0); }
+  ::-webkit-scrollbar-thumb{ background:#333947; border-radius:5px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#3f4657; }
+
+  @media (max-width:760px){
+    .filename-wrap{ display:none; }
+    .brand span{ display:none; }
+    header{ gap:8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <span class="mark"></span>
+      <b>workbench</b>
+      <span>/ plain-text editor</span>
+    </div>
+
+    <div class="toolbar">
+      <label class="tool primary" for="fileInput">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        開く
+      </label>
+      <input type="file" id="fileInput" accept=".txt,.html,.htm,.tex,.js,.css,.json,.md,.xml,.cs,.c,.cpp,.py,.csv,.yaml,.yml,.sh,.log,text/*">
+
+      <button class="tool" id="newBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新規
+      </button>
+
+      <div class="filename-wrap">
+        <span class="ext-chip" id="extChip">.txt</span>
+        <input id="filenameInput" spellcheck="false" value="untitled.txt">
+      </div>
+
+      <button class="tool" id="saveBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        保存
+      </button>
+
+      <button class="tool" id="copyBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        コピー
+      </button>
+
+      <span class="spacer"></span>
+      <span class="status-pill" id="statusPill">ファイル未読み込み</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="empty-state" id="emptyState">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+      <div class="t1">ファイルをドラッグ＆ドロップ、または「開く」をクリック</div>
+      <div class="t2">対応形式: .txt / .html / .tex / .js / .css / .json / .md / .xml / .cs / .py など、任意のテキストファイル</div>
+    </div>
+    <div id="editorHost"></div>
+  </main>
+
+  <footer>
+    <span id="dirtyDot" class="dot"></span>
+    <span id="dirtyLabel">変更なし</span>
+    <span>|</span>
+    <span id="posLabel">行 1, 列 1</span>
+    <span>|</span>
+    <span id="statsLabel">0 文字 / 0 行</span>
+    <span class="grow"></span>
+    <label style="display:flex;align-items:center;gap:6px;">
+      モード
+      <select id="modeSelect"></select>
+    </label>
+  </footer>
+</div>
+
+<div class="dropzone" id="dropzone">
+  <div class="card">
+    <div class="big">ここにファイルをドロップ</div>
+    <div class="small">テキストとして読み込み、そのまま編集できます</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/shell/shell.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/xml-fold.min.js"></script>
+
+<script>
+(function(){
+  // ---- extension -> CodeMirror mode / display label -------------------
+  const MODE_MAP = {
+    txt:  { mode: 'text/plain',        label: 'Plain Text' },
+    html: { mode: 'htmlmixed',         label: 'HTML' },
+    htm:  { mode: 'htmlmixed',         label: 'HTML' },
+    xml:  { mode: 'xml',               label: 'XML' },
+    css:  { mode: 'css',               label: 'CSS' },
+    js:   { mode: 'javascript',        label: 'JavaScript' },
+    json: { mode: {name:'javascript', json:true}, label: 'JSON' },
+    tex:  { mode: 'stex',              label: 'LaTeX' },
+    latex:{ mode: 'stex',              label: 'LaTeX' },
+    md:   { mode: 'markdown',          label: 'Markdown' },
+    markdown: { mode:'markdown',       label: 'Markdown' },
+    cs:   { mode: 'text/x-csharp',     label: 'C#' },
+    c:    { mode: 'text/x-csrc',       label: 'C' },
+    cpp:  { mode: 'text/x-c++src',     label: 'C++' },
+    h:    { mode: 'text/x-csrc',       label: 'C Header' },
+    py:   { mode: 'python',            label: 'Python' },
+    yaml: { mode: 'yaml',              label: 'YAML' },
+    yml:  { mode: 'yaml',              label: 'YAML' },
+    sh:   { mode: 'shell',             label: 'Shell' },
+    csv:  { mode: 'text/plain',        label: 'CSV' },
+    log:  { mode: 'text/plain',        label: 'Log' },
+  };
+
+  const els = {
+    fileInput: document.getElementById('fileInput'),
+    filenameInput: document.getElementById('filenameInput'),
+    extChip: document.getElementById('extChip'),
+    saveBtn: document.getElementById('saveBtn'),
+    copyBtn: document.getElementById('copyBtn'),
+    newBtn: document.getElementById('newBtn'),
+    statusPill: document.getElementById('statusPill'),
+    emptyState: document.getElementById('emptyState'),
+    dropzone: document.getElementById('dropzone'),
+    dirtyDot: document.getElementById('dirtyDot'),
+    dirtyLabel: document.getElementById('dirtyLabel'),
+    posLabel: document.getElementById('posLabel'),
+    statsLabel: document.getElementById('statsLabel'),
+    modeSelect: document.getElementById('modeSelect'),
+  };
+
+  // populate mode dropdown (unique labels)
+  const seen = new Set();
+  Object.entries(MODE_MAP).forEach(([ext, info]) => {
+    if (seen.has(info.label)) return;
+    seen.add(info.label);
+    const opt = document.createElement('option');
+    opt.value = ext;
+    opt.textContent = info.label;
+    els.modeSelect.appendChild(opt);
+  });
+
+  const cm = CodeMirror(document.getElementById('editorHost'), {
+    value: '',
+    mode: 'text/plain',
+    theme: 'dracula',
+    lineNumbers: true,
+    lineWrapping: true,
+    autoCloseBrackets: true,
+    matchBrackets: true,
+    styleActiveLine: true,
+    foldGutter: true,
+    gutters: ['CodeMirror-linenumbers','CodeMirror-foldgutter'],
+    tabSize: 2,
+    indentUnit: 2,
+  });
+
+  let isDirty = false;
+  let currentExt = 'txt';
+
+  function extOf(name){
+    const m = /\.([a-z0-9]+)$/i.exec(name || '');
+    return m ? m[1].toLowerCase() : 'txt';
+  }
+
+  function applyModeForExt(ext){
+    const info = MODE_MAP[ext] || MODE_MAP.txt;
+    cm.setOption('mode', info.mode);
+    els.extChip.textContent = '.' + ext;
+    els.modeSelect.value = MODE_MAP[ext] ? ext : 'txt';
+    currentExt = ext;
+  }
+
+  function setDirty(state){
+    isDirty = state;
+    els.dirtyDot.classList.toggle('dirty', state);
+    els.dirtyLabel.textContent = state ? '未保存の変更あり' : '変更なし';
+  }
+
+  function updateStats(){
+    const text = cm.getValue();
+    const lines = cm.lineCount();
+    const chars = text.length;
+    els.statsLabel.textContent = `${chars.toLocaleString()} 文字 / ${lines.toLocaleString()} 行`;
+    const cur = cm.getCursor();
+    els.posLabel.textContent = `行 ${cur.line + 1}, 列 ${cur.ch + 1}`;
+  }
+
+  function showEditor(show){
+    els.emptyState.classList.toggle('hidden', show);
+  }
+
+  function loadFile(file){
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      cm.setValue(e.target.result);
+      cm.clearHistory();
+      els.filenameInput.value = file.name;
+      applyModeForExt(extOf(file.name));
+      setDirty(false);
+      showEditor(true);
+      els.statusPill.textContent = `読み込み完了: ${file.name}`;
+      updateStats();
+      cm.focus();
+    };
+    reader.onerror = () => {
+      els.statusPill.textContent = '読み込みエラー: テキストとして開けませんでした';
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  // ---- open button ----
+  els.fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) loadFile(file);
+    e.target.value = '';
+  });
+
+  // ---- new file ----
+  els.newBtn.addEventListener('click', () => {
+    if (isDirty && !confirm('未保存の変更があります。新規作成しますか？')) return;
+    cm.setValue('');
+    cm.clearHistory();
+    els.filenameInput.value = 'untitled.txt';
+    applyModeForExt('txt');
+    setDirty(false);
+    showEditor(true);
+    els.statusPill.textContent = '新規ファイル';
+    updateStats();
+    cm.focus();
+  });
+
+  // ---- filename edit -> mode switch ----
+  els.filenameInput.addEventListener('input', () => {
+    applyModeForExt(extOf(els.filenameInput.value));
+  });
+
+  // ---- manual mode override ----
+  els.modeSelect.addEventListener('change', () => {
+    const ext = els.modeSelect.value;
+    const info = MODE_MAP[ext];
+    cm.setOption('mode', info.mode);
+    els.extChip.textContent = '.' + ext;
+    currentExt = ext;
+  });
+
+  // ---- save / download ----
+  function saveFile(){
+    const name = els.filenameInput.value.trim() || 'untitled.txt';
+    const blob = new Blob([cm.getValue()], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setDirty(false);
+    els.statusPill.textContent = `保存しました: ${name}`;
+  }
+  els.saveBtn.addEventListener('click', saveFile);
+
+  // ---- editor change tracking ----
+  cm.on('change', () => { setDirty(true); updateStats(); });
+  cm.on('cursorActivity', updateStats);
+
+  // ---- keyboard shortcuts ----
+  document.addEventListener('keydown', (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      saveFile();
+    }
+    if (mod && e.key.toLowerCase() === 'o') {
+      e.preventDefault();
+      els.fileInput.click();
+    }
+  });
+
+  // ---- drag & drop ----
+  let dragCounter = 0;
+  window.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter++;
+    els.dropzone.classList.add('active');
+  });
+  window.addEventListener('dragover', (e) => e.preventDefault());
+  window.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      els.dropzone.classList.remove('active');
+    }
+  });
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    els.dropzone.classList.remove('active');
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  });
+
+  // warn on unload if dirty
+  window.addEventListener('beforeunload', (e) => {
+    if (isDirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  // initial state
+  applyModeForExt('txt');
+  updateStats();
+})();
+</script>
+</body>
+</html>
