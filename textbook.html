@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自習学習サイト｜微分積分学</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{--text:#2C2C2B;--sub:#7D7A75;--border:#E6E5E3;--blue:#2783DE;--blue-soft:#E5F2FC;--green:#3D8452;--green-soft:#EAF3ED;--red:#C4554D;--red-soft:#FAECEB;--amber:#B8860B;--amber-soft:#FBF3DB;--soft:#F9F8F7;--radius:8px}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;color:var(--text);background:#fff;line-height:1.75}
+header{position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);padding:10px 16px;z-index:10}
+.hd-title{font-weight:700;font-size:18px}
+#hd-sub{color:var(--sub);font-size:12px;margin:2px 0 8px}
+#nav{display:flex;gap:6px;flex-wrap:wrap}
+#nav button{border:1px solid var(--border);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;color:var(--text)}
+#nav button.active{background:var(--blue);border-color:var(--blue);color:#fff}
+main{max-width:860px;margin:0 auto;padding:16px 16px 60px}
+h2{font-size:20px;margin:18px 0 6px}
+h3{font-size:16px;margin:16px 0 6px}
+.card{border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin:12px 0;background:#fff}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grow{flex:1}
+.muted{color:var(--sub);font-size:13px}
+.badge{background:var(--soft);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--sub);white-space:nowrap}
+.diff{color:var(--amber);font-size:12px;letter-spacing:1px}
+.btn{border:1px solid var(--border);background:#fff;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;color:var(--text)}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.small{padding:4px 10px;font-size:12px}
+.opt{border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px;background:#fff;color:var(--text)}
+.opt.on{background:var(--blue-soft);border-color:var(--blue);color:var(--blue);font-weight:600}
+.tabs{display:flex;gap:6px;margin:8px 0}
+.blk-box{border:1px solid var(--border);border-left:3px solid var(--sub);border-radius:var(--radius);padding:10px 14px;margin:12px 0;background:var(--soft)}
+.blk-thm{border-left-color:var(--blue);background:var(--blue-soft)}
+.blk-def{border-left-color:var(--green);background:var(--green-soft)}
+.blk-ex{border-left-color:var(--amber);background:#fff}
+.blk-warn{border-left-color:var(--red);background:var(--red-soft)}
+.blk-point{border-left-color:var(--blue);background:var(--blue-soft)}
+.blk-table{border-left-color:var(--green);background:#fff}
+.blk-label{font-weight:700;font-size:12px;margin-bottom:6px;color:var(--sub)}
+.blk-sol{margin-top:8px}
+.blk-sol summary{cursor:pointer;color:var(--blue);font-size:13px}
+.verifybadge{background:var(--amber-soft);color:var(--amber);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;white-space:nowrap}
+.prob-q{margin:10px 0}
+.answer-row{margin:8px 0}
+.answer-row input,.card input[type="text"]{border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;min-width:180px}
+.judge{font-weight:700;font-size:14px}
+.judge.ok{color:var(--green)}
+.judge.ng{color:var(--red)}
+.stage{border:1px dashed var(--border);border-radius:var(--radius);padding:10px 14px;margin:8px 0;background:var(--soft)}
+.stage-btns{margin-top:8px}
+.sep{border:none;border-top:1px solid var(--border);margin:8px 0}
+.checklist{margin:8px 0}
+.checklist summary{cursor:pointer;font-size:13px;color:var(--blue)}
+.checklist label{display:block;font-size:13px;padding:3px 0}
+.selfmark{margin-top:8px}
+.mark-state{font-weight:700;font-size:16px}
+.progressbar{height:8px;background:var(--soft);border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+.progressbar>div{height:100%;background:var(--green)}
+.score-big{font-size:40px;font-weight:700;text-align:center;margin:8px 0}
+.clickable{cursor:pointer}
+.katex-display{overflow-x:auto;overflow-y:hidden;padding:4px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd-title">📚 自習学習サイト</div>
+  <div id="hd-sub"></div>
+  <nav id="nav">
+    <button data-screen="home">🏠 ホーム</button>
+    <button data-screen="textbook">📖 教科書</button>
+    <button data-screen="practice">✏️ 演習</button>
+    <button data-screen="test">📝 擬似定期テスト</button>
+    <button data-screen="advanced">🔥 発展演習</button>
+    <button data-screen="pastexam">🎯 過去問対策</button>
+  </nav>
+</header>
+<main id="app"></main>
+<script>
+// ========== StudyDB：教材データ登録コア（管理者用API） ==========
+// 教科書・単元・問題は下の「データブロック」から登録する．
+// ・新しい教科書         → StudyDB.addSubject({id,name,textbook,range})
+// ・単元の追加/本文の追記 → StudyDB.addUnits(subjectId, [units])（同じ unit id は textbook/aiText を末尾に追記）
+// ・問題の追加           → StudyDB.addProblems(subjectId, [problems])（同じ id は上書き）
+// ・過去問の追加         → StudyDB.addPastExams(subjectId, [exams])
+window.StudyDB = (function(){
+  var map = {}, order = [];
+  function ensure(id){
+    if(!map[id]){ map[id] = { subject:{id:id,name:id,textbook:"",range:""}, units:[], problems:[], pastExams:[] }; order.push(id); }
+    return map[id];
+  }
+  return {
+    addSubject: function(s){ var d = ensure(s.id); for(var k in s){ d.subject[k] = s[k]; } },
+    addUnits: function(id, units){
+      var d = ensure(id);
+      (units||[]).forEach(function(u){
+        var ex = d.units.filter(function(v){ return v.id===u.id; })[0];
+        if(ex){
+          if(u.textbook && u.textbook.length) ex.textbook = (ex.textbook||[]).concat(u.textbook);
+          if(u.aiText && u.aiText.length) ex.aiText = (ex.aiText||[]).concat(u.aiText);
+          for(var k in u){ if(k!=="textbook" && k!=="aiText" && k!=="id") ex[k] = u[k]; }
+        } else {
+          d.units.push(u);
+        }
+      });
+    },
+    addProblems: function(id, probs){
+      var d = ensure(id);
+      (probs||[]).forEach(function(p){
+        var i = -1;
+        d.problems.forEach(function(q,j){ if(q.id===p.id) i=j; });
+        if(i>=0) d.problems[i] = p; else d.problems.push(p);
+      });
+    },
+    addPastExams: function(id, exams){ var d = ensure(id); d.pastExams = d.pastExams.concat(exams||[]); },
+    importLegacy: function(data){
+      if(!data) return;
+      this.addSubject(data.subject);
+      this.addUnits(data.subject.id, data.units);
+      this.addProblems(data.subject.id, data.problems);
+      this.addPastExams(data.subject.id, data.pastExams);
+    },
+    get: function(id){ return map[id]; },
+    list: function(){ return order.map(function(id){ return map[id].subject; }); }
+  };
+})();
+</script>
+<!-- ================================================================ -->
+<!-- 📚 データブロック（教科書ごと・追加分ごとにスクリプトブロックを並べる） -->
+<!-- ================================================================ -->
+<script>
+// ===== 自習学習サイト データ（入門微分積分 三宅敏恒・培風館 / 試験範囲: §2.4, §3.1〜3.4） =====
+window.DATA = {
+  subject: { id: "math-calc", name: "微分積分学", textbook: "入門微分積分（三宅敏恒 著・培風館）", range: "§2.4 テーラーの定理／第3章 積分法（pp.47–78）" },
+  units: [],
+  problems: [],
+  pastExams: []
+};
+​
+// ---------- §2.4 テーラーの定理 ----------
+window.DATA.units.push({
+  id: "u24", no: "§2.4", title: "テーラーの定理", pages: "pp.47–53",
+  textbook: [
+    { t: "p", body: String.raw`$n$ 次の導関数についての基本的な結果が，つぎのテーラーの定理で，関数の値を近似的に求めたり，関数の極値を求めたりするのに有効である．テーラーの定理の $n=1$ の場合が，平均値の定理である．` },
+    { t: "thm", n: "定理 2.4.1", title: "テーラーの定理", body: String.raw`$f(x)$ が開区間 $I$ で $n$ 回微分可能とする．$I$ の任意の 2 点 $a,\,b$ に対し $$f(b)=f(a)+f'(a)(b-a)+\cdots+\frac{f^{(n-1)}(a)}{(n-1)!}(b-a)^{n-1}+\frac{f^{(n)}(c)}{n!}(b-a)^{n}$$ をみたす点 $c$ が，$a$ と $b$ の間に存在する．` },
+    { t: "proof", body: String.raw`平均値の定理と同様に，ロルの定理を用いて示す．定数 $A$ を $$f(b)-\Bigl\{f(a)+f'(a)(b-a)+\cdots+\frac{f^{(n-1)}(a)}{(n-1)!}(b-a)^{n-1}\Bigr\}=A(b-a)^{n}$$ により定める．すなわち $$(*)\quad f(b)=f(a)+f'(a)(b-a)+\cdots+\frac{f^{(n-1)}(a)}{(n-1)!}(b-a)^{n-1}+A(b-a)^{n}.$$ この $A$ が，ある $c$ によって $A=\dfrac{f^{(n)}(c)}{n!}$ と表されることを示そう．そこで $$F(x)=f(b)-\Bigl\{f(x)+f'(x)(b-x)+\cdots+\frac{f^{(n-1)}(x)}{(n-1)!}(b-x)^{n-1}+A(b-x)^{n}\Bigr\}$$ とおく．$F(x)$ は区間 $I$ で微分可能な関数であり，$F(b)=0$ である．また $(*)$ より $F(a)=0$ がわかる．よってロルの定理を使うことができて，$F'(c)=0$ となる $c$ が $a$ と $b$ の間に存在することがわかる．$F'(x)$ を計算すると，和が次々に打ち消し合って $$F'(x)=-\frac{f^{(n)}(x)}{(n-1)!}(b-x)^{n-1}+nA(b-x)^{n-1}.$$ したがって $$0=F'(c)=-\frac{f^{(n)}(c)}{(n-1)!}(b-c)^{n-1}+nA(b-c)^{n-1}.$$ $c\neq b$ であるから $A=\dfrac{f^{(n)}(c)}{n!}$ がわかる．` },
+    { t: "def", title: "剰余項", body: String.raw`定理 2.4.1 において，$R_n=\dfrac{f^{(n)}(c)}{n!}(b-a)^{n}$ とおき，剰余項または剰余という．またテーラーの定理は $a=0$ のとき，マクローリンの定理とよばれる．テーラーの定理において $b$ を $x$ とおくと，$a$ と $x$ の間にある数 $c$ は $$c=a+\theta(x-a)\qquad(0<\theta<1,\ \theta=(c-a)/(x-a))$$ と書くことができる（図 2.16）．したがって，テーラーの定理はつぎのようにも書き表すことができる．` },
+    { t: "thm", n: "定理 2.4.2", title: "有限テーラー展開", body: String.raw`$f(x)$ が開区間 $I$ において $n$ 回微分可能とする．$I$ の点 $a$ を固定すると，各 $x\in I$ に対して $$f(x)=\sum_{k=0}^{n-1}\frac{f^{(k)}(a)}{k!}(x-a)^{k}+\frac{f^{(n)}(a+\theta(x-a))}{n!}(x-a)^{n}$$ をみたす $\theta\ (0<\theta<1)$ が存在する．この右辺を，$x=a$ における有限テーラー展開という．` },
+    { t: "ex", n: "例 1", body: String.raw`$f(x)=\log x$ について，$x=1$ における有限テーラー展開を求める．$$f^{(k)}(x)=(\log x)^{(k)}=\frac{(-1)^{k-1}(k-1)!}{x^{k}}\quad(k\geq 1)$$ であるから $$\log x=\sum_{k=1}^{n-1}\frac{f^{(k)}(1)}{k!}(x-1)^{k}+\frac{f^{(n)}(1+\theta(x-1))}{n!}(x-1)^{n}$$ $$=(x-1)-\frac{1}{2}(x-1)^{2}+\cdots+\frac{(-1)^{n-2}}{n-1}(x-1)^{n-1}+\frac{(-1)^{n-1}}{n(1+\theta(x-1))^{n}}(x-1)^{n}\quad(0<\theta<1).$$` },
+    { t: "p", body: String.raw`特に $a=0$ における有限テーラー展開は，有限マクローリン展開とよばれる．剰余項 $R_n$ は，$x$ が小さいときには小さな値であるから，展開の剰余項を除いた $x$ の $n-1$ 次の項までの和は，関数の原点の近くでの多項式による近似を与える．多項式の値を求めることは難しいことではないから，有限マクローリン展開は関数の近似値を求めるのに利用される．` },
+    { t: "thm", n: "定理 2.4.3", title: "有限マクローリン展開", body: String.raw`$f(x)$ が $0$ を含む開区間 $I$ で $n$ 回微分可能とする．$x\in I$ に対して $$f(x)=\sum_{k=0}^{n-1}\frac{f^{(k)}(0)}{k!}x^{k}+\frac{f^{(n)}(\theta x)}{n!}x^{n}$$ をみたす $\theta\ (0<\theta<1)$ が存在する．` },
+    { t: "ex", n: "例 2", body: String.raw`$e^{x}$ に有限マクローリン展開を用いる．$(e^{x})^{(k)}=e^{x}$ であるから $$e^{x}=1+x+\frac{x^{2}}{2!}+\frac{x^{3}}{3!}+\cdots+\frac{x^{n-1}}{(n-1)!}+\frac{e^{\theta x}}{n!}x^{n}\quad(0<\theta<1).$$` },
+    { t: "ex", n: "例 3", body: String.raw`$\sin x$ に $n=2m$（偶数）として有限マクローリン展開を用いる．$$\sin x=x-\frac{x^{3}}{3!}+\frac{x^{5}}{5!}-\cdots+\frac{(-1)^{m-1}x^{2m-1}}{(2m-1)!}+\frac{(-1)^{m}\sin(\theta x)}{(2m)!}x^{2m}\quad(0<\theta<1).$$ ここで剰余項の計算に，$\sin(x+m\pi)=(-1)^{m}\sin x$ を用いた．` },
+    { t: "ex", n: "例題 2.4.1", title: "e の値の計算", body: String.raw`マクローリン展開の第 6 項までを計算し，$e$ の近似値を求めよ．`, sol: String.raw`$e^{x}$ のマクローリン展開を $n=7$ として書くと $$e^{x}=1+x+\frac{x^{2}}{2!}+\frac{x^{3}}{3!}+\frac{x^{4}}{4!}+\frac{x^{5}}{5!}+\frac{x^{6}}{6!}+\frac{e^{\theta x}}{7!}x^{7}\quad(0<\theta<1).$$ よって $x=1$ とすると $$e=1+1+\frac{1}{2!}+\frac{1}{3!}+\frac{1}{4!}+\frac{1}{5!}+\frac{1}{6!}+\frac{e^{\theta}}{7!}\fallingdotseq 2.718055.$$ 誤差を評価する．$2\leq e\leq 3$ はわかっているから $$|R_{7}|=\Bigl|\frac{e^{\theta}}{7!}\Bigr|\leq\frac{3}{7!}=\frac{1}{1680}\fallingdotseq 0.0006.$$` },
+    { t: "def", title: "ランダウの記号", body: String.raw`関数の局所的な評価を知りたいことは多い．関数の局所的な評価を表すために，点 $a$ の近くで定義された 2 つの関数 $f,\,g$ に対し $$\lim_{x\to a}\frac{f(x)}{g(x)}=0$$ のとき $$f(x)=o(g(x))\quad(x\to a)$$ と書く．この記法をランダウの記号という（$o$ はスモールオーと読む）．特に $f(x)=o(1)\ (x\to a)$ とは $\lim_{x\to a}f(x)=0$ を意味する．定義からわかるように，$f(x)=o(g(x))\ (x\to a)$ とは，$a$ の近くで $f(x)$ の方が $g(x)$ よりかなり小さいことを意味する．` }
+  ]
+});
+​
+// u24 続き（ランダウの記号・漸近展開）
+(function(){
+  var u = window.DATA.units[0];
+  u.textbook.push(
+    { t: "ex", n: "例 4・例 5", body: String.raw`以下，特に重要な $a=0$ で $g(x)=x^{m}$ の場合に限って話を進める．【例 4】$\cos x-1=o(x)\ (x\to 0)$．実際，$\displaystyle\lim_{x\to 0}\frac{\cos x-1}{x}=\lim_{x\to 0}\frac{-\sin x}{1}=0$．【例 5】$\sin x-x=o(x^{2})\ (x\to 0)$．実際，$\displaystyle\lim_{x\to 0}\frac{\sin x-x}{x^{2}}=\lim_{x\to 0}\frac{\cos x-1}{2x}=0$．` },
+    { t: "ex", n: "例 6〜例 8", body: String.raw`$f(x)=o(x^{m})\ (x\to 0)$ をみたす関数 $f(x)$ に対して，$f$ の具体的な形は必要でなく，$x\to 0$ のときの評価だけが必要なとき，$f$ の代わりにランダウの記号 $o(x^{m})$ を用いると便利である．【例 6】$f(x)=2x^{2}+h(x)$，$\displaystyle\lim_{x\to 0}\frac{h(x)}{x^{2}}=0$ のとき $f(x)=2x^{2}+o(x^{2})\ (x\to 0)$ と書く．【例 7】$\cos x=1+o(x)\ (x\to 0)$（例 4 の変形）．【例 8】$\sin x=x+o(x^{2})\ (x\to 0)$（例 5 の変形）．` },
+    { t: "note", title: "補足", body: String.raw`ランダウの記号を含む等式は，左辺を右辺で評価する評価式であって，普通の意味での等式ではない．【例 9】$x\to 0$ のとき，$o(x^{2})=o(x)$ であるが $o(x)=o(x^{2})$ ではない．【例 10】$o(x^{m})-o(x^{m})=0$ というのは正しくない．実際この左辺は評価式であり，それで評価される関数がつねに $0$ という決まった関数になるとは限らないからである．ランダウの記号はとっつきにくいが，理解してしまえば非常に有用である．` },
+    { t: "thm", n: "定理 2.4.4", title: "ランダウの記号", body: String.raw`$x\to 0$ のとき，つぎの (1), (2), (3) が成り立つ．$$(1)\ x^{m}o(x^{n})=o(x^{m+n})\qquad(2)\ o(x^{m})o(x^{n})=o(x^{m+n})\qquad(3)\ m\leq n\ \text{ならば}\ o(x^{n})+o(x^{m})=o(x^{m})$$` },
+    { t: "proof", body: String.raw`$(1)\ \displaystyle\lim_{x\to 0}\frac{x^{m}o(x^{n})}{x^{m+n}}=\lim_{x\to 0}\frac{o(x^{n})}{x^{n}}=0.$　$(2)\ \displaystyle\lim_{x\to 0}\frac{o(x^{m})o(x^{n})}{x^{m+n}}=\lim_{x\to 0}\frac{o(x^{m})}{x^{m}}\cdot\frac{o(x^{n})}{x^{n}}=0.$　$(3)\ \displaystyle\lim_{x\to 0}\frac{o(x^{n})+o(x^{m})}{x^{m}}=\lim_{x\to 0}\Bigl\{\frac{o(x^{n})}{x^{n}}\,x^{n-m}+\frac{o(x^{m})}{x^{m}}\Bigr\}=0.$` },
+    { t: "ex", n: "例 11・例 12", body: String.raw`【例 11】$x\{1+x+o(x)\}-\{1-2x+o(x)\}=x+x^{2}+x\,o(x)-1+2x+o(x)=-1+3x+x^{2}+o(x)=-1+3x+o(x)\quad(x\to 0)$．【例 12】$\{1+2x-x^{2}+o(x^{2})\}\{2+x+o(x^{2})\}=2+5x-x^{3}+(2+x)o(x^{2})+(1+2x-x^{2})o(x^{2})+o(x^{2})o(x^{2})=2+5x+o(x^{2})\quad(x\to 0)$．` },
+    { t: "def", title: "漸近展開", body: String.raw`つぎの定理のように，有限マクローリン展開においては，剰余項のかわりにランダウの記号を用いたものを関数の漸近展開という．これは，$x\to 0$ のときの関数の値の評価を与えるが，剰余項が不明のため，近似値の誤差の評価は求められない．` },
+    { t: "thm", n: "定理 2.4.5", title: "漸近展開", body: String.raw`$f(x)$ が $0$ を含む開区間において，$C^{n}$ 級の関数ならば $$f(x)=f(0)+f'(0)x+\frac{f''(0)}{2!}x^{2}+\cdots+\frac{f^{(n)}(0)}{n!}x^{n}+o(x^{n})\quad(x\to 0).$$` },
+    { t: "proof", body: String.raw`有限マクローリン展開より，$\theta\ (0<\theta<1)$ が存在して $$f(x)=f(0)+f'(0)x+\cdots+\frac{f^{(n-1)}(0)}{(n-1)!}x^{n-1}+\frac{f^{(n)}(\theta x)}{n!}x^{n}$$ $$=f(0)+f'(0)x+\cdots+\frac{f^{(n)}(0)}{n!}x^{n}+\frac{f^{(n)}(\theta x)-f^{(n)}(0)}{n!}x^{n}.$$ よって，$g(x)=\dfrac{f^{(n)}(\theta x)-f^{(n)}(0)}{n!}x^{n}$ とおくとき，$g(x)=o(x^{n})$ を示せばよい．さて $$\lim_{x\to 0}\frac{g(x)}{x^{n}}=\lim_{x\to 0}\frac{f^{(n)}(\theta x)-f^{(n)}(0)}{n!}=0$$（$f^{(n)}(x)$ の $x=0$ における連続性）であるから $g(x)=o(x^{n})$ となり定理が示された．` },
+    { t: "ex", n: "例 13", body: String.raw`$x^{2}$ の項までとった漸近展開の例をいくつか示す（いずれも $x\to 0$）．$$e^{x}=1+x+\frac{x^{2}}{2}+o(x^{2})\qquad \log(1+x)=x-\frac{x^{2}}{2}+o(x^{2})$$ $$\cos x=1-\frac{x^{2}}{2}+o(x^{2})\qquad \sin x=x+o(x^{2})$$ $$(\cos x)e^{x}=\Bigl(1-\frac{x^{2}}{2}+o(x^{2})\Bigr)\Bigl(1+x+\frac{x^{2}}{2}+o(x^{2})\Bigr)=1+x+o(x^{2}).$$` },
+    { t: "ex", n: "例題 2.4.2", title: "漸近展開を用いて極限を求める", body: String.raw`$\displaystyle\lim_{x\to 0}\frac{\log(1+x)-\sin x}{x^{2}}$ を求めよ．`, sol: String.raw`$$\lim_{x\to 0}\frac{\log(1+x)-\sin x}{x^{2}}=\lim_{x\to 0}\frac{x-\frac{x^{2}}{2}+o(x^{2})-(x+o(x^{2}))}{x^{2}}=\lim_{x\to 0}\Bigl(-\frac{1}{2}+\frac{o(x^{2})}{x^{2}}\Bigr)=-\frac{1}{2}.$$ 【補足】漸近展開を用いて不定形の極限を求めるのは，ロピタルの定理より意味あいが明白であり，計算も楽なことが多い．$x$ の何次の項まで展開すればよいかは，やってみないとわからない．` },
+    { t: "ex", n: "例題 2.4.3", title: "漸近展開を用いて関数の極値を調べる", body: String.raw`$f(x)=(\cos x-1)\sin x^{2}$ が $x=0$ で極値をとるかどうか調べよ．`, sol: String.raw`$\sin x=x+o(x^{2})\ (x\to 0)$ であるから $\sin x^{2}=x^{2}+o(x^{4})\ (x\to 0)$．また $\cos x=1-\dfrac{x^{2}}{2}+o(x^{3})$ であるから $$f(x)-f(0)=\Bigl(-\frac{x^{2}}{2}+o(x^{3})\Bigr)(x^{2}+o(x^{4}))=-\frac{x^{4}}{2}+o(x^{5})=x^{4}\Bigl(-\frac{1}{2}+\frac{o(x^{5})}{x^{4}}\Bigr)\quad(x\to 0).$$ $\displaystyle\lim_{x\to 0}\Bigl\{-\frac{1}{2}+\frac{o(x^{5})}{x^{4}}\Bigr\}=-\frac{1}{2}$ であるから，$x$ が十分小さいときは括弧内は負である．したがって，$x$ が十分小さければ $f(x)-f(0)<0\ (x\neq 0)$．よって $f(x)$ は $x=0$ で極大値 $f(0)=0$ をとる．【補足】原点以外の点 $a$ での漸近展開や，極値かどうかを調べたいときには，$g(t)=f(t+a)$ とおき，$g$ の $t=0$ における漸近展開を調べればよい．` }
+  );
+  u.aiText = [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`テーラーの定理の正体は「**どんななめらかな関数も，1点の情報（微分係数）だけから多項式で復元できる**」という主張である．接線（1次近似）の精度を 2 次，3 次…と上げていくイメージを持つとよい．そして「近似のズレ（剰余項）がどの程度か」を保証してくれるのがこの定理の価値である．` },
+    { t: "point", title: "全体像（3つだけ覚える）", body: String.raw`① **テーラーの定理**：$f(b)=\underbrace{\text{多項式部分}}_{a\text{での情報}}+\underbrace{R_n}_{\text{ズレの保証}}$．$n=1$ にすると平均値の定理に戻る．② **有限マクローリン展開**：$a=0$ 版．$e^{x},\ \sin x,\ \cos x,\ \log(1+x)$ の展開は即答できるように．③ **漸近展開（$o$ 記号）**：剰余項を「$x^{n}$ より速く消える何か」と雑に扱う記法．極限計算と極値判定の最強ツール．` },
+    { t: "p", body: String.raw`$o(x^{n})$ は「関数名」ではなく「**比べたら負けるというスピード引きのラベル**」だと思うとよい．$o(x^{2})$ と書いたら「$x^{2}$ で割ってもなお $0$ に潰れる何か」．だから等式は左から右への「評価」であって可逆ではない（$o(x^{2})=o(x)$ は良いが逆はダメ）．計算規則（定理 2.4.4）は「次数の低い $o$ が勝つ」と覚えれば十分．` },
+    { t: "point", title: "極限計算の実戦手順", body: String.raw`① 分母の次数を見る（例：$x^{2}$ なら 2 次まで必要）．② 分子の各関数をその次数まで漸近展開．③ 多項式部分を整理して $o$ をまとめる．④ 割って極限をとる．展開の次数が足りなければ 1 次増やしてやり直す．ロピタルより見通しが良く計算も速いことが多い．` },
+    { t: "point", title: "極値判定への応用", body: String.raw`$f(x)-f(a)$ を漸近展開して「最初に生き残る項」を見る．それが $c\,x^{2k}$（偶数次）なら $c<0$ で極大，$c>0$ で極小．奇数次なら極値ではない．微分係数を何度も計算するより展開の掛け算の方が速いことが多い（例題 2.4.3）．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・$o(x^{m})-o(x^{m})=0$ としてしまう（正しくは $o(x^{m})$）．・展開の次数不足で $0/0$ が消えない．・$\sin x^{2}$（$x^{2}$ を代入）と $\sin^{2}x$（2乗）の混同．・剰余項の誤差評価が必要な問題（近似値計算）では $o$ 記号では不十分で，有限展開（$\theta$ 入り）を使う．` }
+  ];
+})();
+​
+// ---------- §3.1 定積分と不定積分 ----------
+window.DATA.units.push({
+  id: "u31", no: "§3.1", title: "定積分と不定積分", pages: "pp.54–61",
+  textbook: [
+    { t: "p", body: String.raw`【1 変数の積分】には，微分の逆の演算である不定積分と，本質的には面積の計算である定積分がある．この 2 つは互いに深く関係している（定理 3.1.1, 3.1.3）．本書では，定積分を最初は面積として定義し，不定積分と定積分を平行して扱う．定積分の区分求積法による厳密な定義は，§3.4 でおこなう．` },
+    { t: "def", title: "不定積分", body: String.raw`関数 $F(x)$ が微分可能であり，$\dfrac{d}{dx}F(x)=f(x)$ のとき，$F(x)$ を $f(x)$ の不定積分，あるいは原始関数といい $$F(x)=\int f(x)\,dx$$ と書く．このとき $f(x)$ を，この不定積分の被積分関数という．` },
+    { t: "def", title: "積分定数", body: String.raw`$F(x)$ が $f(x)$ の不定積分で，$c$ が定数のとき，$\dfrac{d}{dx}(F(x)+c)=f(x)$ であるから，$F(x)+c$ も $f(x)$ の不定積分である．逆に $f(x)$ が，ある区間 $I$ で定義された関数で，$F(x),\,G(x)$ がともに $f(x)$ の不定積分ならば，$G(x)=F(x)+c$ となる定数 $c$ が存在する．2 つの不定積分の差である定数 $c$ を積分定数という．不定積分を違った計算方法で求めると，見かけの异なる結果が得られることがあるが，積分定数の違いを除けば同じものである．` },
+    { t: "ex", n: "例 1〜例 4", body: String.raw`【例 1】$\int\cos x\,dx=\sin x$．積分定数を書くなら $\int\cos x\,dx=\sin x+c$（$c$：定数）．以下，不定積分の計算においては積分定数を省略する．【例 2】$\int\sin x\,dx=-\cos x,\quad\int\dfrac{dx}{\cos^{2}x}=\tan x$．【例 3】実数 $a$ に対して $$\int x^{a}\,dx=\begin{cases}\dfrac{1}{a+1}x^{a+1}&(a\neq-1)\\ \log|x|&(a=-1)\end{cases}$$ 特に $a=-1$ の場合は忘れやすいので注意したい．【例 4】逆三角関数の微分から $$\int\frac{dx}{\sqrt{1-x^{2}}}=\mathrm{Sin}^{-1}x=-\mathrm{Cos}^{-1}x,\qquad\int\frac{dx}{1+x^{2}}=\mathrm{Tan}^{-1}x.$$ 以上の 4 つの例は，不定積分を計算するとき，もっとも基本的である．` },
+    { t: "def", title: "定積分", body: String.raw`ここでは連続関数の定積分を，面積の存在を仮定して述べる（定積分の厳密な定義は §3.4）．$f(x)$ は閉区間 $[a,b]$ で連続な関数とする．曲線 $y=f(x)$ と直線 $x=a,\ x=b$ それぞれと $x$ 軸で囲まれた部分の面積を，$x$ 軸より上の部分は正，$x$ 軸より下の部分は負として加えたものを $$\int_{a}^{b}f(x)\,dx$$ と書き（図 3.1），$f(x)$ の区間 $[a,b]$ における定積分，あるいは $f(x)$ を $x$ で $a$ から $b$ まで積分するという．また $a<b$ のとき $$\int_{b}^{a}f(x)\,dx=-\int_{a}^{b}f(x)\,dx$$ と定義する．定積分 $\int_{a}^{b}f(x)\,dx$ において，$f(x)$ を被積分関数という．`, fig: "図 3.1：曲線の上側（＋）と下側（－）の符号つき面積" },
+    { t: "p", body: String.raw`$f(x)$ が閉区間 $[a,b]$ で連続とすると，$a<c<b$ をみたす任意の $c$ について，定義よりつぎの式が成り立つことがわかる．$$(*)\quad\int_{a}^{b}f(x)\,dx=\int_{a}^{c}f(x)\,dx+\int_{c}^{b}f(x)\,dx$$` },
+    { t: "thm", n: "定理 3.1.1", title: "定積分と不定積分", body: String.raw`$f(x)$ は，区間 $I$ で連続な関数とする．$a\in I$ のとき $$F(x)=\int_{a}^{x}f(t)\,dt$$ とおくと，$F(x)$ は $f(x)$ の不定積分である．すなわち $\dfrac{dF(x)}{dx}=f(x)$．` },
+    { t: "proof", body: String.raw`$a<x$ とする（$a>x$ の場合も同様）．定義より $\dfrac{dF(x)}{dx}=\displaystyle\lim_{h\to 0}\frac{F(x+h)-F(x)}{h}$ である．$(*)$ で $c=x,\ b=x+h$ とおくと $$F(x+h)-F(x)=\int_{x}^{x+h}f(t)\,dt$$ となる．$h>0$ ならば $mh\leq F(x+h)-F(x)\leq Mh$ が成り立つ（$h<0$ ならば不等号は逆向き）．ここで $$M=\max\{f(t)\,|\,x\leq t\leq x+h\},\qquad m=\min\{f(t)\,|\,x\leq t\leq x+h\}$$ である．この不等式の両辺を $h$ でわって（$h<0$ の場合も含めて）$$m\leq\frac{F(x+h)-F(x)}{h}\leq M$$ が成り立つことがわかる．$h\to 0$ とすると，$m,\ M\to f(x)$ であるから $\dfrac{dF(x)}{dx}=f(x)$．`, fig: "図 3.2：幅 h の短冊による評価" },
+    { t: "thm", n: "定理 3.1.2", title: "関数の和，定数倍の定積分", body: String.raw`$f(x),\,g(x)$ は閉区間 $[a,b]$ において連続であるとする．$$(1)\ \int_{a}^{b}\{f(x)\pm g(x)\}\,dx=\int_{a}^{b}f(x)\,dx\pm\int_{a}^{b}g(x)\,dx\qquad(2)\ \int_{a}^{b}kf(x)\,dx=k\int_{a}^{b}f(x)\,dx\quad(k\text{：定数}).$$` },
+    { t: "proof", body: String.raw`(1) の $+$ の場合のみ示す．残りの場合も同様である．$$F(x)=\int_{a}^{x}\{f(t)+g(t)\}\,dt,\qquad G(x)=\int_{a}^{x}f(t)\,dt+\int_{a}^{x}g(t)\,dt$$ とおくと $$\frac{dG(x)}{dx}=f(x)+g(x)=\frac{dF(x)}{dx}.$$ よって，$G(x)=F(x)+c$（$c$：定数）である．とくに $x=a$ とすると，$F(a)=G(a)=0$ であるから，$c=0$ がわかる．したがって $$\int_{a}^{b}\{f(x)+g(x)\}\,dx=F(b)=G(b)=\int_{a}^{b}f(x)\,dx+\int_{a}^{b}g(x)\,dx.$$` },
+    { t: "p", body: String.raw`定理 3.1.1 では，連続関数 $f(x)$ の定積分は，端点を変数とみなすことにより，$f(x)$ の不定積分になることを示した．逆に定積分は，不定積分がわかれば計算される．これを示すために，関数 $F(x)$ に対して，つぎのようにおく．$$\Bigl[F(x)\Bigr]_{a}^{b}=F(b)-F(a)$$` },
+    { t: "thm", n: "定理 3.1.3", title: "定積分の計算", body: String.raw`$f(x)$ が $[a,b]$ で連続とする．$f(x)$ の $[a,b]$ における不定積分（の 1 つ）を $F(x)$ とすると $$\int_{a}^{b}f(x)\,dx=\Bigl[F(x)\Bigr]_{a}^{b}.$$` },
+    { t: "proof", body: String.raw`$G(x)=\int_{a}^{x}f(t)\,dt$ とおくと，$F(x),\,G(x)$ はともに $f(x)$ の不定積分であるから $$G(x)=F(x)+c\quad(c\text{：定数})$$ と書ける．また $G(a)=0$ であるから，$c=-F(a)$．よって $$\int_{a}^{b}f(x)\,dx=G(b)=F(b)+c=F(b)-F(a)=\Bigl[F(x)\Bigr]_{a}^{b}.$$` },
+    { t: "ex", n: "例 5・例 6", body: String.raw`【例 5】$\displaystyle\int_{0}^{\pi/2}\cos x\,dx=\Bigl[\sin x\Bigr]_{0}^{\pi/2}=\sin\frac{\pi}{2}-\sin 0=1.$　【例 6】$\displaystyle\int_{0}^{1}x^{5}\,dx=\Bigl[\frac{1}{6}x^{6}\Bigr]_{0}^{1}=\frac{1}{6}.$` },
+    { t: "thm", n: "定理 3.1.4", title: "置換積分法，部分積分法", body: String.raw`不定積分を計算するのに，つぎの部分積分法，置換積分法は有効である．$$(1)\ \int f(x)\,dx=\int f(x(t))\,x'(t)\,dt,\quad x=x(t)\qquad\text{（置換積分法）}$$ $$(2)\ G(x)=\int g(x)\,dx\ \text{とおくと}\quad\int f(x)g(x)\,dx=f(x)G(x)-\int f'(x)G(x)\,dx\qquad\text{（部分積分法）}$$` },
+    { t: "proof", body: String.raw`(1) $x=x(t)$ を代入し，両辺を $t$ の関数とみて微分する．左辺を $t$ で微分すると $$\frac{d}{dt}\int f(x)\,dx=\Bigl(\frac{d}{dx}\int f(x)\,dx\Bigr)\frac{dx}{dt}=f(x(t))\,x'(t).$$ 一方，右辺を $t$ で微分すると $\dfrac{d}{dt}\int f(x(t))\,x'(t)\,dt=f(x(t))\,x'(t)$．よって (1) の両辺は不定積分として一致する．(2) も同様に，両辺を $x$ で微分したとき等しくなることを示せばよい．【補足】定理 3.1.4 における等号は不定積分として等しいという意味である．すなわち，両辺は定数の差を除いて等しい．` },
+    { t: "ex", n: "例 7〜例 10", body: String.raw`【例 7】（置換積分法）$\int\cos ax\,dx\ (a\neq 0)$ を $\cos x$ の不定積分から導く．$$\int\cos ax\,dx=\int\cos t\,\frac{dt}{a}=\frac{1}{a}\int\cos t\,dt=\frac{1}{a}\sin t=\frac{1}{a}\sin ax\quad\Bigl(x=\frac{t}{a},\ \frac{dx}{dt}=\frac{1}{a}\Bigr).$$ 置換積分法を応用するとき，形式的に $dx=\dfrac{dx}{dt}\,dt$ と書くとおぼえやすい．また置換積分法は，応用上は定理 3.1.4 (1) において，右辺を左辺に変形することも多い．【例 8】$$\int\sin^{2}x\cos x\,dx=\int u^{2}\,\frac{du}{dx}\,dx=\int u^{2}\,du=\frac{1}{3}u^{3}=\frac{1}{3}\sin^{3}x\quad\Bigl(u=\sin x,\ \frac{du}{dx}=\cos x\Bigr).$$ 【例 9】$\displaystyle\int\frac{f'(x)}{f(x)}\,dx=\log|f(x)|$．実際，$u=f(x)$ とおくと $$\int\frac{f'(x)}{f(x)}\,dx=\int\frac{1}{u}\frac{du}{dx}\,dx=\int\frac{1}{u}\,du=\log|u|=\log|f(x)|.$$ 【例 10】（部分積分法）定理 3.1.4 (2) において，$f(x)=\log x,\ g(x)=1$ とすると $$\int\log x\,dx=x\log x-\int\frac{1}{x}\,x\,dx=x\log x-x.$$ 【補足】恒等的に $1$ である関数の積分は，普通 $1$ を省略して書く．すなわち $\int dx=\int 1\,dx,\ \int_{a}^{b}dx=\int_{a}^{b}1\,dx$．` },
+    { t: "thm", n: "定理 3.1.5", title: "置換積分法（定積分）", body: String.raw`$t$ の閉区間 $[\alpha,\beta]$ が，$x=x(t)$ によって，$x$ の区間 $I$ の中に写され $$x(\alpha)=a,\qquad x(\beta)=b\qquad(a,b\in I)$$ とすると，$I$ で定義された関数 $f(x)$ に対し $$\int_{a}^{b}f(x)\,dx=\int_{\alpha}^{\beta}f(x(t))\,x'(t)\,dt.$$` },
+    { t: "ex", n: "例 11", body: String.raw`$$\int_{0}^{\pi/2}\cos^{2}x\,\sin x\,dx=\int_{1}^{0}(-u^{2})\,du\quad(u=\cos x)$$ $$=\Bigl[-\frac{1}{3}u^{3}\Bigr]_{1}^{0}=\frac{1}{3}.$$` },
+    { t: "thm", n: "定理 3.1.6", title: "部分積分法（定積分）", body: String.raw`$G(x)=\int g(x)\,dx$ とすると $$\int_{a}^{b}f(x)g(x)\,dx=\Bigl[f(x)G(x)\Bigr]_{a}^{b}-\int_{a}^{b}f'(x)G(x)\,dx.$$` },
+    { t: "ex", n: "例 12", body: String.raw`$$\int_{0}^{1}x\,e^{2x}\,dx=\Bigl[\frac{1}{2}x\,e^{2x}\Bigr]_{0}^{1}-\int_{0}^{1}\frac{1}{2}e^{2x}\,dx\quad(f(x)=x,\ g(x)=e^{2x})$$ $$=\frac{1}{2}e^{2}-\Bigl[\frac{1}{4}e^{2x}\Bigr]_{0}^{1}=\frac{1}{2}e^{2}-\frac{1}{4}e^{2}+\frac{1}{4}=\frac{1}{4}e^{2}+\frac{1}{4}.$$` },
+    { t: "table", title: "基本的な不定積分（p.60）", body: String.raw`基本的な不定積分のいくつかを表にしておく．不定積分を求めるのは，微分することの逆操作であるから，それぞれの不定積分を確かめるには，微分して，被積分関数になることを示せばよい．$$\int x^{a}dx=\frac{1}{a+1}x^{a+1}\ (a\neq-1)\qquad\int\frac{1}{x}dx=\log|x|$$ $$\int\frac{dx}{\sqrt{a^{2}-x^{2}}}=\mathrm{Sin}^{-1}\frac{x}{|a|}\ (a\neq 0)\qquad\int\frac{dx}{\sqrt{x^{2}+a}}=\log\bigl|x+\sqrt{x^{2}+a}\bigr|\ (a\neq 0)$$ $$\int\sqrt{a^{2}-x^{2}}\,dx=\frac{1}{2}\Bigl(x\sqrt{a^{2}-x^{2}}+a^{2}\,\mathrm{Sin}^{-1}\frac{x}{|a|}\Bigr)\ (a\neq 0)$$ $$\int\sqrt{x^{2}+a}\,dx=\frac{1}{2}\bigl(x\sqrt{x^{2}+a}+a\log|x+\sqrt{x^{2}+a}|\bigr)\ (a\neq 0)$$ $$\int\frac{dx}{a^{2}+x^{2}}=\frac{1}{a}\mathrm{Tan}^{-1}\frac{x}{a}\ (a\neq 0)\qquad\int e^{x}dx=e^{x}\qquad\int a^{x}dx=\frac{1}{\log a}a^{x}\ (a>0,\ a\neq 1)$$ $$\int\log x\,dx=x\log x-x\qquad\int\sin x\,dx=-\cos x\qquad\int\cos x\,dx=\sin x\qquad\int\frac{dx}{\cos^{2}x}=\tan x$$` }
+  ],
+  aiText: [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`この節のテーマはただ 1 つ．「**面積（定積分）と微分の逆操作（不定積分）が，実は同じものだった**」という微積分学の基本定理である．面積を測る関数 $F(x)=\int_a^x f(t)dt$ を少しだけ伸ばすと，増える面積は「高さ $f(x)\times$ 幅 $h$」の短冊だから，増加率は $f(x)$．これが定理 3.1.1 の全てである．` },
+    { t: "point", title: "計算の 3 セット", body: String.raw`① **基本公式（p.60 の表）**：迷ったら「微分して確かめる」．② **置換積分**：「カタマリ $u$ を見つけて，$du$ の分もセットで取り替える」．$f(g(x))g'(x)$ の形を探せ．定積分では**積分区間も必ず書き換える**．③ **部分積分**：$\int fg=fG-\int f'G$．「微分して簡単になる方（$x$, $\log x$ など）を $f$ に」が鉄則．$\log x$ の積分は $g=1$ とみなすテクニック（例 10）が試験頻出．` },
+    { t: "p", body: String.raw`頻出パターンを「形」で覚えると速い：$\displaystyle\int\frac{f'}{f}dx=\log|f|$／$\displaystyle\int f^{n}f'\,dx=\frac{f^{n+1}}{n+1}$／$\displaystyle\int\frac{dx}{a^2+x^2}=\frac{1}{a}\mathrm{Tan}^{-1}\frac{x}{a}$／$\displaystyle\int\frac{dx}{\sqrt{a^2-x^2}}=\mathrm{Sin}^{-1}\frac{x}{|a|}$．分母に 2 次式があれば平方完成してこの形に帰着させる．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・$\int x^{-1}dx$ を $\frac{x^{0}}{0}$ としてしまう（正しくは $\log|x|$．絶対値を忘れない）．・定積分の置換で区間の書き換え忘れ．・部分積分の符号ミス（$-\int f'G$ のマイナス）．・$dx$ の付け忘れは置換ミスの温床．` }
+  ]
+});
+​
+// ---------- §3.2 積分の計算 ----------
+window.DATA.units.push({
+  id: "u32", no: "§3.2", title: "積分の計算", pages: "pp.62–66",
+  textbook: [
+    { t: "p", body: String.raw`前節では関数の定積分，不定積分を定義し，その関係を述べた．さらに，積分を計算する上で基本的である置換積分法，部分積分法を説明した．この節では特別なかたちの関数の積分に限って，その積分方法を説明する．電子技術の発展にともない，定積分の数値計算のみならず，不定積分でもコンピューターで計算できるようになった現在，積分を自分で計算する必要性は以前に比べて減らいでいる．しかし，ある程度の計算は自分でできた方が便利である．` },
+    { t: "def", title: "有理式の積分", body: String.raw`有理式 $f(x)=\dfrac{x\text{の多項式}}{x\text{の多項式}}$ の形の式の不定積分の計算は，$f(x)$ をつぎの形の式の和に書き直すことにより（これを有理式の部分分数展開という），これらの関数の積分に帰着される．$$(\text{i})\ \text{多項式}\qquad(\text{ii})\ \frac{a}{(x-b)^{n}}\qquad(\text{iii})\ \frac{ax+b}{(x^{2}+cx+d)^{n}}\quad(x^{2}+cx+d=0\ \text{の判別式は負})$$ 部分分数展開を求めるには，普通は未定係数法を用いる．` },
+    { t: "ex", n: "例 1・例 2", body: String.raw`【例 1】$\dfrac{5x-4}{2x^{2}+x-6}$ の部分分数展開を求める．$2x^{2}+x-6=(2x-3)(x+2)$ であるから $$\frac{5x-4}{2x^{2}+x-6}=\frac{a}{2x-3}+\frac{b}{x+2}$$ とおき，右辺を通分すると $$\frac{5x-4}{2x^{2}+x-6}=\frac{(a+2b)x+(2a-3b)}{2x^{2}+x-6}.$$ 両辺を比べると，$a+2b=5,\ 2a-3b=-4$．これを解いて，$a=1,\ b=2$．【例 2】$$\int\frac{5x-4}{2x^{2}+x-6}\,dx=\int\Bigl(\frac{1}{2x-3}+\frac{2}{x+2}\Bigr)dx=\frac{1}{2}\log|2x-3|+2\log|x+2|.$$` },
+    { t: "ex", n: "例 3", body: String.raw`$$\int\frac{x+2}{x^{2}+2x+2}\,dx=\int\frac{x+2}{(x+1)^{2}+1}\,dx=\int\frac{u+1}{u^{2}+1}\,du\quad(u=x+1)$$ $$=\int\frac{u}{u^{2}+1}\,du+\int\frac{1}{u^{2}+1}\,du=\frac{1}{2}\log(u^{2}+1)+\mathrm{Tan}^{-1}u=\frac{1}{2}\log(x^{2}+2x+2)+\mathrm{Tan}^{-1}(x+1).$$ 上の (iii) の $n\geq 2$ の場合は，漸化式を用いて計算できる（問題 3.2–6）．` },
+    { t: "def", title: "無理関数を含む関数の積分", body: String.raw`無理関数を含む積分は，一般には初等関数では表せない．ここでは初等関数で表せる場合として，根号の中が 1 次式または 2 次式である場合について述べる．【$f(x)$ が $x$ と $\sqrt[n]{ax+b}\ (a\neq 0)$ の有理式のとき】$t=\sqrt[n]{ax+b}$ とおくと $$x=\frac{t^{n}-b}{a},\qquad dx=\frac{n}{a}t^{n-1}\,dt$$ であるから，$t$ の有理関数の積分になる．` },
+    { t: "ex", n: "例 4", body: String.raw`$\displaystyle\int\frac{dx}{x+2\sqrt{x-1}}$ を計算する．$t=\sqrt{x-1}$ とおくと，$x=t^{2}+1,\ dx=2t\,dt$ であるから $$\int\frac{dx}{x+2\sqrt{x-1}}=\int\frac{2t\,dt}{(t+1)^{2}}=\int\frac{2(u-1)}{u^{2}}\,du\quad(u=t+1)$$ $$=\int\Bigl(\frac{2}{u}-\frac{2}{u^{2}}\Bigr)du=2\log|u|+\frac{2}{u}=2\log|t+1|+\frac{2}{t+1}=2\log(\sqrt{x-1}+1)+\frac{2}{\sqrt{x-1}+1}.$$` },
+    { t: "def", title: "√(ax²+bx+c) を含む場合", body: String.raw`【$f(x)$ が $x$ と $\sqrt{ax^{2}+bx+c}$ の有理式であるとき】この場合，根号内が正となることによりつぎの (a) または (b) のいずれかのときとする．(a) $a>0$ のとき，$\sqrt{ax^{2}+bx+c}+\sqrt{a}\,x=t$ とおけば，$t$ の有理式の積分になる．(b) $ax^{2}+bx+c=0$ が相異なる 2 つの実根をもつとき，それぞれを $\alpha,\ \beta$ とおけば $$t=\sqrt{\frac{a(x-\beta)}{x-\alpha}},\qquad\text{すなわち}\quad x=\frac{\alpha t^{2}-a\beta}{t^{2}-a}$$ とおけば，$t$ の有理式の積分になる．いずれの場合も原理的には初等関数で表されるが，少し複雑な関数になると計算は大変である．また場合によっては，これ以外の変数変換を用いた方が簡単なこともある．`, verify: true },
+    { t: "ex", n: "例 5", body: String.raw`$\displaystyle\int\frac{dx}{\sqrt{x^{2}-1}}$ を計算する．(a) のように，$\sqrt{x^{2}-1}=t-x$ とおくと $$x=\frac{t^{2}+1}{2t},\qquad dx=\frac{t^{2}-1}{2t^{2}}\,dt,\qquad\sqrt{x^{2}-1}=t-x=\frac{t^{2}-1}{2t}$$ であるから $$\int\frac{1}{\sqrt{x^{2}-1}}\,dx=\int\frac{2t}{t^{2}-1}\cdot\frac{t^{2}-1}{2t^{2}}\,dt=\int\frac{1}{t}\,dt=\log|t|=\log\bigl|\sqrt{x^{2}-1}+x\bigr|.$$` },
+    { t: "def", title: "三角関数の有理式の積分", body: String.raw`三角関数の有理式の積分は，$u=\tan\dfrac{x}{2}$ とおくことにより，かならず $u$ の有理式の積分になる．しかし，場合によっては $u=\sin x,\ u=\cos x,\ u=\tan x$ などとおいた方が簡単なこともある．$u=\tan\dfrac{x}{2}$ とおくと，両辺を $u$ で微分することにより $$dx=\frac{2\,du}{1+u^{2}},\qquad\sin x=\frac{2u}{1+u^{2}},\qquad\cos x=\frac{1-u^{2}}{1+u^{2}}.$$ これらを積分の式に代入すればよい．` },
+    { t: "ex", n: "例 6", body: String.raw`$$\int\frac{1+\sin x}{1+\cos x}\,dx=\int\Bigl(1+\frac{2u}{1+u^{2}}\Bigr)du\quad\Bigl(u=\tan\frac{x}{2}\Bigr)$$ $$=u+\log(1+u^{2})=\tan\frac{x}{2}+\log\Bigl(1+\tan^{2}\frac{x}{2}\Bigr).$$` },
+    { t: "ex", n: "例 7・例 8", body: String.raw`積分の求め方は 1 通りではないことをみるため，$\displaystyle\int\frac{dx}{\sin x}$ を 2 通りに計算してみる．【例 7】$$\int\frac{dx}{\sin x}=\int\frac{1+u^{2}}{2u}\cdot\frac{2\,du}{1+u^{2}}=\int\frac{du}{u}=\log|u|=\log\Bigl|\tan\frac{x}{2}\Bigr|\quad\Bigl(u=\tan\frac{x}{2}\Bigr).$$ 【例 8】$$\int\frac{dx}{\sin x}=\int\frac{\sin x}{\sin^{2}x}\,dx=\int\frac{\sin x}{1-\cos^{2}x}\,dx=-\int\frac{du}{1-u^{2}}\quad(u=\cos x)$$ $$=\frac{1}{2}\int\Bigl(\frac{1}{u-1}-\frac{1}{u+1}\Bigr)du=\frac{1}{2}\log\Bigl|\frac{u-1}{u+1}\Bigr|=\frac{1}{2}\log\Bigl|\frac{\cos x-1}{\cos x+1}\Bigr|.$$ この場合の得られた答えは，見かけが違うだけである（自分で確かめてみよ）．一般には，定数の差の違いが起こり得る．` },
+    { t: "def", title: "漸化式", body: String.raw`つぎの例 9 のように，整数 $n$（普通は $n\geq 0$）をパラメーターとする積分を，$n-1$ 以下の値の積分で表し，最後は $n=0,1$ などの場合に帰着させる方法がある．この積分の間の関係式を，漸化式という．` },
+    { t: "ex", n: "例 9", body: String.raw`$I_{n}=\int\cos^{n}x\,dx$ の漸化式を求める．$n\geq 2$ と仮定する．$$I_{n}=\int\cos^{n-1}x\,\cos x\,dx=\cos^{n-1}x\,\sin x+(n-1)\int\cos^{n-2}x\,\sin^{2}x\,dx\quad\text{（部分積分法）}$$ $$=\cos^{n-1}x\,\sin x+(n-1)\int\cos^{n-2}x\,(1-\cos^{2}x)\,dx=\cos^{n-1}x\,\sin x+(n-1)(I_{n-2}-I_{n}).$$ よって $$I_{n}=\frac{1}{n}\cos^{n-1}x\,\sin x+\frac{n-1}{n}I_{n-2}\quad(n\geq 2).$$ また，$n=0,1$ については，$I_{0}=\int dx=x,\ I_{1}=\int\cos x\,dx=\sin x$．` },
+    { t: "ex", n: "例題 3.2.1", title: "ウォリスの公式", body: String.raw`$$\int_{0}^{\pi/2}\cos^{n}x\,dx=\int_{0}^{\pi/2}\sin^{n}x\,dx=\begin{cases}\dfrac{(n-1)!!}{n!!}\cdot\dfrac{\pi}{2}&(n\text{：偶数})\\[2mm]\dfrac{(n-1)!!}{n!!}&(n\text{：奇数})\end{cases}$$ ただし $$n!!=\begin{cases}n(n-2)(n-4)\cdots 2&(n\text{：偶数})\\ n(n-2)(n-4)\cdots 1&(n\text{：奇数})\end{cases}\qquad 0!!=(-1)!!=1.$$`, sol: String.raw`$J_{n}=\displaystyle\int_{0}^{\pi/2}\cos^{n}x\,dx$ とおく．例 9 を用いると，$n\geq 2$ のとき $$\int_{0}^{\pi/2}\cos^{n}x\,dx=\frac{1}{n}\Bigl[\cos^{n-1}x\,\sin x\Bigr]_{0}^{\pi/2}+\frac{n-1}{n}\int_{0}^{\pi/2}\cos^{n-2}x\,dx.$$ よって，$J_{n}=\dfrac{n-1}{n}J_{n-2}\ (n\geq 2)$ であるから $$J_{n}=\frac{n-1}{n}J_{n-2}=\frac{n-1}{n}\cdot\frac{n-3}{n-2}J_{n-4}=\frac{n-1}{n}\cdot\frac{n-3}{n-2}\cdot\frac{n-5}{n-4}J_{n-6}=\cdots$$ となり，$J_{n}$ の計算は，$n$ が偶数か奇数かに従って $J_{0}$ または $J_{1}$ に帰着される．$J_{0}$ と $J_{1}$ については $$J_{0}=\int_{0}^{\pi/2}dx=\frac{\pi}{2},\qquad J_{1}=\int_{0}^{\pi/2}\cos x\,dx=\Bigl[\sin x\Bigr]_{0}^{\pi/2}=1$$ であるから上の値を得る．$\int_{0}^{\pi/2}\sin^{n}x\,dx$ についても同様である．` }
+  ],
+  aiText: [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`この節は「**どんなタイプの関数でも，決まった手順で必ず積分できる形に帰着させる**」ためのアルゴリズム集である．覚えるべきは公式そのものより「**どのタイプにはどの変換**」という対応表である．` },
+    { t: "point", title: "タイプ別・変換の対応表", body: String.raw`① **有理式**：（分子の次数が大きければ割り算してから）部分分数展開 → $\log$，$\frac{1}{(x-b)^n}$，$\mathrm{Tan}^{-1}$ の 3 部品に分解．② **$\sqrt[n]{ax+b}$ 入り**：根号ごと $t$ とおく．③ **$\sqrt{ax^2+bx+c}$ 入り**：$a>0$ なら $t=\sqrt{\cdots}+\sqrt{a}x$．④ **三角関数の有理式**：最終兵器 $u=\tan\frac{x}{2}$（万能だが計算量大）．その前に $u=\sin x,\cos x,\tan x$ で済まないかを必ず確認．⑤ **$\int f^{n}$ 型**：部分積分で漸化式．` },
+    { t: "p", body: String.raw`部分分数展開の未定係数は，通分して係数比較するより「**代入法**（分母の零点 $x=b$ を代入）」や「カバーアップ法」を使うと速い．検算は微分ではなく「少数の $x$ を代入して両辺一致」で十分．またウォリスの公式（例題 3.2.1）は定積分の頻出アイテムなので，$\frac{(n-1)!!}{n!!}$（偶数なら $\times\frac{\pi}{2}$）と即答できるようにしておく．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・部分分数展開で重根 $(x-1)^{2}$ のとき $\frac{a}{x-1}+\frac{b}{(x-1)^{2}}$ の 2 項が必要なのに 1 項しか置かない．・2 次式が因数分解できるのに (iii) 型と勘違いする（まず判別式を確認）．・$u=\tan\frac{x}{2}$ の置換で $dx=\frac{2du}{1+u^2}$ を忘れる．・漸化式の初期値 $I_0,\ I_1$ の取り違え．` }
+  ]
+});
+​
+// ---------- §3.3 広義積分 ----------
+window.DATA.units.push({
+  id: "u33", no: "§3.3", title: "広義積分", pages: "pp.67–72",
+  textbook: [
+    { t: "p", body: String.raw`これまでは，有限の閉区間上の連続関数に対して定積分を考えた．この節では，積分の概念を拡張して，開区間上の連続関数や，無限区間上の関数に対する積分を考える．` },
+    { t: "def", title: "広義積分の定義", body: String.raw`$f(x)$ は区間 $[a,b)$ で連続とする．ただし $b$ は $+\infty$ でもよい．極限 $$\lim_{\beta\to b-0}\int_{a}^{\beta}f(x)\,dx$$ が存在するとき，$f(x)$ は区間 $[a,b)$ で積分可能といい $$\int_{a}^{b}f(x)\,dx=\lim_{\beta\to b-0}\int_{a}^{\beta}f(x)\,dx$$ と定義する（図 3.3）．同様に $f(x)$ が区間 $(a,b]$（$a$ は $-\infty$ でもよい）で連続な場合も，極限 $$\lim_{\alpha\to a+0}\int_{\alpha}^{b}f(x)\,dx$$ が存在するとき，$f(x)$ は $(a,b]$ で積分可能といい $$\int_{a}^{b}f(x)\,dx=\lim_{\alpha\to a+0}\int_{\alpha}^{b}f(x)\,dx$$ と定義する（図 3.4）．また $f(x)$ が開区間 $(a,b)$（$a=-\infty,\ b=+\infty$ でもよい）で連続ならば，分点 $c\ (a<c<b)$ をとり，$f(x)$ が $(a,c]$ および $[c,b)$ で積分可能なとき，$f(x)$ は $(a,b)$ で積分可能といい $$\int_{a}^{b}f(x)\,dx=\int_{a}^{c}f(x)\,dx+\int_{c}^{b}f(x)\,dx$$ と定義する．この定義は分点 $c$ のとり方によらない．以上のように定義された積分を広義積分，あるいは広義の定積分という．また上の極限が存在するとき広義積分は収束するといい，存在しないとき発散するという．`, fig: "図 3.3・図 3.4：端点に向かって面積を極限でとる" },
+    { t: "ex", n: "例 1〜例 3", body: String.raw`【例 1】$$\int_{1}^{2}\frac{dx}{\sqrt{2-x}}=\lim_{\beta\to 2-0}\int_{1}^{\beta}\frac{dx}{\sqrt{2-x}}=\lim_{\beta\to 2-0}\Bigl[-2\sqrt{2-x}\Bigr]_{1}^{\beta}=\lim_{\beta\to 2-0}\bigl(-2\sqrt{2-\beta}+2\bigr)=2.$$ 【例 2】$$\int_{1}^{\infty}\frac{dx}{x^{2}}=\lim_{a\to\infty}\int_{1}^{a}\frac{dx}{x^{2}}=\lim_{a\to\infty}\Bigl[-\frac{1}{x}\Bigr]_{1}^{a}=\lim_{a\to\infty}\Bigl(-\frac{1}{a}+1\Bigr)=1.$$ 【例 3】$$\int_{-1}^{1}\frac{dx}{\sqrt{1-x^{2}}}=\int_{-1}^{0}\frac{dx}{\sqrt{1-x^{2}}}+\int_{0}^{1}\frac{dx}{\sqrt{1-x^{2}}}$$ $$=\lim_{\alpha\to-1+0}\Bigl[\mathrm{Sin}^{-1}x\Bigr]_{\alpha}^{0}+\lim_{\beta\to 1-0}\Bigl[\mathrm{Sin}^{-1}x\Bigr]_{0}^{\beta}=\frac{\pi}{2}+\frac{\pi}{2}=\pi.$$ 以下，広義積分の記述では，極限の記号を省略して書くことも多い．` },
+    { t: "ex", n: "例 4〜例 7", title: "収束・発散の基準になる広義積分", body: String.raw`つぎの 4 つの例は，広義積分の収束・発散を判定するときの基準になる．【例 4】実数 $a<b$ と実数 $k$ に対し $$\int_{a}^{b}(b-x)^{k}\,dx,\quad\int_{a}^{b}(x-a)^{k}\,dx\ \text{は}\ \begin{cases}\dfrac{(b-a)^{k+1}}{k+1}\ \text{に収束}&(k>-1)\\ \text{発散}&(k\leq-1)\end{cases}$$ 【例 5】$a>0$，実数 $k$ に対し $$\int_{a}^{\infty}x^{k}\,dx\ \text{は}\ \begin{cases}-\dfrac{a^{k+1}}{k+1}\ \text{に収束}&(k<-1)\\ \text{発散}&(k\geq-1)\end{cases}$$ 【例 6】実数 $a$ と $k\neq 0$ に対し $$\int_{-\infty}^{a}e^{kx}\,dx\ \text{は}\ \begin{cases}\dfrac{1}{k}e^{ka}\ \text{に収束}&(k>0)\\ \text{発散}&(k<0)\end{cases}$$ 【例 7】実数 $a$ と $k\neq 0$ に対し $$\int_{a}^{\infty}e^{-kx}\,dx\ \text{は}\ \begin{cases}\dfrac{1}{k}e^{-ka}\ \text{に収束}&(k>0)\\ \text{発散}&(k<0)\end{cases}$$`, verify: true },
+    { t: "thm", n: "定理 3.3.1", title: "優関数による収束判定", body: String.raw`関数 $f(x),\ g(x)$ は区間 $(a,b)$（$a=-\infty,\ b=+\infty$ でもよい）で連続とする．このとき，つぎの (i), (ii) が成り立てば，広義積分 $\int_{a}^{b}f(x)\,dx$ は存在する．$$(\text{i})\ |f(x)|\leq g(x)\qquad(\text{ii})\ \int_{a}^{b}g(x)\,dx\ \text{が存在する}$$ このとき $g(x)$ を $f(x)$ の優関数という．優関数の積分としては，例 4〜例 7 で扱った関数の積分との比較が基本である．証明はやさしくないので省略する．` },
+    { t: "ex", n: "例 8・例 9", body: String.raw`【例 8】$I=\displaystyle\int_{0}^{1}\frac{\sin x}{\sqrt{1-x}}\,dx$ は収束する．実際 $$\Bigl|\frac{\sin x}{\sqrt{1-x}}\Bigr|\leq\frac{1}{\sqrt{1-x}}=(1-x)^{-1/2}$$ であり，例 4 で $k=-\dfrac{1}{2}>-1$ の場合であるから $\int_{0}^{1}(1-x)^{-1/2}\,dx$ は収束する．【例 9】$I=\displaystyle\int_{0}^{1}\sin\frac{1}{x}\,dx$ は収束する．実際 $\bigl|\sin\frac{1}{x}\bigr|\leq 1$ であり，$\int_{0}^{1}dx=1$ であるから収束する．` },
+    { t: "ex", n: "例 10", body: String.raw`$I=\displaystyle\int_{1}^{\infty}\frac{dx}{x\sqrt{x-1}}$ は収束する．この場合，積分区間を 2 つに分けて考える．$$1<x\leq 2\ \text{のとき}\quad\frac{1}{x\sqrt{x-1}}\leq\frac{1}{\sqrt{x-1}}=(x-1)^{-1/2}$$ であり，例 4 で $k=-\frac{1}{2}>-1$ の場合だから $\int_{1}^{2}(x-1)^{-1/2}dx$ は収束する．また $$x\geq 2\ \text{のとき}\quad\frac{1}{x\sqrt{x-1}}\leq\frac{1}{(x-1)\sqrt{x-1}}=(x-1)^{-3/2}$$ であり，$t=x-1$ と置換すれば，例 5 で $k=-\frac{3}{2}<-1$ の場合だから $\int_{2}^{\infty}(x-1)^{-3/2}dx$ は収束する．よって $I$ は収束する．` },
+    { t: "ex", n: "例 11", title: "ガンマ関数", body: String.raw`$s>0$ のとき，広義積分 $$\Gamma(s)=\int_{0}^{\infty}e^{-x}x^{s-1}\,dx$$ は収束する．この $s$ の関数 $\Gamma(s)$ をガンマ関数という．`, sol: String.raw`まず $f(x)=e^{-x}x^{s+1}$ とおくと，$m=[s]+2$（$[s]$ は $s$ を超えない最大の整数）としてロピタルの定理を用いると $$\lim_{x\to\infty}\frac{x^{s+1}}{e^{x}}\leq\lim_{x\to\infty}\frac{x^{m}}{e^{x}}=\lim_{x\to\infty}\frac{m!}{e^{x}}=0$$ であるから，十分大きな $c$ をとれば，$x>c$ のとき $f(x)<1$．すなわち $e^{-x}x^{s-1}<x^{-2}$ が成り立つ．例 5 で $k=-2<-1$ の場合だから $\int_{c}^{\infty}x^{-2}dx$ は収束し，したがって $\int_{c}^{\infty}e^{-x}x^{s-1}dx$ は収束する．一方，$0<x\leq c$ においては $e^{-x}x^{s-1}\leq x^{s-1}$ であり，例 4 で $k=s-1>-1$ の場合だから $\int_{0}^{c}x^{s-1}dx$ は収束する．よって $\Gamma(s)$ は収束する．` },
+    { t: "thm", n: "定理 3.3.2", title: "発散の判定", body: String.raw`広義積分の発散を示すには，つぎの定理を用いる．関数 $f(x),\ g(x)$ は区間 $(a,b)$（$a=-\infty,\ b=+\infty$ でもよい）で連続とする．このとき，つぎの (i), (ii) が成り立てば，広義積分 $\int_{a}^{b}f(x)\,dx$ は発散する．$$(\text{i})\ 0\leq g(x)\leq f(x)\qquad(\text{ii})\ \int_{a}^{b}g(x)\,dx\ \text{は発散する}$$` },
+    { t: "ex", n: "例 12", body: String.raw`$I=\displaystyle\int_{1}^{\infty}\frac{dx}{\sqrt[3]{x(x-1)}}$ は発散する．実際，$x>1$ のとき $x(x-1)<x^{2}$ であるから $$0\leq x^{-2/3}=\frac{1}{\sqrt[3]{x^{2}}}\leq\frac{1}{\sqrt[3]{x(x-1)}}$$ であり，例 5 で $k=-\dfrac{2}{3}\geq-1$ の場合だから $\int_{1}^{\infty}x^{-2/3}dx$ は発散する．よって $I$ は発散する．`, verify: true },
+    { t: "def", title: "不連続点を含む関数の積分", body: String.raw`関数 $f(x)$ が区間 $[a,b]$ において，有限個の点 $c_{1}<c_{2}<\cdots<c_{k}$ を除いて連続のとき，分点 $c_{i}$ で区間を分割し，それぞれの小区間での広義積分がすべて収束するとき $$\int_{a}^{b}f(x)\,dx=\int_{a}^{c_{1}}f(x)\,dx+\int_{c_{1}}^{c_{2}}f(x)\,dx+\cdots+\int_{c_{k}}^{b}f(x)\,dx$$ と定義する（図 3.6）．`, fig: "図 3.6：不連続点で区間を分割して積分" },
+    { t: "ex", n: "例 13・例 14", body: String.raw`【例 13】$$\int_{-1}^{2}\frac{dx}{\sqrt{|x|}}=\int_{-1}^{0}\frac{dx}{\sqrt{-x}}+\int_{0}^{2}\frac{dx}{\sqrt{x}}=\Bigl[-2\sqrt{-x}\Bigr]_{-1}^{0}+\Bigl[2\sqrt{x}\Bigr]_{0}^{2}=2+2\sqrt{2}.$$ 【例 14】$\displaystyle\int_{-1}^{1}\frac{dx}{x}$ は，$\displaystyle\int_{-1}^{0}\frac{dx}{x},\ \int_{0}^{1}\frac{dx}{x}$ の 2 つの積分がともに収束しないので発散する（図 3.7）．被積分関数が原点に関して対称だからといって，差し引いて $0$ としてはいけない．`, fig: "図 3.7：1/x のグラフと発散" }
+  ],
+  aiText: [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`広義積分は「**積分できないはずの場所（無限区間・発散点）を，極限ですり抜ける**」技法である．やることは 2 種類だけ：① 値が求まるなら普通に計算して極限をとる．② 値が求まらない（求めにくい）なら収束・発散だけを判定する．` },
+    { t: "point", title: "収束判定のモノサシ（これだけ覚える）", body: String.raw`基準は実質 2 本立て：**端点型** $\int_a^b(x-a)^k dx$ は $k>-1$ で収束／**無限型** $\int_a^\infty x^k dx$ は $k<-1$ で収束．つまり「**境目は $k=-1$．端点では緩やかな発散なら OK，遠方では速い減衰が必要**」．これに指数関数型（例 6・7：$e^{-kx}$ は $k>0$ で収束）を加えた 3 パターンでほぼ全問題が解ける．` },
+    { t: "point", title: "判定の実戦手順", body: String.raw`① 「悪さをする場所」（発散点・$\infty$）を全部リストアップし，場所ごとに区間を分ける（例 10）．② 各場所で被積分関数の「強さのオーダー」を見積もる（$\sin x\approx x$，定数は無視，など）．③ 収束を示すなら上から優関数で押さえる（定理 3.3.1），発散を示すなら下から発散する関数で支える（定理 3.3.2）．不等式の向きを間違えると何も言えないので注意．` },
+    { t: "p", body: String.raw`ガンマ関数 $\Gamma(s)=\int_0^\infty e^{-x}x^{s-1}dx$ は「階乗の一般化」（$\Gamma(n+1)=n!$，問題 3.3–3）として今後も登場する重要関数．「$x=0$ 側は $x^{s-1}$ と比較，$x=\infty$ 側は指数減衰が多項式に必ず勝つ」という 2 分割の論法（例 11）は収束判定の典型例としてそのまま試験に出る．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・区間内の発散点（例：$\int_{-1}^{1}\frac{dx}{x}$ の $x=0$）を見落としてそのまま計算してしまう．・対称性を理由に発散積分を $0$ とする（例 14）．・収束判定で不等式の向きが逆．・$k>-1$（端点型）と $k<-1$（無限型）の混同．` }
+  ]
+});
+​
+// ---------- §3.4 区分求積法と定積分の応用 ----------
+window.DATA.units.push({
+  id: "u34", no: "§3.4", title: "区分求積法と定積分の応用", pages: "pp.73–78",
+  textbook: [
+    { t: "p", body: String.raw`この節では，定積分の厳密な定義である区分求積法を述べ，その応用として曲線の長さなどを求める．` },
+    { t: "def", title: "区間の分割", body: String.raw`閉区間 $[a,b]$ の分割 $\Delta$ とは $$\Delta:\ a=x_{0}<x_{1}<x_{2}<\cdots<x_{n}=b$$ をみたす点の組 $\{x_{i}\}$ のことである．各点 $x_{i}$ を分点という．また $$|\Delta|=\max\{x_{i}-x_{i-1}\,|\,i=1,2,\ldots,n\}$$ とおく．分割 $\Delta'$ が分割 $\Delta$ の分点をすべて含むとき，$\Delta'$ は $\Delta$ の細分であるという（図 3.8）．`, fig: "図 3.8：分割と細分" },
+    { t: "def", title: "定積分の定義（区分求積法）", body: String.raw`$f(x)$ は $[a,b]$ で有界な関数とする．分割 $\Delta$ に対し $$S(f,\Delta)=\sum_{i=1}^{n}M_{i}(x_{i}-x_{i-1}),\qquad M_{i}=\sup\{f(x)\,|\,x_{i-1}\leq x\leq x_{i}\}$$ $$s(f,\Delta)=\sum_{i=1}^{n}m_{i}(x_{i}-x_{i-1}),\qquad m_{i}=\inf\{f(x)\,|\,x_{i-1}\leq x\leq x_{i}\}$$ とおく（図 3.9，図 3.10）．$\Delta'$ が $\Delta$ の細分ならば $$(**)\quad s(f,\Delta)\leq s(f,\Delta')\leq S(f,\Delta')\leq S(f,\Delta)$$ が成り立つ．ここで $$S(f)=\inf_{\Delta}S(f,\Delta),\qquad s(f)=\sup_{\Delta}s(f,\Delta)$$ とおくと，$(**)$ より $s(f)\leq S(f)$ がわかる．$s(f)=S(f)$ のとき，$f(x)$ は $[a,b]$ で積分可能といい $$\int_{a}^{b}f(x)\,dx=S(f)=s(f)$$ と定義する．この定義の仕方を区分求積法という．`, fig: "図 3.9・図 3.10：上和と下和" },
+    { t: "thm", n: "定理 3.4.1", title: "連続関数の定積分の存在", body: String.raw`閉区間 $[a,b]$ 上の連続関数 $f(x)$ は積分可能である．` },
+    { t: "proof", body: String.raw`閉区間上の連続関数は一様連続である（定理 6.5.1）．すなわち，任意の $\varepsilon>0$ に対して，$\delta>0$ が存在して $$|x-x'|<\delta\ \Longrightarrow\ |f(x)-f(x')|<\varepsilon$$ が成り立つ．いま $|\Delta|<\delta$ となる任意の分割 $\Delta$ をとると，各小区間で $M_{i}-m_{i}\leq\varepsilon$ であるから $$0\leq S(f,\Delta)-s(f,\Delta)=\sum_{i=1}^{n}(M_{i}-m_{i})(x_{i}-x_{i-1})\leq\varepsilon\sum_{i=1}^{n}(x_{i}-x_{i-1})=\varepsilon(b-a).$$ $(**)$ より $s(f,\Delta)\leq s(f)\leq S(f)\leq S(f,\Delta)$ であるから $$0\leq S(f)-s(f)\leq\varepsilon(b-a).$$ $\varepsilon>0$ は任意であるから $S(f)=s(f)$，すなわち $f(x)$ は積分可能である．` },
+    { t: "thm", n: "定理 3.4.2", title: "リーマン和による定積分の表示", body: String.raw`$f(x)$ は閉区間 $[a,b]$ で連続とする．分割 $\Delta:\ a=x_{0}<x_{1}<\cdots<x_{n}=b$ に対し，各小区間から任意に点 $c_{i}\in[x_{i-1},x_{i}]$ をとるとき $$\int_{a}^{b}f(x)\,dx=\lim_{|\Delta|\to 0}\sum_{i=1}^{n}f(c_{i})(x_{i}-x_{i-1}).$$` },
+    { t: "def", title: "曲線の長さ", body: String.raw`曲線 $C:\ y=f(x)\ (a\leq x\leq b)$ の長さをつぎのように定義する．分割 $\Delta$ の各分点に対応する曲線上の点を $P_{i}=(x_{i},f(x_{i}))$ とし，折れ線 $P_{0}P_{1}\cdots P_{n}$ の長さ $$l(\Delta)=\sum_{i=1}^{n}\overline{P_{i-1}P_{i}}$$ を考える（図 3.11）．$|\Delta|\to 0$ のときの $l(\Delta)$ の極限が存在するとき，これを曲線 $C$ の長さ $l(C)$ という．`, fig: "図 3.11：折れ線による近似" },
+    { t: "thm", n: "定理 3.4.3", title: "曲線の長さ", body: String.raw`関数 $f(x)$ は $[a,b]$ で $C^{1}$ 級とする．曲線 $C:\ y=f(x)\ (a\leq x\leq b)$ の長さは $$l(C)=\int_{a}^{b}\sqrt{1+f'(x)^{2}}\,dx.$$` },
+    { t: "proof", body: String.raw`平均値の定理により，$f(x_{i})-f(x_{i-1})=f'(c_{i})(x_{i}-x_{i-1})$ となる $c_{i}\in(x_{i-1},x_{i})$ が存在する．よって $$\overline{P_{i-1}P_{i}}=\sqrt{(x_{i}-x_{i-1})^{2}+(f(x_{i})-f(x_{i-1}))^{2}}=\sqrt{1+f'(c_{i})^{2}}\,(x_{i}-x_{i-1})$$ となり $$l(\Delta)=\sum_{i=1}^{n}\sqrt{1+f'(c_{i})^{2}}\,(x_{i}-x_{i-1}).$$ これは関数 $\sqrt{1+f'(x)^{2}}$ のリーマン和であるから，定理 3.4.2 により $|\Delta|\to 0$ のとき $$l(C)=\int_{a}^{b}\sqrt{1+f'(x)^{2}}\,dx.$$` },
+    { t: "ex", n: "例 1", body: String.raw`曲線 $y=\dfrac{x^{2}}{2}\ (0\leq x\leq 2)$ の長さを求める．$y'=x$ であるから，p.60 の表の公式を用いて $$l(C)=\int_{0}^{2}\sqrt{1+x^{2}}\,dx=\frac{1}{2}\Bigl[x\sqrt{x^{2}+1}+\log\bigl|x+\sqrt{x^{2}+1}\bigr|\Bigr]_{0}^{2}=\sqrt{5}+\frac{1}{2}\log(2+\sqrt{5}).$$` },
+    { t: "thm", n: "定理 3.4.4", title: "パラメーター曲線の長さ", body: String.raw`曲線 $C$ がパラメーター表示 $$C:\ x=x(t),\quad y=y(t)\quad(a\leq t\leq b)$$ で与えられ，$x(t),\ y(t)$ が $C^{1}$ 級のとき $$l(C)=\int_{a}^{b}\sqrt{\Bigl(\frac{dx}{dt}\Bigr)^{2}+\Bigl(\frac{dy}{dt}\Bigr)^{2}}\,dt.$$` },
+    { t: "ex", n: "例 2", title: "サイクロイド", body: String.raw`サイクロイド $$x=a(t-\sin t),\quad y=a(1-\cos t)\quad(a>0,\ 0\leq t\leq 2\pi)$$ の長さを求める（図 3.12）．$$\frac{dx}{dt}=a(1-\cos t),\qquad\frac{dy}{dt}=a\sin t$$ であるから $$l(C)=\int_{0}^{2\pi}\sqrt{a^{2}(1-\cos t)^{2}+a^{2}\sin^{2}t}\,dt=a\int_{0}^{2\pi}\sqrt{2(1-\cos t)}\,dt$$ $$=a\int_{0}^{2\pi}\sqrt{4\sin^{2}\frac{t}{2}}\,dt=2a\int_{0}^{2\pi}\sin\frac{t}{2}\,dt=2a\Bigl[-2\cos\frac{t}{2}\Bigr]_{0}^{2\pi}=8a.$$`, fig: "図 3.12：サイクロイド" },
+    { t: "ex", n: "例 3", title: "アステロイド", body: String.raw`曲線 $x^{2/3}+y^{2/3}=a^{2/3}\ (a>0)$ をアステロイドという（図 3.13）．この曲線は $$x=a\cos^{3}t,\quad y=a\sin^{3}t\quad(0\leq t\leq 2\pi)$$ とパラメーター表示される．この曲線で囲まれた部分の面積 $S$ と曲線の長さ $l(C)$ を求める．曲線は $x$ 軸，$y$ 軸に関して対称であるから，第 1 象限の部分を考えて 4 倍すればよい．`, sol: String.raw`面積：$$S=4\int_{0}^{a}y\,dx=4\int_{\pi/2}^{0}a\sin^{3}t\,(-3a\cos^{2}t\sin t)\,dt=12a^{2}\int_{0}^{\pi/2}\sin^{4}t\cos^{2}t\,dt$$ $$=12a^{2}\int_{0}^{\pi/2}(\sin^{4}t-\sin^{6}t)\,dt=12a^{2}\Bigl(\frac{3\cdot 1}{4\cdot 2}\cdot\frac{\pi}{2}-\frac{5\cdot 3\cdot 1}{6\cdot 4\cdot 2}\cdot\frac{\pi}{2}\Bigr)=\frac{3\pi a^{2}}{8}\quad\text{（例題 3.2.1）}.$$ 長さ：$$l(C)=4\int_{0}^{\pi/2}\sqrt{(-3a\cos^{2}t\sin t)^{2}+(3a\sin^{2}t\cos t)^{2}}\,dt=12a\int_{0}^{\pi/2}\sin t\cos t\,dt$$ $$=6a\int_{0}^{\pi/2}\sin 2t\,dt=6a\Bigl[-\frac{\cos 2t}{2}\Bigr]_{0}^{\pi/2}=6a.$$`, fig: "図 3.13：アステロイド" }
+  ],
+  aiText: [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`前半は理論（定積分とは何か），後半は応用（曲線の長さ）である．理論パートのポイントは「**面積を上からと下から短冊で挟み撃ちし，両者が一致するときを積分可能と呼ぶ**」という定義の仕方そのもの．連続関数なら必ず挟み撃ちが成功する（定理 3.4.1，鍵は一様連続性）．` },
+    { t: "point", title: "リーマン和の使い方（試験頻出）", body: String.raw`定理 3.4.2 は「**細かい短冊の和は積分になる**」と読む．特に等分割・$c_i=\frac{i}{n}$ 型の極限 $$\lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}f\Bigl(\frac{i}{n}\Bigr)=\int_{0}^{1}f(x)\,dx$$ は数列の極限を積分に変換する定番テクニック．「$\frac{1}{n}$ が $dx$，$\frac{i}{n}$ が $x$」と対応付ける．` },
+    { t: "point", title: "長さの公式は 1 つ覚えればよい", body: String.raw`すべての根幹は三平方の定理：微小な長さ $ds=\sqrt{dx^{2}+dy^{2}}$．これをパラメーター $t$ で割れば定理 3.4.4，$x$ で割れば定理 3.4.3，極座標なら $ds=\sqrt{r^{2}+(dr/d\theta)^{2}}\,d\theta$（問題 3.4–4）．公式を 3 つ暗記するのではなく $ds$ から毎回 5 秒で導けばよい．` },
+    { t: "p", body: String.raw`計算テクニックとしては，① $\sqrt{2(1-\cos t)}=2\bigl|\sin\frac{t}{2}\bigr|$（半角公式．サイクロイドで必須），② $\int_0^{\pi/2}\sin^m t\cos^n t\,dt$ は $\cos^2=1-\sin^2$ で展開してウォリスの公式（アステロイドの面積で使用），の 2 つがこの節の山である．サイクロイドの長さ $8a$，アステロイドの長さ $6a$・面積 $\frac{3\pi a^2}{8}$ は結果ごと覚えておくと検算に便利．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・$\sqrt{\sin^{2}\frac{t}{2}}=\sin\frac{t}{2}$ としてよいのは区間内で $\sin\frac{t}{2}\geq 0$ のときだけ（絶対値の処理）．・パラメーター積分で向き（$t$ の増減と $x$ の増減）を取り違えて符号ミス．・対称性を使うときの倍率（4 倍）忘れ．` }
+  ]
+});
+​
+// ========== 問題データ：章末問題（問題 2.4） ==========
+window.DATA.problems.push(
+  { id: "t24-1-1", unit: "u24", source: "textbook", num: "問題2.4 1(1)", difficulty: 2,
+    q: String.raw`つぎの関数の $n=4$ の場合の有限マクローリン展開を求めよ．$$f(x)=\sin x$$`,
+    answerKey: [], answerDisplay: String.raw`$\sin x=x-\dfrac{x^{3}}{3!}+\dfrac{\sin(\theta x)}{4!}x^{4}\quad(0<\theta<1)$`,
+    hint: String.raw`$\sin x$ の高次導関数は $\sin\bigl(x+\frac{n\pi}{2}\bigr)$ と書ける．$x=0$ での値は $0,1,0,-1$ の繰り返し．`,
+    approach: String.raw`有限マクローリン展開（定理 2.4.3）に $f^{(k)}(0)$ を代入する．剰余項は $\dfrac{f^{(4)}(\theta x)}{4!}x^{4}$ の形で残す．`,
+    solution: String.raw`$f(x)=\sin x$ の導関数は $f'(x)=\cos x,\ f''(x)=-\sin x,\ f'''(x)=-\cos x,\ f^{(4)}(x)=\sin x$．よって $f(0)=0,\ f'(0)=1,\ f''(0)=0,\ f'''(0)=-1$．定理 2.4.3（$n=4$）より $$\sin x=x-\frac{x^{3}}{6}+\frac{\sin(\theta x)}{24}x^{4}\quad(0<\theta<1).$$`,
+    essence: String.raw`マクローリン展開は「0 での微分係数のリスト作り」が全て．剰余項の次数は「最後の項の次数 $=n$」と覚える．`,
+    checklist: ["f^(k)(0) の値（0,1,0,−1）を正しく計算した", "x³ の係数が −1/6 になっている", "剰余項を θ (0<θ<1) を用いて正しく書いた"] },
+  { id: "t24-1-2", unit: "u24", source: "textbook", num: "問題2.4 1(2)", difficulty: 3,
+    q: String.raw`つぎの関数の $n=4$ の場合の有限マクローリン展開を求めよ．$$f(x)=\sqrt{1+x}$$`,
+    answerKey: [], answerDisplay: String.raw`$\sqrt{1+x}=1+\dfrac{x}{2}-\dfrac{x^{2}}{8}+\dfrac{x^{3}}{16}-\dfrac{5}{128}(1+\theta x)^{-7/2}x^{4}\quad(0<\theta<1)$`,
+    hint: String.raw`$f(x)=(1+x)^{1/2}$ とみて，微分のたびに指数が $\frac{1}{2}$ ずつ下がる．`,
+    approach: String.raw`$f^{(k)}(x)=\frac{1}{2}\bigl(\frac{1}{2}-1\bigr)\cdots\bigl(\frac{1}{2}-k+1\bigr)(1+x)^{1/2-k}$ を作り，$x=0$ を代入して係数を求める．`,
+    solution: String.raw`$f(x)=(1+x)^{1/2}$ に対し $$f'(x)=\frac{1}{2}(1+x)^{-1/2},\quad f''(x)=-\frac{1}{4}(1+x)^{-3/2},\quad f'''(x)=\frac{3}{8}(1+x)^{-5/2},\quad f^{(4)}(x)=-\frac{15}{16}(1+x)^{-7/2}.$$ よって $f(0)=1,\ f'(0)=\frac{1}{2},\ f''(0)=-\frac{1}{4},\ f'''(0)=\frac{3}{8}$．定理 2.4.3 より $$\sqrt{1+x}=1+\frac{x}{2}-\frac{x^{2}}{8}+\frac{x^{3}}{16}-\frac{5}{128}(1+\theta x)^{-7/2}x^{4}\quad(0<\theta<1).$$`,
+    essence: String.raw`$(1+x)^{a}$ 型の展開は一般二項定理 $\binom{a}{k}$ の形．$1+\frac{x}{2}-\frac{x^{2}}{8}$ までは頻出なので暗記推奨．`,
+    checklist: ["各次の導関数の係数と符号が正しい", "k! で割った展開係数（1/2, −1/8, 1/16）になっている", "剰余項の冪 (1+θx)^(−7/2) と係数 −5/128 が正しい"] },
+  { id: "t24-1-3", unit: "u24", source: "textbook", num: "問題2.4 1(3)", difficulty: 2,
+    q: String.raw`つぎの関数の $n=4$ の場合の有限マクローリン展開を求めよ．$$f(x)=x\sin x$$`,
+    answerKey: [], answerDisplay: String.raw`$x\sin x=x^{2}+\dfrac{x^{4}}{4!}\bigl\{-4\cos(\theta x)+\theta x\sin(\theta x)\bigr\}\quad(0<\theta<1)$（形は剰余項の書き方により多少異なる）`,
+    hint: String.raw`ライプニッツ則で $(x\sin x)^{(k)}$ を計算するか，$\sin x$ の展開に $x$ を掛ける．`,
+    approach: String.raw`$f(0)=f'(0)=0,\ f''(0)=2,\ f'''(0)=0$ を確認し，$n=4$ の剰余項は $f^{(4)}(\theta x)x^{4}/4!$ にまとめる．`,
+    solution: String.raw`$f(x)=x\sin x$ にライプニッツ則を用いると $$f^{(k)}(x)=x\sin\Bigl(x+\frac{k\pi}{2}\Bigr)+k\sin\Bigl(x+\frac{(k-1)\pi}{2}\Bigr).$$ よって $f(0)=0,\ f'(0)=0,\ f''(0)=2,\ f'''(0)=0$．従って $$x\sin x=x^{2}+\frac{f^{(4)}(\theta x)}{4!}x^{4}\quad(0<\theta<1),\qquad f^{(4)}(x)=x\sin x-4\cos x\ \text{より}$$ $$x\sin x=x^{2}+\frac{\theta x\sin(\theta x)-4\cos(\theta x)}{24}x^{4}.$$`,
+    essence: String.raw`積の形は「既知の展開に掛け算」が早い．剰余項まで厳密に要求されたらライプニッツ則で $f^{(4)}$ を直接計算．`,
+    checklist: ["f''(0)=2 を導けた（x² の係数 1）", "奇数次の係数が 0 になる理由を説明できる", "剰余項を f^(4)(θx)x⁴/4! の形で書いた"] },
+  { id: "t24-1-4", unit: "u24", source: "textbook", num: "問題2.4 1(4)", difficulty: 3,
+    q: String.raw`つぎの関数の $n=4$ の場合の有限マクローリン展開を求めよ．$$f(x)=\frac{x}{1+x}$$`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{x}{1+x}=x-x^{2}+x^{3}-\dfrac{x^{4}}{(1+\theta x)^{5}}\quad(0<\theta<1)$`,
+    hint: String.raw`$\dfrac{x}{1+x}=1-\dfrac{1}{1+x}$ と変形すると微分が楽．`,
+    approach: String.raw`$f^{(k)}(x)=(-1)^{k-1}k!\,(1+x)^{-k-1}\ (k\geq 1)$ を導き，$f^{(k)}(0)=(-1)^{k-1}k!$ から係数は $(-1)^{k-1}$．`,
+    solution: String.raw`$f(x)=1-(1+x)^{-1}$ より $$f^{(k)}(x)=(-1)^{k-1}\,k!\,(1+x)^{-(k+1)}\quad(k\geq 1).$$ よって $f(0)=0,\ f^{(k)}(0)/k!=(-1)^{k-1}$．定理 2.4.3（$n=4$）より $$\frac{x}{1+x}=x-x^{2}+x^{3}-\frac{x^{4}}{(1+\theta x)^{5}}\quad(0<\theta<1).$$`,
+    essence: String.raw`等比級数型 $\frac{1}{1+x}=1-x+x^{2}-\cdots$ は最重要の基本展開．分子の $x$ はただの掛け算．`,
+    checklist: ["f を微分しやすい形に変形した（または直接正しく微分）", "係数が +1, −1, +1 と交互になっている", "剰余項の分母の冪が 5 乗になっている"] },
+  { id: "t24-4-3", unit: "u24", source: "textbook", num: "問題2.4 4(3)", difficulty: 4,
+    q: String.raw`漸近展開を用いてつぎの極限を求めよ．$$\lim_{x\to 0}\frac{\sin x-xe^{x}+x^{2}}{x(\cos x-1)}$$`,
+    answerKey: ["4/3", "1.333"], answerDisplay: String.raw`$\dfrac{4}{3}$`,
+    hint: String.raw`分母は $x\bigl(-\frac{x^{2}}{2}+o(x^{2})\bigr)=-\frac{x^{3}}{2}+o(x^{3})$．つまり 3 次までの勝負．`,
+    approach: String.raw`分母が 3 次 → 分子も 3 次まで漸近展開．$\sin x=x-\frac{x^{3}}{6}+o(x^{3})$，$xe^{x}=x+x^{2}+\frac{x^{3}}{2}+o(x^{3})$ を代入して整理．`,
+    solution: String.raw`分子：$$\sin x-xe^{x}+x^{2}=\Bigl(x-\frac{x^{3}}{6}+o(x^{3})\Bigr)-x\Bigl(1+x+\frac{x^{2}}{2}+o(x^{2})\Bigr)+x^{2}=-\frac{x^{3}}{6}-\frac{x^{3}}{2}+o(x^{3})=-\frac{2}{3}x^{3}+o(x^{3}).$$ 分母：$$x(\cos x-1)=x\Bigl(-\frac{x^{2}}{2}+o(x^{2})\Bigr)=-\frac{x^{3}}{2}+o(x^{3}).$$ よって $$\lim_{x\to 0}\frac{-\frac{2}{3}x^{3}+o(x^{3})}{-\frac{x^{3}}{2}+o(x^{3})}=\frac{-\frac{2}{3}}{-\frac{1}{2}}=\frac{4}{3}.$$ 【検算】係数をもう一度確認すると $-\frac{1}{6}-\frac{1}{2}=-\frac{2}{3}$，分母は $-\frac{1}{2}$．結果は $\dfrac{4}{3}$．`,
+    verify: true,
+    essence: String.raw`手順は機械的：① 分母の最低次を確定 ③ 分子を同じ次数まで展開 ③ 係数の比．ロピタル 3 回分の作業が展開 1 回で済む．`,
+    checklist: ["分母の最低次（3次）を先に確認した", "分子の各関数を 3 次まで正しく展開した", "o(x³) の処理（まとめ方）が正しい", "最後の係数の比の計算が正しい"] },
+  { id: "t24-4-4", unit: "u24", source: "textbook", num: "問題2.4 4(4)", difficulty: 4,
+    q: String.raw`漸近展開を用いてつぎの極限を求めよ．$$\lim_{x\to 0}\Bigl(\frac{1}{\sin^{2}x}-\frac{1}{x^{2}}\Bigr)$$`,
+    answerKey: ["1/3", "0.333", "1∕3"], answerDisplay: String.raw`$\dfrac{1}{3}$`,
+    hint: String.raw`通分すると $\dfrac{x^{2}-\sin^{2}x}{x^{2}\sin^{2}x}$．分母は $x^{4}$ と同じオーダー．`,
+    approach: String.raw`$\sin x=x-\frac{x^{3}}{6}+o(x^{3})$ から $\sin^{2}x=x^{2}-\frac{x^{4}}{3}+o(x^{4})$．分子・分母を 4 次で揃える．`,
+    solution: String.raw`通分して $$\frac{1}{\sin^{2}x}-\frac{1}{x^{2}}=\frac{x^{2}-\sin^{2}x}{x^{2}\sin^{2}x}.$$ $\sin x=x-\frac{x^{3}}{6}+o(x^{3})$ より $$\sin^{2}x=x^{2}-\frac{x^{4}}{3}+o(x^{4}).$$ よって分子は $$x^{2}-\sin^{2}x=\frac{x^{4}}{3}+o(x^{4}),$$ 分母は $$x^{2}\sin^{2}x=x^{4}+o(x^{4}).$$ したがって $$\lim_{x\to 0}\Bigl(\frac{1}{\sin^{2}x}-\frac{1}{x^{2}}\Bigr)=\frac{1/3}{1}=\frac{1}{3}.$$`,
+    essence: String.raw`$\infty-\infty$ 型は「通分して $0/0$ に直す」が定石．2 乗の展開は「展開してから 2 乗」ではなく低次のみ掛け算する．`,
+    checklist: ["通分して 0/0 型に直した", "sin²x の 4 次までの展開（−x⁴/3）が正しい", "分母を x⁴ で近似してよい理由を説明できる"] },
+  { id: "t24-5-2", unit: "u24", source: "textbook", num: "問題2.4 5(2)", difficulty: 4,
+    q: String.raw`漸近展開を用いて，つぎの関数が $x=0$ で極値をとるかどうか調べよ．$$f(x)=x^{2}\sin x-x\sin^{2}x$$`,
+    answerKey: [], answerDisplay: String.raw`極値をとらない（最低次が奇数次のため）`,
+    hint: String.raw`$f(x)=x\sin x(x-\sin x)$ と因数分解できる．各因子の最低次を掛ける．`,
+    approach: String.raw`$x\sim x$，$\sin x\sim x$，$x-\sin x\sim\frac{x^{3}}{6}$ より $f(x)\sim\frac{x^{5}}{6}$．5 次（奇数次）なので符号が入れ替わる．`,
+    solution: String.raw`$$f(x)=x\sin x\,(x-\sin x).$$ 漸近展開 $\sin x=x-\dfrac{x^{3}}{6}+o(x^{3})$ より $$x-\sin x=\frac{x^{3}}{6}+o(x^{3}),\qquad x\sin x=x^{2}+o(x^{2}).$$ よって $$f(x)=\bigl(x^{2}+o(x^{2})\bigr)\Bigl(\frac{x^{3}}{6}+o(x^{3})\Bigr)=\frac{x^{5}}{6}+o(x^{5})=x^{5}\Bigl(\frac{1}{6}+\frac{o(x^{5})}{x^{5}}\Bigr).$$ $x$ が十分小さいとき括弧内は正であるから，$f(x)-f(0)$ は $x>0$ で正，$x<0$ で負．すなわち $x=0$ の両側で符号が変わるので，$f(x)$ は $x=0$ で極値をとらない．`,
+    essence: String.raw`極値判定の結論は「最初に生き残る項の次数と符号」だけで決まる：偶数次なら極値（係数の符号で極大/極小），奇数次なら極値でない．`,
+    checklist: ["因数分解または展開で最低次の項を正しく求めた（x⁵/6）", "奇数次 ⇒ 極値なしの論理を述べた", "x=0 の両側での符号変化に言及した"] },
+  { id: "t24-6-3", unit: "u24", source: "textbook", num: "問題2.4 6(3)", difficulty: 3,
+    q: String.raw`有限マクローリン展開（$x=0.1,\ n$ は適当）を用いて $\sin 0.1$ の近似値を小数点以下第 4 位まで求め，誤差を評価せよ．`,
+    answerKey: ["0.0998"], answerDisplay: String.raw`$\sin 0.1\approx 0.1-\dfrac{0.1^{3}}{6}=0.0998$（誤差は $\dfrac{0.1^{5}}{120}<10^{-7}$）`,
+    hint: String.raw`$\sin x=x-\dfrac{x^{3}}{6}+R_{5}$，$|R_{5}|\leq\dfrac{|x|^{5}}{5!}$．`,
+    approach: String.raw`$x=0.1$ を代入し，剰余項の大きさを $\frac{0.1^{5}}{120}$ で押さえて必要桁に対して十分小さいことを確認する．`,
+    solution: String.raw`有限マクローリン展開（$n=5$）より $$\sin x=x-\frac{x^{3}}{6}+\frac{\cos(\theta x)}{120}x^{5}\quad(0<\theta<1).$$ $x=0.1$ を代入すると $$\sin 0.1=0.1-\frac{0.001}{6}+R,\qquad|R|\leq\frac{0.1^{5}}{120}=\frac{10^{-5}}{120}<10^{-7}.$$ $0.1-0.000166\ldots=0.0998333\ldots$ であり，誤差は第 7 位以下にしか影響しないので $$\sin 0.1\approx 0.0998.$$`,
+    essence: String.raw`近似値問題のポイントは「何項とれば要求精度に足りるか」を剰余項で保証すること．$o$ 記号では不可，$\theta$ 入りの有限展開を使う．`,
+    checklist: ["剰余項の大きさを不等式で評価した", "要求精度（小数点以下第 4 位）と誤差の比較を明示した", "数値計算が正しい（0.0998）"] }
+);
+​
+// ========== 章末問題（問題 3.1） ==========
+window.DATA.problems.push(
+  { id: "t31-1-2", unit: "u31", source: "textbook", num: "問題3.1 1(2)", difficulty: 2,
+    q: String.raw`つぎの不定積分を求めよ．$$\int\frac{dx}{x\log x}$$`,
+    answerKey: ["log|log x|", "log|logx|", "log(log x)"], answerDisplay: String.raw`$\log|\log x|+c$`,
+    hint: String.raw`$(\log x)'=\dfrac{1}{x}$ が分子に隠れている．$\int\frac{f'}{f}dx$ 型．`,
+    approach: String.raw`$u=\log x$ と置換すると $du=\frac{dx}{x}$ で $\int\frac{du}{u}$ に帰着．`,
+    solution: String.raw`$u=\log x$ とおくと $du=\dfrac{dx}{x}$．よって $$\int\frac{dx}{x\log x}=\int\frac{du}{u}=\log|u|=\log|\log x|+c.$$`,
+    essence: String.raw`「分母の中身の導関数が外にある」形を見抜くのが置換の基本．$\frac{f'}{f}\to\log|f|$ は反射で．`,
+    checklist: ["置換 u=log x を選べた", "du=dx/x の対応を正しく処理した", "絶対値を付けた"] },
+  { id: "t31-1-6", unit: "u31", source: "textbook", num: "問題3.1 1(6)", difficulty: 3,
+    q: String.raw`つぎの不定積分を求めよ．$$\int\frac{dx}{x^{2}+2x+2}$$`,
+    answerKey: ["Tan^-1(x+1)", "arctan(x+1)", "tan^-1(x+1)"], answerDisplay: String.raw`$\mathrm{Tan}^{-1}(x+1)+c$`,
+    hint: String.raw`分母を平方完成すると $(x+1)^{2}+1$．`,
+    approach: String.raw`$u=x+1$ とおけば $\int\frac{du}{u^{2}+1}=\mathrm{Tan}^{-1}u$ の基本形．`,
+    solution: String.raw`$x^{2}+2x+2=(x+1)^{2}+1$ であるから，$u=x+1$ とおくと $$\int\frac{dx}{x^{2}+2x+2}=\int\frac{du}{u^{2}+1}=\mathrm{Tan}^{-1}u=\mathrm{Tan}^{-1}(x+1)+c.$$`,
+    essence: String.raw`判別式が負の 2 次式は「平方完成→ $\mathrm{Tan}^{-1}$」一擢．有理式積分（§3.2）の部品にもなる最重要形．`,
+    checklist: ["平方完成が正しい", "Tan⁻¹ の基本形に帰着させた", "変数を x に戻した"] },
+  { id: "t31-1-8", unit: "u31", source: "textbook", num: "問題3.1 1(8)", difficulty: 3,
+    q: String.raw`つぎの不定積分を求めよ．$$\int\mathrm{Sin}^{-1}x\,dx$$`,
+    answerKey: [], answerDisplay: String.raw`$x\,\mathrm{Sin}^{-1}x+\sqrt{1-x^{2}}+c$`,
+    hint: String.raw`$\log x$ の積分と同じ手：$g=1$ とみて部分積分．`,
+    approach: String.raw`$f=\mathrm{Sin}^{-1}x,\ g=1$ で部分積分すると，残る積分は $\int\frac{x}{\sqrt{1-x^{2}}}dx$．これは $u=1-x^{2}$ の置換で処理．`,
+    solution: String.raw`部分積分法（$f=\mathrm{Sin}^{-1}x,\ g=1$）より $$\int\mathrm{Sin}^{-1}x\,dx=x\,\mathrm{Sin}^{-1}x-\int\frac{x}{\sqrt{1-x^{2}}}\,dx.$$ $u=1-x^{2}$ とおくと $du=-2x\,dx$ であるから $$\int\frac{x}{\sqrt{1-x^{2}}}\,dx=-\frac{1}{2}\int u^{-1/2}\,du=-\sqrt{u}=-\sqrt{1-x^{2}}.$$ よって $$\int\mathrm{Sin}^{-1}x\,dx=x\,\mathrm{Sin}^{-1}x+\sqrt{1-x^{2}}+c.$$`,
+    essence: String.raw`逆関数（$\log,\ \mathrm{Sin}^{-1},\ \mathrm{Tan}^{-1}$）の積分は「$\times 1$ とみて部分積分」が定石．微分すると代数的な関数に化けるのが狙い．`,
+    checklist: ["g=1 の部分積分を選択した", "残りの積分を置換で正しく計算した", "符号（+√(1−x²)）が正しい"] },
+  { id: "t31-1-10", unit: "u31", source: "textbook", num: "問題3.1 1(10)", difficulty: 2,
+    q: String.raw`つぎの不定積分を求めよ．$$\int x\log x\,dx$$`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{x^{2}}{2}\log x-\dfrac{x^{2}}{4}+c$`,
+    hint: String.raw`微分して簡単になる $\log x$ を $f$ に．`,
+    approach: String.raw`$f=\log x,\ g=x$ で部分積分．$G=\frac{x^{2}}{2}$．`,
+    solution: String.raw`部分積分法より $$\int x\log x\,dx=\frac{x^{2}}{2}\log x-\int\frac{1}{x}\cdot\frac{x^{2}}{2}\,dx=\frac{x^{2}}{2}\log x-\frac{x^{2}}{4}+c.$$`,
+    essence: String.raw`「多項式×$\log$」は $\log$ を微分する側に回すと必ず簡単化する．`,
+    checklist: ["f（微分する方）の選択が適切", "G=x²/2 の計算が正しい", "最後の積分と符号が正しい"] },
+  { id: "t31-2-5", unit: "u31", source: "textbook", num: "問題3.1 2(5)", difficulty: 2,
+    q: String.raw`つぎの定積分を求めよ．$$\int_{0}^{1}\frac{x}{x^{2}+1}\,dx$$`,
+    answerKey: ["(1/2)log 2", "(log 2)/2", "0.3466"], answerDisplay: String.raw`$\dfrac{1}{2}\log 2$`,
+    hint: String.raw`分子が分母の導関数の定数倍．`,
+    approach: String.raw`$\int\frac{f'}{f}=\log|f|$ 型．$(x^{2}+1)'=2x$ なので $\frac{1}{2}$ を付ける．`,
+    solution: String.raw`$$\int_{0}^{1}\frac{x}{x^{2}+1}\,dx=\frac{1}{2}\int_{0}^{1}\frac{2x}{x^{2}+1}\,dx=\frac{1}{2}\Bigl[\log(x^{2}+1)\Bigr]_{0}^{1}=\frac{1}{2}\log 2.$$`,
+    essence: String.raw`被積分関数を見たらまず「分母の導関数が分子にいないか」を疑う．置換を書かず暗算で処理できると試験では大きい．`,
+    checklist: ["f'/f 型と見抜いた", "係数 1/2 の調整が正しい", "積分区間の代入が正しい"] },
+  { id: "t31-3-1", unit: "u31", source: "textbook", num: "問題3.1 3(1)", difficulty: 4,
+    q: String.raw`つぎの関数の導関数を $f$ を用いて表せ．ただし $f$ は連続関数とする．$$\frac{d}{dx}\int_{x}^{x+1}f(2t)\,dt$$`,
+    answerKey: ["f(2x+2)-f(2x)"], answerDisplay: String.raw`$f(2x+2)-f(2x)$`,
+    hint: String.raw`$F(u)=\int_{a}^{u}f(2t)dt$ とおけば，与式は $F(x+1)-F(x)$．`,
+    approach: String.raw`定理 3.1.1（微積分学の基本定理）と合成関数の微分を併用する．`,
+    solution: String.raw`$F(u)=\displaystyle\int_{0}^{u}f(2t)\,dt$ とおくと，定理 3.1.1 より $F'(u)=f(2u)$．与式は $F(x+1)-F(x)$ であるから $$\frac{d}{dx}\int_{x}^{x+1}f(2t)\,dt=F'(x+1)-F'(x)=f(2x+2)-f(2x).$$`,
+    essence: String.raw`積分の上端・下端がともに動くときは「上端の寄与 $-$ 下端の寄与」．端が $g(x)$ なら連鎖律で $f(g(x))g'(x)$ が付く．`,
+    checklist: ["基本定理を正しく適用した", "上端と下端の両方を処理した", "f(2t) の 2 の扱い（合成の微分）が正しい"] },
+  { id: "t31-4-1", unit: "u31", source: "textbook", num: "問題3.1 4(1)", difficulty: 4,
+    q: String.raw`つぎの等式を示せ．$$\int_{0}^{\pi/2}f(\sin x)\,dx=\int_{0}^{\pi/2}f(\cos x)\,dx$$`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）$x=\frac{\pi}{2}-t$ の置換による`,
+    hint: String.raw`$\sin\bigl(\frac{\pi}{2}-t\bigr)=\cos t$．区間 $[0,\frac{\pi}{2}]$ を裏返す置換を探せ．`,
+    approach: String.raw`$x=\frac{\pi}{2}-t$ と置換し，積分区間の入れ替わりと $dx=-dt$ の符号を丁寧に処理する．`,
+    solution: String.raw`$x=\dfrac{\pi}{2}-t$ とおくと，$dx=-dt$，$x:0\to\frac{\pi}{2}$ のとき $t:\frac{\pi}{2}\to 0$．よって $$\int_{0}^{\pi/2}f(\sin x)\,dx=\int_{\pi/2}^{0}f\Bigl(\sin\Bigl(\frac{\pi}{2}-t\Bigr)\Bigr)(-dt)=\int_{0}^{\pi/2}f(\cos t)\,dt.$$ 定積分の値は積分変数の名前によらないので，これは $\int_{0}^{\pi/2}f(\cos x)\,dx$ に等しい．`,
+    essence: String.raw`「区間を裏返す置換 $x=a+b-t$」は対称性を使う定積分の常套手．ウォリスの公式で $\sin$ と $\cos$ が同じ値になる理由でもある．`,
+    checklist: ["適切な置換を選んだ", "区間と dx の符号処理が正しい", "積分変数の名前換えに言及した"] }
+);
+​
+// ========== 章末問題（問題 3.2） ==========
+window.DATA.problems.push(
+  { id: "t32-1-2", unit: "u32", source: "textbook", num: "問題3.2 1(2)", difficulty: 3,
+    q: String.raw`つぎの不定積分を求めよ．$$\int\frac{2}{(x-1)(x^{2}+1)}\,dx$$`,
+    answerKey: [], answerDisplay: String.raw`$\log|x-1|-\dfrac{1}{2}\log(x^{2}+1)-\mathrm{Tan}^{-1}x+c$`,
+    hint: String.raw`$\dfrac{2}{(x-1)(x^{2}+1)}=\dfrac{a}{x-1}+\dfrac{bx+c}{x^{2}+1}$ とおく．`,
+    approach: String.raw`未定係数法で $a=1,\ b=-1,\ c=-1$ を得て，3 つの部品（$\log$，$\frac{x}{x^2+1}$，$\mathrm{Tan}^{-1}$）に分ける．`,
+    solution: String.raw`$$\frac{2}{(x-1)(x^{2}+1)}=\frac{a}{x-1}+\frac{bx+c}{x^{2}+1}$$ とおき通分すると $2=a(x^{2}+1)+(bx+c)(x-1)$．$x=1$ を代入して $a=1$．$x^{2}$ の係数比較で $a+b=0$ より $b=-1$．定数項で $a-c=2$ より $c=-1$．よって $$\int\frac{2\,dx}{(x-1)(x^{2}+1)}=\int\Bigl(\frac{1}{x-1}-\frac{x+1}{x^{2}+1}\Bigr)dx=\log|x-1|-\frac{1}{2}\log(x^{2}+1)-\mathrm{Tan}^{-1}x+c.$$`,
+    essence: String.raw`(iii) 型の分子は必ず $bx+c$（2 文字）で置く．積分段階では $\frac{x}{x^2+1}$（$\log$ 行き）と $\frac{1}{x^2+1}$（$\mathrm{Tan}^{-1}$ 行き）に分離する．`,
+    checklist: ["部分分数展開の形（分子 bx+c）が正しい", "未定係数の値が正しい", "log と Tan⁻¹ への分離が正しい"] },
+  { id: "t32-2-1", unit: "u32", source: "textbook", num: "問題3.2 2(1)", difficulty: 3,
+    q: String.raw`つぎの不定積分を求めよ．$$\int\frac{dx}{x\sqrt{x+1}}$$`,
+    answerKey: [], answerDisplay: String.raw`$\log\Bigl|\dfrac{\sqrt{x+1}-1}{\sqrt{x+1}+1}\Bigr|+c$`,
+    hint: String.raw`$t=\sqrt{x+1}$ とおくと $x=t^{2}-1,\ dx=2t\,dt$．`,
+    approach: String.raw`置換後は $\int\frac{2\,dt}{t^{2}-1}$．部分分数展開 $\frac{2}{t^2-1}=\frac{1}{t-1}-\frac{1}{t+1}$ で処理．`,
+    solution: String.raw`$t=\sqrt{x+1}$ とおくと $x=t^{2}-1,\ dx=2t\,dt$ であるから $$\int\frac{dx}{x\sqrt{x+1}}=\int\frac{2t\,dt}{(t^{2}-1)t}=\int\Bigl(\frac{1}{t-1}-\frac{1}{t+1}\Bigr)dt=\log\Bigl|\frac{t-1}{t+1}\Bigr|=\log\Bigl|\frac{\sqrt{x+1}-1}{\sqrt{x+1}+1}\Bigr|+c.$$`,
+    essence: String.raw`$\sqrt[n]{ax+b}$ は「根号ごと $t$」で必ず有理式化する．置換後に部分分数展開という 2 段構えが典型．`,
+    checklist: ["置換と dx の変換が正しい", "部分分数展開が正しい", "t を x に戻した"] },
+  { id: "t32-3-1", unit: "u32", source: "textbook", num: "問題3.2 3(1)", difficulty: 3,
+    q: String.raw`つぎの不定積分を求めよ．$$\int\frac{dx}{1+\cos x}$$`,
+    answerKey: ["tan(x/2)"], answerDisplay: String.raw`$\tan\dfrac{x}{2}+c$`,
+    hint: String.raw`$u=\tan\frac{x}{2}$ の万能置換．$1+\cos x=\frac{2}{1+u^{2}}$ になる．`,
+    approach: String.raw`$\cos x=\frac{1-u^{2}}{1+u^{2}},\ dx=\frac{2du}{1+u^{2}}$ を代入すると被積分関数が定数 1 になる．`,
+    solution: String.raw`$u=\tan\dfrac{x}{2}$ とおくと $$1+\cos x=1+\frac{1-u^{2}}{1+u^{2}}=\frac{2}{1+u^{2}},\qquad dx=\frac{2\,du}{1+u^{2}}$$ であるから $$\int\frac{dx}{1+\cos x}=\int\frac{1+u^{2}}{2}\cdot\frac{2\,du}{1+u^{2}}=\int du=u=\tan\frac{x}{2}+c.$$ 【別解】半角公式 $1+\cos x=2\cos^{2}\frac{x}{2}$ を用いてもよい．`,
+    essence: String.raw`万能置換は「必ず解ける保険」．ただし半角公式 $1\pm\cos x=2\cos^2\frac{x}{2},\ 2\sin^2\frac{x}{2}$ に気付けば一瞬で終わる．`,
+    checklist: ["置換の 3 式（sin, cos, dx）を正しく使った", "簡約が正しい", "u を x に戻した"] },
+  { id: "t32-4-1", unit: "u32", source: "textbook", num: "問題3.2 4(1)", difficulty: 3,
+    q: String.raw`つぎの定積分を求めよ．$$\int_{0}^{\pi/2}\sin^{4}x\,dx$$`,
+    answerKey: ["3π/16", "(3/16)π"], answerDisplay: String.raw`$\dfrac{3\pi}{16}$`,
+    hint: String.raw`ウォリスの公式（例題 3.2.1）．$n=4$ は偶数．`,
+    approach: String.raw`$\displaystyle\int_{0}^{\pi/2}\sin^{4}x\,dx=\frac{3!!}{4!!}\cdot\frac{\pi}{2}=\frac{3\cdot 1}{4\cdot 2}\cdot\frac{\pi}{2}$．`,
+    solution: String.raw`ウォリスの公式より $$\int_{0}^{\pi/2}\sin^{4}x\,dx=\frac{(4-1)!!}{4!!}\cdot\frac{\pi}{2}=\frac{3\cdot 1}{4\cdot 2}\cdot\frac{\pi}{2}=\frac{3\pi}{16}.$$`,
+    essence: String.raw`偶数のときだけ $\frac{\pi}{2}$ が付くことに注意．記述式では漸化式の導出から求めさせる出題も多いので，例 9 の部分積分による導出も再現できるように．`,
+    checklist: ["偶数・奇数の場合分けを正しく適用した", "二重階乗の計算が正しい", "π/2 の付け忘れがない"] },
+  { id: "t32-6", unit: "u32", source: "textbook", num: "問題3.2 6", difficulty: 5,
+    q: String.raw`$I_{n}=\displaystyle\int\frac{dx}{(x^{2}+1)^{n}}$ について，漸化式 $$I_{n+1}=\frac{x}{2n(x^{2}+1)^{n}}+\frac{2n-1}{2n}I_{n}$$ を示せ．`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）部分積分による`,
+    hint: String.raw`$I_{n}$ に部分積分（$f=(x^{2}+1)^{-n},\ g=1$）を施すと $I_{n+1}$ が現れる．`,
+    approach: String.raw`$\int(x^2+1)^{-n}dx$ を部分積分し，現れる $\frac{x^{2}}{(x^{2}+1)^{n+1}}$ を $\frac{(x^{2}+1)-1}{(x^{2}+1)^{n+1}}=\frac{1}{(x^{2}+1)^{n}}-\frac{1}{(x^{2}+1)^{n+1}}$ と分解する．`,
+    solution: String.raw`部分積分法（$f=(x^{2}+1)^{-n},\ g=1$）より $$I_{n}=\frac{x}{(x^{2}+1)^{n}}+2n\int\frac{x^{2}}{(x^{2}+1)^{n+1}}\,dx.$$ ここで $$\frac{x^{2}}{(x^{2}+1)^{n+1}}=\frac{(x^{2}+1)-1}{(x^{2}+1)^{n+1}}=\frac{1}{(x^{2}+1)^{n}}-\frac{1}{(x^{2}+1)^{n+1}}$$ であるから $$I_{n}=\frac{x}{(x^{2}+1)^{n}}+2n(I_{n}-I_{n+1}).$$ これを $I_{n+1}$ について解くと $$I_{n+1}=\frac{x}{2n(x^{2}+1)^{n}}+\frac{2n-1}{2n}I_{n}.$$`,
+    essence: String.raw`有理式積分の (iii) 型（$n\geq 2$）はこの漸化式で処理する．「$x^{2}=(x^{2}+1)-1$ の分解」は漸化式導出の定番テクニック．`,
+    checklist: ["部分積分の設定（g=1）ができた", "x² の分解テクニックを使えた", "I_{n+1} について解く代数処理が正しい"] }
+);
+​
+// ========== 章末問題（問題 3.3） ==========
+window.DATA.problems.push(
+  { id: "t33-1-1", unit: "u33", source: "textbook", num: "問題3.3 1(1)", difficulty: 2,
+    q: String.raw`つぎの広義積分の値を求めよ．$$\int_{0}^{3}\frac{dx}{\sqrt{3-x}}$$`,
+    answerKey: ["2√3", "2sqrt(3)", "3.464"], answerDisplay: String.raw`$2\sqrt{3}$`,
+    hint: String.raw`発散点は $x=3$．原始関数は $-2\sqrt{3-x}$．`,
+    approach: String.raw`$\int_{0}^{\beta}$ を計算して $\beta\to 3-0$ の極限をとる．`,
+    solution: String.raw`$$\int_{0}^{3}\frac{dx}{\sqrt{3-x}}=\lim_{\beta\to 3-0}\Bigl[-2\sqrt{3-x}\Bigr]_{0}^{\beta}=\lim_{\beta\to 3-0}\bigl(-2\sqrt{3-\beta}+2\sqrt{3}\bigr)=2\sqrt{3}.$$`,
+    essence: String.raw`端点型 $(b-x)^{k}$ で $k=-\frac{1}{2}>-1$ だから収束すると予測してから計算すると見通しが良い．`,
+    checklist: ["発散点を特定した", "極限操作を明示した（または収束を確認した）", "原始関数と符号が正しい"] },
+  { id: "t33-1-3", unit: "u33", source: "textbook", num: "問題3.3 1(3)", difficulty: 3,
+    q: String.raw`つぎの広義積分の値を求めよ．$$\int_{0}^{\infty}xe^{-x}\,dx$$`,
+    answerKey: ["1"], answerDisplay: String.raw`$1$`,
+    hint: String.raw`部分積分．$xe^{-x}\to 0\ (x\to\infty)$ に注意．`,
+    approach: String.raw`$f=x,\ g=e^{-x}$ で部分積分し，$\lim_{a\to\infty}ae^{-a}=0$（指数の勝ち）を使う．`,
+    solution: String.raw`$$\int_{0}^{a}xe^{-x}\,dx=\Bigl[-xe^{-x}\Bigr]_{0}^{a}+\int_{0}^{a}e^{-x}\,dx=-ae^{-a}+\Bigl[-e^{-x}\Bigr]_{0}^{a}=-ae^{-a}-e^{-a}+1.$$ $a\to\infty$ のとき $ae^{-a}\to 0,\ e^{-a}\to 0$ であるから $$\int_{0}^{\infty}xe^{-x}\,dx=1.$$ 【補足】これは $\Gamma(2)=1!=1$ でもある．`,
+    essence: String.raw`多項式×指数減衰の広義積分は部分積分＋「指数は多項式に勝つ」．ガンマ関数 $\Gamma(n+1)=n!$ とのつながりも意識すると検算に使える．`,
+    checklist: ["部分積分の計算が正しい", "ae^{-a}→0 の極限処理を明示した", "最終的な値が正しい"] },
+  { id: "t33-1-4", unit: "u33", source: "textbook", num: "問題3.3 1(4)", difficulty: 2,
+    q: String.raw`つぎの広義積分の値を求めよ．$$\int_{0}^{\infty}xe^{-x^{2}}\,dx$$`,
+    answerKey: ["1/2", "0.5"], answerDisplay: String.raw`$\dfrac{1}{2}$`,
+    hint: String.raw`$u=x^{2}$ の置換．$(e^{-x^{2}})'=-2xe^{-x^{2}}$．`,
+    approach: String.raw`原始関数 $-\frac{1}{2}e^{-x^{2}}$ を直接作って極限をとる．`,
+    solution: String.raw`$$\int_{0}^{\infty}xe^{-x^{2}}\,dx=\lim_{a\to\infty}\Bigl[-\frac{1}{2}e^{-x^{2}}\Bigr]_{0}^{a}=\lim_{a\to\infty}\Bigl(-\frac{1}{2}e^{-a^{2}}+\frac{1}{2}\Bigr)=\frac{1}{2}.$$`,
+    essence: String.raw`$xe^{-x^{2}}$ は置換で即積分できるが，$e^{-x^{2}}$ 単体は初等関数で積分不可（収束判定のみ可，問題 2(3)）．この対比は試験で好まれる．`,
+    checklist: ["原始関数が正しい（係数 −1/2）", "極限処理が正しい", "値 1/2 を得た"] },
+  { id: "t33-2-2", unit: "u33", source: "textbook", num: "問題3.3 2(2)", difficulty: 4,
+    q: String.raw`つぎの広義積分の収束・発散を調べよ．$$\int_{0}^{\pi/2}\frac{dx}{\sin x}$$`,
+    answerKey: ["発散"], answerDisplay: String.raw`発散する`,
+    hint: String.raw`$x\to+0$ で $\sin x\approx x$．つまり $\frac{1}{\sin x}$ は $\frac{1}{x}$ と同程度．`,
+    approach: String.raw`$0<x\leq\frac{\pi}{2}$ で $\sin x\leq x$ より $\frac{1}{\sin x}\geq\frac{1}{x}\geq 0$．$\int_{0}^{\pi/2}\frac{dx}{x}$ の発散（例 4 で $k=-1$）と定理 3.3.2 を使う．`,
+    solution: String.raw`$0<x\leq\dfrac{\pi}{2}$ において $\sin x\leq x$ であるから $$0\leq\frac{1}{x}\leq\frac{1}{\sin x}.$$ 例 4（$k=-1$）より $\displaystyle\int_{0}^{\pi/2}\frac{dx}{x}$ は発散する．よって定理 3.3.2 により $\displaystyle\int_{0}^{\pi/2}\frac{dx}{\sin x}$ は発散する．`,
+    essence: String.raw`発散証明は「下から発散関数で支える」．$\sin x\approx x$（同位の評価）は収束判定の最重要感覚．`,
+    checklist: ["発散の原因の点（x=0）を特定した", "不等式の向きが発散判定に合っている", "比較先（1/x）の発散を根拠付けた"] },
+  { id: "t33-3", unit: "u33", source: "textbook", num: "問題3.3 3", difficulty: 4,
+    q: String.raw`ガンマ関数 $\Gamma(s)=\displaystyle\int_{0}^{\infty}e^{-x}x^{s-1}\,dx$ について，つぎを示せ．$$(1)\ \Gamma(s+1)=s\Gamma(s)\quad(s>0)\qquad(2)\ \Gamma(n+1)=n!\quad(n\text{：自然数})$$`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）(1) 部分積分，(2) (1) の繰り返し`,
+    hint: String.raw`(1) は $\Gamma(s+1)=\int_{0}^{\infty}e^{-x}x^{s}dx$ を部分積分．境界項は消える．`,
+    approach: String.raw`(1) $f=x^{s},\ g=e^{-x}$ で部分積分し，$x^{s}e^{-x}\to 0\ (x\to\infty)$，$x^{s}e^{-x}\to 0\ (x\to+0)$ を確認．(2) は (1) を $n$ 回適用して $\Gamma(1)=1$ に帰着．`,
+    solution: String.raw`(1) 部分積分法より $$\Gamma(s+1)=\int_{0}^{\infty}e^{-x}x^{s}\,dx=\Bigl[-e^{-x}x^{s}\Bigr]_{0}^{\infty}+s\int_{0}^{\infty}e^{-x}x^{s-1}\,dx.$$ $x\to\infty$ で $e^{-x}x^{s}\to 0$（指数の勝ち），$x\to+0$ で $e^{-x}x^{s}\to 0$（$s>0$）であるから境界項は $0$．よって $\Gamma(s+1)=s\Gamma(s)$．(2) (1) を繰り返し用いると $$\Gamma(n+1)=n\Gamma(n)=n(n-1)\Gamma(n-1)=\cdots=n!\,\Gamma(1).$$ ここで $$\Gamma(1)=\int_{0}^{\infty}e^{-x}\,dx=\Bigl[-e^{-x}\Bigr]_{0}^{\infty}=1$$ であるから $\Gamma(n+1)=n!$．`,
+    essence: String.raw`$\Gamma$ は「階乗の連続版」．漸化式 $\Gamma(s+1)=s\Gamma(s)$ は部分積分 1 回で出ること，初期値 $\Gamma(1)=1$，の 2 点セットで記憶．`,
+    checklist: ["部分積分の設定が正しい", "境界項が 0 になる理由を両端で述べた", "帰納的な繰り返しと Γ(1)=1 を明示した"] },
+  { id: "t33-4", unit: "u33", source: "textbook", num: "問題3.3 4", difficulty: 5,
+    q: String.raw`$p>0,\ q>0$ のとき，つぎの広義積分は収束することを示せ（この積分をベータ関数といい $B(p,q)$ と書く）．$$B(p,q)=\int_{0}^{1}x^{p-1}(1-x)^{q-1}\,dx$$`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）両端で優関数比較`,
+    hint: String.raw`問題の端は $x=0$ と $x=1$ の 2 箇所．$x=\frac{1}{2}$ で区間を分ける．`,
+    approach: String.raw`$(0,\frac{1}{2}]$ では $(1-x)^{q-1}$ が有界なので $x^{p-1}$ と比較．$[\frac{1}{2},1)$ では $x^{p-1}$ が有界なので $(1-x)^{q-1}$ と比較．いずれも例 4（$k>-1$）で収束．`,
+    solution: String.raw`区間を $\bigl(0,\frac{1}{2}\bigr]$ と $\bigl[\frac{1}{2},1\bigr)$ に分ける．① $0<x\leq\frac{1}{2}$ のとき，$(1-x)^{q-1}$ は連続で有界だからある定数 $M$ に対し $$0\leq x^{p-1}(1-x)^{q-1}\leq M x^{p-1}.$$ 例 4 で $k=p-1>-1$ の場合だから $\int_{0}^{1/2}x^{p-1}dx$ は収束し，定理 3.3.1 によりこの区間の積分は収束する．② $\frac{1}{2}\leq x<1$ のときも同様に，$x^{p-1}\leq M'$ として $$0\leq x^{p-1}(1-x)^{q-1}\leq M'(1-x)^{q-1}$$ であり，$k=q-1>-1$ だから収束する．よって $B(p,q)$ は収束する．`,
+    essence: String.raw`「悪さをする端ごとに分割 → その端で効く因子だけ残して残りは定数で押さえる」．ガンマ関数（例 11）と完全に同じ論法である．`,
+    checklist: ["2 つの端で区間を分割した", "各端での優関数の選択が適切", "k>−1 の条件（p>0, q>0）を正しく使った"] }
+);
+​
+// ========== 章末問題（問題 3.4） ==========
+window.DATA.problems.push(
+  { id: "t34-1-3", unit: "u34", source: "textbook", num: "問題3.4 1(3)", difficulty: 3,
+    q: String.raw`つぎの曲線の長さを求めよ．$$y=\log\cos x\quad\Bigl(0\leq x\leq\frac{\pi}{4}\Bigr)$$`,
+    answerKey: ["log(1+√2)", "log(√2+1)"], answerDisplay: String.raw`$\log(1+\sqrt{2})$`,
+    hint: String.raw`$y'=-\tan x$．$1+\tan^{2}x=\dfrac{1}{\cos^{2}x}$．`,
+    approach: String.raw`$l=\int_{0}^{\pi/4}\frac{dx}{\cos x}$ に帰着．$\int\frac{dx}{\cos x}$ は $u=\sin x$ の置換か公式で．`,
+    solution: String.raw`$y'=-\tan x$ であるから $$l(C)=\int_{0}^{\pi/4}\sqrt{1+\tan^{2}x}\,dx=\int_{0}^{\pi/4}\frac{dx}{\cos x}.$$ $u=\sin x$ とおくと $$\int\frac{dx}{\cos x}=\int\frac{\cos x}{1-\sin^{2}x}\,dx=\int\frac{du}{1-u^{2}}=\frac{1}{2}\log\frac{1+u}{1-u}.$$ よって $$l(C)=\Bigl[\frac{1}{2}\log\frac{1+\sin x}{1-\sin x}\Bigr]_{0}^{\pi/4}=\frac{1}{2}\log\frac{1+\frac{1}{\sqrt{2}}}{1-\frac{1}{\sqrt{2}}}=\frac{1}{2}\log\frac{\sqrt{2}+1}{\sqrt{2}-1}=\frac{1}{2}\log(\sqrt{2}+1)^{2}=\log(1+\sqrt{2}).$$`,
+    essence: String.raw`長さの問題は「$1+y'^{2}$ がきれいになる関数」しか出ない．$\log\cos x$，$x^{3/2}$，カテナリーは定番 3 大形．`,
+    checklist: ["1+tan²x=1/cos²x の変形ができた", "1/cos x の積分を正しく計算した", "有理化・対数の整理が正しい"] },
+  { id: "t34-1-4", unit: "u34", source: "textbook", num: "問題3.4 1(4)", difficulty: 3,
+    q: String.raw`つぎの曲線（カテナリー，懸垂線）の長さを求めよ．$$y=\frac{a}{2}\bigl(e^{x/a}+e^{-x/a}\bigr)\quad(0\leq x\leq b,\ a>0)$$`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{a}{2}\bigl(e^{b/a}-e^{-b/a}\bigr)$`,
+    hint: String.raw`$1+y'^{2}=\Bigl(\dfrac{e^{x/a}+e^{-x/a}}{2}\Bigr)^{2}$ と完全平方になる．`,
+    approach: String.raw`$y'=\frac{1}{2}(e^{x/a}-e^{-x/a})$ を代入して $1+y'^2$ を展開・因数分解すると根号が外れる．`,
+    solution: String.raw`$y'=\dfrac{1}{2}\bigl(e^{x/a}-e^{-x/a}\bigr)$ であるから $$1+y'^{2}=1+\frac{e^{2x/a}-2+e^{-2x/a}}{4}=\frac{e^{2x/a}+2+e^{-2x/a}}{4}=\Bigl(\frac{e^{x/a}+e^{-x/a}}{2}\Bigr)^{2}.$$ よって $$l(C)=\int_{0}^{b}\frac{e^{x/a}+e^{-x/a}}{2}\,dx=\Bigl[\frac{a}{2}\bigl(e^{x/a}-e^{-x/a}\bigr)\Bigr]_{0}^{b}=\frac{a}{2}\bigl(e^{b/a}-e^{-b/a}\bigr).$$`,
+    essence: String.raw`カテナリーは $1+\sinh^{2}=\cosh^{2}$ の典型例．「長さが $y'$ の原始関数で書ける」美しい曲線として記憶に残すとよい．`,
+    checklist: ["y' の計算が正しい", "1+y'² を完全平方にできた", "積分と代入が正しい"] },
+  { id: "t34-4-1", unit: "u34", source: "textbook", num: "問題3.4 4(1)", difficulty: 4,
+    q: String.raw`極座標表示された曲線 $r=f(\theta)\ (\alpha\leq\theta\leq\beta)$ の長さは $$l(C)=\int_{\alpha}^{\beta}\sqrt{f(\theta)^{2}+f'(\theta)^{2}}\,d\theta$$ で与えられることを示し，カーディオイド $$r=a(1+\cos\theta)\quad(0\leq\theta\leq 2\pi,\ a>0)$$ の長さを求めよ．`,
+    answerKey: ["8a"], answerDisplay: String.raw`$8a$`,
+    hint: String.raw`$x=r\cos\theta,\ y=r\sin\theta$ とパラメーター表示して定理 3.4.4 を使う．$1+\cos\theta=2\cos^{2}\frac{\theta}{2}$．`,
+    approach: String.raw`$\bigl(\frac{dx}{d\theta}\bigr)^{2}+\bigl(\frac{dy}{d\theta}\bigr)^{2}=f^{2}+f'^{2}$ を展開で確認．カーディオイドでは $\sqrt{2a^{2}(1+\cos\theta)}=2a\bigl|\cos\frac{\theta}{2}\bigr|$ の絶対値処理に注意．`,
+    solution: String.raw`前半：$x=f(\theta)\cos\theta,\ y=f(\theta)\sin\theta$ とおくと $$\frac{dx}{d\theta}=f'\cos\theta-f\sin\theta,\qquad\frac{dy}{d\theta}=f'\sin\theta+f\cos\theta.$$ よって $$\Bigl(\frac{dx}{d\theta}\Bigr)^{2}+\Bigl(\frac{dy}{d\theta}\Bigr)^{2}=f'^{2}(\cos^{2}\theta+\sin^{2}\theta)+f^{2}(\sin^{2}\theta+\cos^{2}\theta)=f^{2}+f'^{2}$$（交差項は消える）．定理 3.4.4 より主張の公式を得る．後半：$f(\theta)=a(1+\cos\theta),\ f'(\theta)=-a\sin\theta$ より $$f^{2}+f'^{2}=a^{2}\{(1+\cos\theta)^{2}+\sin^{2}\theta\}=2a^{2}(1+\cos\theta)=4a^{2}\cos^{2}\frac{\theta}{2}.$$ よって $$l(C)=\int_{0}^{2\pi}2a\Bigl|\cos\frac{\theta}{2}\Bigr|\,d\theta=2\int_{0}^{\pi}2a\cos\frac{\theta}{2}\,d\theta=4a\Bigl[2\sin\frac{\theta}{2}\Bigr]_{0}^{\pi}=8a.$$`,
+    essence: String.raw`極座標の長さ公式は「$ds^{2}=dr^{2}+r^{2}d\theta^{2}$」と覚える．絶対値を外すときは符号が変わる点（$\theta=\pi$）で分割するか対称性を使う．`,
+    checklist: ["公式の導出（交差項の消去）ができた", "半角公式で根号を外した", "絶対値／対称性の処理が正しい", "結果 8a"] },
+  { id: "t34-5", unit: "u34", source: "textbook", num: "問題3.4 5", difficulty: 5,
+    q: String.raw`曲線 $C:\ y=f(x)$ は原点 $O$ を通り，$O$ から $C$ 上の点 $(a,f(a))\ (a>0)$ までの曲線の長さが $a^{2}+a$ であるという．$f(x)$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$f(x)=\dfrac{1}{4}\bigl(2x\sqrt{x^{2}+x}... \bigr)$ の形ではなく，$f'(x)=\pm\sqrt{4x^{2}+4x}$ を積分したもの（解説参照）`,
+    hint: String.raw`長さの定義式 $\int_{0}^{a}\sqrt{1+f'(x)^{2}}\,dx=a^{2}+a$ の両辺を $a$ で微分する．`,
+    approach: String.raw`定理 3.1.1（積分の微分）で $\sqrt{1+f'(a)^{2}}=2a+1$．これを $f'$ について解いて積分する．`,
+    solution: String.raw`仮定より任意の $a>0$ に対し $$\int_{0}^{a}\sqrt{1+f'(x)^{2}}\,dx=a^{2}+a.$$ 両辺を $a$ で微分すると（定理 3.1.1） $$\sqrt{1+f'(a)^{2}}=2a+1.$$ 両辺を 2 乗して $f'(a)^{2}=4a^{2}+4a$，すなわち $$f'(x)=\pm 2\sqrt{x^{2}+x}.$$ よって（複号同順） $$f(x)=\pm 2\int\sqrt{x^{2}+x}\,dx=\pm 2\int\sqrt{\Bigl(x+\frac{1}{2}\Bigr)^{2}-\frac{1}{4}}\,dx.$$ p.60 の公式（$\int\sqrt{u^{2}+a}\,du$ で $a=-\frac{1}{4},\ u=x+\frac{1}{2}$）を用いると $$f(x)=\pm\Bigl\{\Bigl(x+\frac{1}{2}\Bigr)\sqrt{x^{2}+x}-\frac{1}{4}\log\Bigl|x+\frac{1}{2}+\sqrt{x^{2}+x}\Bigr|+c\Bigr\}.$$ $f(0)=0$ より $c=\frac{1}{4}\log\frac{1}{2}=-\frac{1}{4}\log 2$ ではなく，$c$ は $x=0$ 代入で $-\frac{1}{4}\log\frac{1}{2}$ を打ち消す値として定める：$c=\frac{1}{4}\log\frac{1}{2}$．整理すると $$f(x)=\pm\Bigl\{\Bigl(x+\frac{1}{2}\Bigr)\sqrt{x^{2}+x}-\frac{1}{4}\log\bigl(2x+1+2\sqrt{x^{2}+x}\bigr)\Bigr\}.$$`,
+    verify: true,
+    essence: String.raw`「長さが与えられている → 微分して $f'$ の方程式に直す」が唯一の突破口．積分方程式は微分で壊せ，が合言葉．`,
+    checklist: ["両辺を a で微分する発想ができた", "f'(x) を正しく求めた", "平方完成と p.60 の公式で積分した", "初期条件 f(0)=0 で定数を決めた"] }
+);
+​
+// ========== 問題バンク（AI 作成の追加演習） ==========
+window.DATA.problems.push(
+  // --- u24 バンク ---
+  { id: "b24-1", unit: "u24", source: "bank", num: "バンク", difficulty: 1,
+    q: String.raw`$e^{x}$ の $x^{3}$ の項までの漸近展開を書け．`,
+    answerKey: ["1+x+x^2/2+x^3/6+o(x^3)"], answerDisplay: String.raw`$e^{x}=1+x+\dfrac{x^{2}}{2}+\dfrac{x^{3}}{6}+o(x^{3})$`,
+    hint: String.raw`係数は $\frac{1}{k!}$．`, approach: String.raw`$f^{(k)}(0)=1$ を定理 2.4.5 に代入．`,
+    solution: String.raw`$e^{x}$ のすべての導関数は $e^{x}$ で $x=0$ の値は $1$．よって $e^{x}=1+x+\dfrac{x^{2}}{2!}+\dfrac{x^{3}}{3!}+o(x^{3})=1+x+\dfrac{x^{2}}{2}+\dfrac{x^{3}}{6}+o(x^{3})$．`,
+    essence: String.raw`基本 5 展開（$e^x,\ \sin,\ \cos,\ \log(1+x),\ (1+x)^a$）は即答レベルに．`,
+    checklist: ["係数 1/k! が正しい", "o(x³) を付けた"] },
+  { id: "b24-2", unit: "u24", source: "bank", num: "バンク", difficulty: 2,
+    q: String.raw`漸近展開を用いて極限を求めよ．$$\lim_{x\to 0}\frac{e^{x}-1-x}{x^{2}}$$`,
+    answerKey: ["1/2", "0.5"], answerDisplay: String.raw`$\dfrac{1}{2}$`,
+    hint: String.raw`$e^{x}$ を 2 次まで展開．`, approach: String.raw`$e^{x}=1+x+\frac{x^{2}}{2}+o(x^{2})$ を代入．`,
+    solution: String.raw`$$\frac{e^{x}-1-x}{x^{2}}=\frac{\frac{x^{2}}{2}+o(x^{2})}{x^{2}}=\frac{1}{2}+\frac{o(x^{2})}{x^{2}}\to\frac{1}{2}.$$`,
+    essence: String.raw`引き算で低次が消えるときこそ漸近展開の出番．`,
+    checklist: ["2 次までの展開が正しい", "o の処理が正しい"] },
+  { id: "b24-3", unit: "u24", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`漸近展開を用いて極限を求めよ．$$\lim_{x\to 0}\frac{\cos x-e^{-x^{2}/2}}{x^{4}}$$`,
+    answerKey: ["-1/12"], answerDisplay: String.raw`$-\dfrac{1}{12}$`,
+    hint: String.raw`どちらも 4 次まで展開．$\cos x=1-\frac{x^{2}}{2}+\frac{x^{4}}{24}+o(x^{4})$，$e^{u}=1+u+\frac{u^{2}}{2}+o(u^{2})$ に $u=-\frac{x^{2}}{2}$．`,
+    approach: String.raw`$e^{-x^{2}/2}=1-\frac{x^{2}}{2}+\frac{x^{4}}{8}+o(x^{4})$．差の 4 次の係数は $\frac{1}{24}-\frac{1}{8}$．`,
+    solution: String.raw`$$\cos x=1-\frac{x^{2}}{2}+\frac{x^{4}}{24}+o(x^{4}),\qquad e^{-x^{2}/2}=1-\frac{x^{2}}{2}+\frac{1}{2}\Bigl(\frac{x^{2}}{2}\Bigr)^{2}+o(x^{4})=1-\frac{x^{2}}{2}+\frac{x^{4}}{8}+o(x^{4}).$$ よって $$\frac{\cos x-e^{-x^{2}/2}}{x^{4}}=\frac{\bigl(\frac{1}{24}-\frac{1}{8}\bigr)x^{4}+o(x^{4})}{x^{4}}\to\frac{1}{24}-\frac{3}{24}=-\frac{1}{12}.$$`,
+    essence: String.raw`合成関数の展開は「内側をまるごと代入」．2 次の項が打ち消し合うので 4 次まで必要，という必要次数の判断力を問う良問．`,
+    checklist: ["合成関数の展開（代入）が正しい", "4 次まで展開する判断ができた", "係数計算が正しい"] },
+  { id: "b24-4", unit: "u24", source: "bank", num: "バンク", difficulty: 4,
+    q: String.raw`$f(x)=\log(1+x)-x\cos x$ が $x=0$ で極値をとるか調べよ．`,
+    answerKey: [], answerDisplay: String.raw`$x=0$ で極値をとらない（$f(x)=-\frac{x^{2}}{2}+\cdots$ は 2 次が残るので極大…→解説参照）`,
+    hint: String.raw`$\log(1+x)=x-\frac{x^{2}}{2}+o(x^{2})$，$x\cos x=x-\frac{x^{3}}{2}+o(x^{3})$．`,
+    approach: String.raw`$f(x)-f(0)$ の最低次を求め，偶奇と符号で判定．`,
+    solution: String.raw`$f(0)=0$．漸近展開すると $$\log(1+x)=x-\frac{x^{2}}{2}+o(x^{2}),\qquad x\cos x=x\Bigl(1-\frac{x^{2}}{2}+o(x^{2})\Bigr)=x-\frac{x^{3}}{2}+o(x^{3}).$$ よって $$f(x)=\Bigl(x-\frac{x^{2}}{2}+o(x^{2})\Bigr)-\Bigl(x-\frac{x^{3}}{2}+o(x^{3})\Bigr)=-\frac{x^{2}}{2}+o(x^{2}).$$ 最低次は 2 次（偶数次）で係数は $-\frac{1}{2}<0$．したがって $f(x)$ は $x=0$ で極大値 $f(0)=0$ をとる．`,
+    essence: String.raw`極値判定は「最低次の偶奇と符号」だけ．展開の次数は消え残るまで上げる．`,
+    checklist: ["両項の展開が正しい", "最低次（2次，係数−1/2）を特定した", "極大の結論と根拠を述べた"] },
+  { id: "b24-5", unit: "u24", source: "bank", num: "バンク", difficulty: 5,
+    q: String.raw`$\displaystyle\lim_{x\to 0}\Bigl(\frac{1+x}{x}-\frac{1}{\log(1+x)}\Bigr)$ を求めよ．`,
+    answerKey: ["1/2", "0.5"], answerDisplay: String.raw`$\dfrac{1}{2}$`,
+    hint: String.raw`通分して $\dfrac{(1+x)\log(1+x)-x}{x\log(1+x)}$．分母は $x^{2}$ オーダー．`,
+    approach: String.raw`$\log(1+x)=x-\frac{x^{2}}{2}+o(x^{2})$ で分子・分母を 2 次まで展開．`,
+    solution: String.raw`通分すると $$\frac{(1+x)\log(1+x)-x}{x\log(1+x)}.$$ 分子：$$(1+x)\Bigl(x-\frac{x^{2}}{2}+o(x^{2})\Bigr)-x=x-\frac{x^{2}}{2}+x^{2}+o(x^{2})-x=\frac{x^{2}}{2}+o(x^{2}).$$ 分母：$$x\Bigl(x+o(x)\Bigr)=x^{2}+o(x^{2}).$$ よって極限は $\dfrac{1/2}{1}=\dfrac{1}{2}$．`,
+    essence: String.raw`$\infty-\infty$ → 通分 → 展開．分母の最低次を先に見て必要な展開次数を決めるのが時短のコツ．`,
+    checklist: ["通分が正しい", "分子の 2 次の係数が正しい", "分母の近似が正しい"] },
+  { id: "b24-6", unit: "u24", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`有限マクローリン展開を用いて $\sqrt{e}=e^{1/2}$ の近似値を $n=4$ で求め，誤差を評価せよ．`,
+    answerKey: ["1.6484", "1.648"], answerDisplay: String.raw`$e^{1/2}\approx 1+\frac{1}{2}+\frac{1}{8}+\frac{1}{48}\approx 1.6484$（誤差 $\leq\frac{e^{1/2}}{4!\cdot 2^{4}}<\frac{2}{384}<0.006$）`,
+    hint: String.raw`$e^{x}=\sum_{k=0}^{3}\frac{x^{k}}{k!}+\frac{e^{\theta x}}{4!}x^{4}$ に $x=\frac{1}{2}$．`,
+    approach: String.raw`剰余項を $e^{\theta/2}<e^{1/2}<2$ で押さえる．`,
+    solution: String.raw`$$e^{1/2}=1+\frac{1}{2}+\frac{1}{2!\cdot 4}+\frac{1}{3!\cdot 8}+R_{4},\qquad R_{4}=\frac{e^{\theta/2}}{4!\cdot 16}\quad(0<\theta<1).$$ $e^{\theta/2}<e<3$ より $|R_{4}|<\frac{3}{384}<0.008$．主要部は $$1+0.5+0.125+0.0208\ldots=1.6458\ldots$$ よって $e^{1/2}\approx 1.646\pm 0.008$（真の値は $1.6487\ldots$）．`,
+    essence: String.raw`近似値の問題は「主要部の計算」と「剰余項の上からの評価」の 2 部構成．評価には $e<3$ など雑な上からの押さえで十分．`,
+    checklist: ["展開と代入が正しい", "剰余項を不等式で評価した", "数値計算が正しい"] },
+  // --- u31 バンク ---
+  { id: "b31-1", unit: "u31", source: "bank", num: "バンク", difficulty: 1,
+    q: String.raw`$\displaystyle\int_{0}^{1}(3x^{2}-2x+1)\,dx$ を求めよ．`,
+    answerKey: ["1"], answerDisplay: String.raw`$1$`,
+    hint: String.raw`項ごとに冪の公式．`, approach: String.raw`原始関数 $x^{3}-x^{2}+x$ に端点を代入．`,
+    solution: String.raw`$$\int_{0}^{1}(3x^{2}-2x+1)\,dx=\Bigl[x^{3}-x^{2}+x\Bigr]_{0}^{1}=1-1+1=1.$$`,
+    essence: String.raw`基本の確認．定理 3.1.3（原始関数による計算）の流れを体に入れる．`,
+    checklist: ["原始関数が正しい", "代入計算が正しい"] },
+  { id: "b31-2", unit: "u31", source: "bank", num: "バンク", difficulty: 2,
+    q: String.raw`$\displaystyle\int\tan x\,dx$ を求めよ．`,
+    answerKey: ["-log|cos x|", "log|1/cos x|", "-log|cosx|"], answerDisplay: String.raw`$-\log|\cos x|+c$`,
+    hint: String.raw`$\tan x=\dfrac{\sin x}{\cos x}$．分子は分母の導関数の $(-1)$ 倍．`,
+    approach: String.raw`$\int\frac{f'}{f}=\log|f|$ 型に帰着．`,
+    solution: String.raw`$$\int\tan x\,dx=\int\frac{\sin x}{\cos x}\,dx=-\int\frac{(\cos x)'}{\cos x}\,dx=-\log|\cos x|+c.$$`,
+    essence: String.raw`$\frac{f'}{f}$ 型の典型例．$\int\cot x\,dx=\log|\sin x|$ とセットで．`,
+    checklist: ["f'/f 型と見抜いた", "符号が正しい", "絶対値を付けた"] },
+  { id: "b31-3", unit: "u31", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`$\displaystyle\int_{0}^{\pi}x\sin x\,dx$ を求めよ．`,
+    answerKey: ["π", "pi", "3.1416"], answerDisplay: String.raw`$\pi$`,
+    hint: String.raw`部分積分．$x$ を微分する側に．`,
+    approach: String.raw`$f=x,\ g=\sin x,\ G=-\cos x$．`,
+    solution: String.raw`$$\int_{0}^{\pi}x\sin x\,dx=\Bigl[-x\cos x\Bigr]_{0}^{\pi}+\int_{0}^{\pi}\cos x\,dx=\pi+\Bigl[\sin x\Bigr]_{0}^{\pi}=\pi.$$`,
+    essence: String.raw`「多項式×三角・指数」は多項式を微分側にして次数を下げる．`,
+    checklist: ["部分積分の役割分担が適切", "境界値の代入が正しい"] },
+  { id: "b31-4", unit: "u31", source: "bank", num: "バンク", difficulty: 4,
+    q: String.raw`$\displaystyle\int e^{x}\sin x\,dx$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{e^{x}(\sin x-\cos x)}{2}+c$`,
+    hint: String.raw`部分積分を 2 回すると元の積分が再登場する．`,
+    approach: String.raw`$I=\int e^{x}\sin x\,dx$ とおき，2 回の部分積分で $I=e^{x}(\sin x-\cos x)-I$ の形にして方程式として解く．`,
+    solution: String.raw`$I=\displaystyle\int e^{x}\sin x\,dx$ とおく．部分積分を 2 回行うと $$I=e^{x}\sin x-\int e^{x}\cos x\,dx=e^{x}\sin x-\Bigl(e^{x}\cos x+\int e^{x}\sin x\,dx\Bigr)=e^{x}(\sin x-\cos x)-I.$$ よって $2I=e^{x}(\sin x-\cos x)$，すなわち $$I=\frac{e^{x}(\sin x-\cos x)}{2}+c.$$`,
+    essence: String.raw`「同じ積分が循環して戻ってくる → 方程式として解く」．$e^{ax}\sin bx$ 型の定石．`,
+    checklist: ["2 回の部分積分の符号が正しい", "方程式として解いた", "2 で割った"] },
+  { id: "b31-5", unit: "u31", source: "bank", num: "バンク", difficulty: 5,
+    q: String.raw`$\displaystyle\int_{0}^{1}\sqrt{1-x^{2}}\,dx$ を 2 通り（公式・置換 $x=\sin\theta$）で求めよ．`,
+    answerKey: ["π/4", "pi/4"], answerDisplay: String.raw`$\dfrac{\pi}{4}$`,
+    hint: String.raw`図形的には単位円の第 1 象限．`,
+    approach: String.raw`公式（p.60）に代入．置換では $dx=\cos\theta\,d\theta$，区間は $0\to\frac{\pi}{2}$，$\cos^{2}\theta$ の積分に帰着．`,
+    solution: String.raw`【解 1】p.60 の公式より $$\int_{0}^{1}\sqrt{1-x^{2}}\,dx=\frac{1}{2}\Bigl[x\sqrt{1-x^{2}}+\mathrm{Sin}^{-1}x\Bigr]_{0}^{1}=\frac{1}{2}\cdot\frac{\pi}{2}=\frac{\pi}{4}.$$ 【解 2】$x=\sin\theta$ とおくと $$\int_{0}^{1}\sqrt{1-x^{2}}\,dx=\int_{0}^{\pi/2}\cos^{2}\theta\,d\theta=\frac{1}{2}\cdot\frac{\pi}{2}=\frac{\pi}{4}\quad\text{（ウォリスの公式）}.$$ 単位円の四分円の面積 $\frac{\pi}{4}$ と一致する．`,
+    essence: String.raw`$\sqrt{a^{2}-x^{2}}$ を見たら $x=a\sin\theta$．答えを図形（面積）で検算する習慣も重要．`,
+    checklist: ["置換の区間変換が正しい", "cos² の積分処理が正しい", "幾何的検算をした"] },
+  // --- u32 バンク ---
+  { id: "b32-1", unit: "u32", source: "bank", num: "バンク", difficulty: 2,
+    q: String.raw`$\displaystyle\int\frac{dx}{x^{2}-1}$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{1}{2}\log\Bigl|\dfrac{x-1}{x+1}\Bigr|+c$`,
+    hint: String.raw`$\dfrac{1}{x^{2}-1}=\dfrac{1}{2}\Bigl(\dfrac{1}{x-1}-\dfrac{1}{x+1}\Bigr)$．`,
+    approach: String.raw`部分分数展開して $\log$ に．`,
+    solution: String.raw`$$\int\frac{dx}{x^{2}-1}=\frac{1}{2}\int\Bigl(\frac{1}{x-1}-\frac{1}{x+1}\Bigr)dx=\frac{1}{2}\log\Bigl|\frac{x-1}{x+1}\Bigr|+c.$$`,
+    essence: String.raw`$\frac{1}{x^{2}-a^{2}}$ の部分分数展開は暗算できるように．$\frac{1}{x^{2}+a^{2}}$（$\mathrm{Tan}^{-1}$）との対比で覚える．`,
+    checklist: ["部分分数展開の係数 1/2 が正しい", "log の商の形にまとめた"] },
+  { id: "b32-2", unit: "u32", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`$\displaystyle\int\frac{x^{3}}{x^{2}+1}\,dx$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{x^{2}}{2}-\dfrac{1}{2}\log(x^{2}+1)+c$`,
+    hint: String.raw`分子の次数が分母以上 → まず割り算．`,
+    approach: String.raw`$\frac{x^{3}}{x^{2}+1}=x-\frac{x}{x^{2}+1}$ と分解．`,
+    solution: String.raw`$$\frac{x^{3}}{x^{2}+1}=x-\frac{x}{x^{2}+1}$$ であるから $$\int\frac{x^{3}}{x^{2}+1}\,dx=\frac{x^{2}}{2}-\frac{1}{2}\log(x^{2}+1)+c.$$`,
+    essence: String.raw`有理式は「分子の次数 ≥ 分母の次数なら割り算が先」．展開の (i) 多項式部分に当たる．`,
+    checklist: ["割り算（分解）が正しい", "f'/f 型の処理が正しい"] },
+  { id: "b32-3", unit: "u32", source: "bank", num: "バンク", difficulty: 4,
+    q: String.raw`$\displaystyle\int\frac{dx}{2+\cos x}$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{2}{\sqrt{3}}\mathrm{Tan}^{-1}\Bigl(\dfrac{\tan(x/2)}{\sqrt{3}}\Bigr)+c$`,
+    hint: String.raw`$u=\tan\frac{x}{2}$ で $2+\cos x=\frac{3+u^{2}}{1+u^{2}}$．`,
+    approach: String.raw`万能置換後，$\int\frac{2\,du}{u^{2}+3}$ に帰着し $\mathrm{Tan}^{-1}$ の公式．`,
+    solution: String.raw`$u=\tan\dfrac{x}{2}$ とおくと $$2+\cos x=2+\frac{1-u^{2}}{1+u^{2}}=\frac{3+u^{2}}{1+u^{2}},\qquad dx=\frac{2\,du}{1+u^{2}}.$$ よって $$\int\frac{dx}{2+\cos x}=\int\frac{1+u^{2}}{3+u^{2}}\cdot\frac{2\,du}{1+u^{2}}=2\int\frac{du}{u^{2}+3}=\frac{2}{\sqrt{3}}\mathrm{Tan}^{-1}\frac{u}{\sqrt{3}}=\frac{2}{\sqrt{3}}\mathrm{Tan}^{-1}\Bigl(\frac{\tan(x/2)}{\sqrt{3}}\Bigr)+c.$$`,
+    essence: String.raw`万能置換の典型問題．最後は必ず $\frac{1}{a}\mathrm{Tan}^{-1}\frac{u}{a}$ の $a$（ここでは $\sqrt{3}$）を忘れない．`,
+    checklist: ["置換の代入・簡約が正しい", "Tan⁻¹ の公式（a=√3）を正しく使った", "u を x に戻した"] },
+  { id: "b32-4", unit: "u32", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`$\displaystyle\int_{0}^{\pi/2}\cos^{5}x\,dx$ を求めよ．`,
+    answerKey: ["8/15"], answerDisplay: String.raw`$\dfrac{8}{15}$`,
+    hint: String.raw`ウォリスの公式．$n=5$ は奇数なので $\frac{\pi}{2}$ は付かない．`,
+    approach: String.raw`$\frac{4!!}{5!!}=\frac{4\cdot 2}{5\cdot 3\cdot 1}$．`,
+    solution: String.raw`$$\int_{0}^{\pi/2}\cos^{5}x\,dx=\frac{(5-1)!!}{5!!}=\frac{4\cdot 2}{5\cdot 3\cdot 1}=\frac{8}{15}.$$`,
+    essence: String.raw`奇数のときは $\frac{\pi}{2}$ なし．偶奇での場合分けを即座に判断できるように．`,
+    checklist: ["奇数の場合と判断した", "二重階乗の計算が正しい"] },
+  // --- u33 バンク ---
+  { id: "b33-1", unit: "u33", source: "bank", num: "バンク", difficulty: 2,
+    q: String.raw`$\displaystyle\int_{0}^{1}\log x\,dx$ の収束・発散を調べ，収束するなら値を求めよ．`,
+    answerKey: ["-1"], answerDisplay: String.raw`収束し，値は $-1$`,
+    hint: String.raw`$\int\log x\,dx=x\log x-x$．$x\log x\to 0\ (x\to+0)$．`,
+    approach: String.raw`$[\alpha,1]$ で計算して $\alpha\to+0$．$\alpha\log\alpha\to 0$ が鍵．`,
+    solution: String.raw`$$\int_{\alpha}^{1}\log x\,dx=\Bigl[x\log x-x\Bigr]_{\alpha}^{1}=-1-\alpha\log\alpha+\alpha.$$ $\alpha\to+0$ のとき $\alpha\log\alpha\to 0$（ロピタル）であるから $$\int_{0}^{1}\log x\,dx=-1.$$`,
+    essence: String.raw`$\log x$ は $x=0$ で発散するが「積分できる程度の緩やかな発散」．$x^{\varepsilon}\log x\to 0$ の形の極限は頻出．`,
+    checklist: ["広義積分として極限をとった", "αlogα→0 を根拠付けた", "値 −1"] },
+  { id: "b33-2", unit: "u33", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`$\displaystyle\int_{1}^{\infty}\frac{dx}{x}$ と $\displaystyle\int_{1}^{\infty}\frac{dx}{x^{1.01}}$ の収束・発散を判定せよ．`,
+    answerKey: [], answerDisplay: String.raw`前者は発散，後者は収束（$k=-1.01<-1$）`,
+    hint: String.raw`境目は $k=-1$ ちょうど．`,
+    approach: String.raw`例 5 の基準にあてはめる．`,
+    solution: String.raw`$$\int_{1}^{a}\frac{dx}{x}=\log a\to\infty\quad(a\to\infty)$$ より発散．一方 $$\int_{1}^{\infty}x^{-1.01}\,dx=\Bigl[\frac{x^{-0.01}}{-0.01}\Bigr]_{1}^{\infty}=\frac{1}{0.01}=100$$ より収束．指数がほんのわずか $1$ を超えるだけで収束に転じる．`,
+    essence: String.raw`$k=-1$ が収束・発散の境界であることを体感する問題．「$\frac{1}{x}$ は積分できないギリギリの関数」と覚える．`,
+    checklist: ["両方の判定が正しい", "境界 k=−1 の意味を説明できる"] },
+  { id: "b33-3", unit: "u33", source: "bank", num: "バンク", difficulty: 4,
+    q: String.raw`$\displaystyle\int_{0}^{\infty}e^{-x^{2}}\,dx$ が収束することを示せ．`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）優関数比較による`,
+    hint: String.raw`$x\geq 1$ では $x^{2}\geq x$ だから $e^{-x^{2}}\leq e^{-x}$．`,
+    approach: String.raw`$[0,1]$ は普通の定積分．$[1,\infty)$ で $e^{-x}$ を優関数に（例 7）．`,
+    solution: String.raw`$[0,1]$ では連続関数の定積分であり問題ない．$x\geq 1$ のとき $x^{2}\geq x$ であるから $$0\leq e^{-x^{2}}\leq e^{-x}.$$ 例 7（$k=1>0$）より $\int_{1}^{\infty}e^{-x}dx$ は収束するので，定理 3.3.1 により $\int_{1}^{\infty}e^{-x^{2}}dx$ は収束する．よって全体も収束する．【補足】この値は $\frac{\sqrt{\pi}}{2}$（ガウス積分）であることが重積分で示せる．`,
+    essence: String.raw`「原始関数が書けなくても収束は言える」の代表例．$e^{-x^{2}}\leq e^{-x}\ (x\geq 1)$ の発想は頻出．`,
+    checklist: ["区間を分割した", "優関数 e^{-x} の不等式が正しい", "基準積分の収束を引用した"] },
+  { id: "b33-4", unit: "u33", source: "bank", num: "バンク", difficulty: 4,
+    q: String.raw`$\displaystyle\int_{0}^{1}\frac{dx}{\sqrt{x(1-x)}}$ の収束を示し，値を求めよ．`,
+    answerKey: ["π", "pi"], answerDisplay: String.raw`$\pi$`,
+    hint: String.raw`$x(1-x)=\frac{1}{4}-\bigl(x-\frac{1}{2}\bigr)^{2}$ と平方完成．`,
+    approach: String.raw`$u=x-\frac{1}{2}$ で $\int\frac{du}{\sqrt{(1/2)^{2}-u^{2}}}=\mathrm{Sin}^{-1}(2u)$ の形に．`,
+    solution: String.raw`両端 $x=0,1$ が発散点だが，それぞれ $x^{-1/2}$，$(1-x)^{-1/2}$ 型（$k=-\frac{1}{2}>-1$）なので収束する．値：$$x(1-x)=\frac{1}{4}-\Bigl(x-\frac{1}{2}\Bigr)^{2}$$ と平方完成し，$u=x-\frac{1}{2}$ とおくと $$\int_{0}^{1}\frac{dx}{\sqrt{x(1-x)}}=\int_{-1/2}^{1/2}\frac{du}{\sqrt{\frac{1}{4}-u^{2}}}=\Bigl[\mathrm{Sin}^{-1}2u\Bigr]_{-1/2}^{1/2}=\frac{\pi}{2}+\frac{\pi}{2}=\pi.$$`,
+    essence: String.raw`ベータ関数 $B(\frac{1}{2},\frac{1}{2})=\pi$ の具体例．平方完成→$\mathrm{Sin}^{-1}$ の流れは必須技能．`,
+    checklist: ["両端の収束判定をした", "平方完成が正しい", "Sin⁻¹ の代入が正しい"] },
+  // --- u34 バンク ---
+  { id: "b34-1", unit: "u34", source: "bank", num: "バンク", difficulty: 2,
+    q: String.raw`区分求積法の考え方でつぎの極限を定積分で表し，値を求めよ．$$\lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\Bigl(\frac{i}{n}\Bigr)^{2}$$`,
+    answerKey: ["1/3"], answerDisplay: String.raw`$\displaystyle\int_{0}^{1}x^{2}\,dx=\frac{1}{3}$`,
+    hint: String.raw`$\frac{1}{n}=dx$，$\frac{i}{n}=x$ の対応．`,
+    approach: String.raw`定理 3.4.2 で $f(x)=x^{2}$，等分割，$c_{i}=\frac{i}{n}$．`,
+    solution: String.raw`$f(x)=x^{2}$ に対する $[0,1]$ の $n$ 等分割のリーマン和であるから，定理 3.4.2 より $$\lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\Bigl(\frac{i}{n}\Bigr)^{2}=\int_{0}^{1}x^{2}\,dx=\frac{1}{3}.$$`,
+    essence: String.raw`区分求積法の実戦はこの形の書き換えが 9 割．$\sum$ の中に $\frac{i}{n}$ を探せ．`,
+    checklist: ["リーマン和と認識した", "対応する f と区間が正しい", "積分値が正しい"] },
+  { id: "b34-2", unit: "u34", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`曲線 $y=\dfrac{2}{3}x^{3/2}\ (0\leq x\leq 3)$ の長さを求めよ．`,
+    answerKey: ["14/3"], answerDisplay: String.raw`$\dfrac{14}{3}$`,
+    hint: String.raw`$y'=x^{1/2}$ なので $1+y'^{2}=1+x$．`,
+    approach: String.raw`$\int_{0}^{3}\sqrt{1+x}\,dx$ は置換不要の基本形．`,
+    solution: String.raw`$y'=x^{1/2}$ であるから $$l(C)=\int_{0}^{3}\sqrt{1+x}\,dx=\Bigl[\frac{2}{3}(1+x)^{3/2}\Bigr]_{0}^{3}=\frac{2}{3}(8-1)=\frac{14}{3}.$$`,
+    essence: String.raw`$y=cx^{3/2}$ は「長さが初等的に求まる数少ない曲線」として長さ問題の定番．`,
+    checklist: ["y' と 1+y'² の計算が正しい", "(1+x)^{3/2} の積分が正しい"] },
+  { id: "b34-3", unit: "u34", source: "bank", num: "バンク", difficulty: 4,
+    q: String.raw`アルキメデスのらせん $r=a\theta\ (0\leq\theta\leq 2\pi,\ a>0)$ の長さを求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$\dfrac{a}{2}\Bigl\{2\pi\sqrt{1+4\pi^{2}}+\log\bigl(2\pi+\sqrt{1+4\pi^{2}}\bigr)\Bigr\}$`,
+    hint: String.raw`極座標の長さ公式で $f=a\theta,\ f'=a$．$\int\sqrt{\theta^{2}+1}\,d\theta$ は p.60 の公式．`,
+    approach: String.raw`$l=a\int_{0}^{2\pi}\sqrt{\theta^{2}+1}\,d\theta$ に帰着させ，$\int\sqrt{x^{2}+a}$ の公式を適用．`,
+    solution: String.raw`極座標の長さ公式より $$l(C)=\int_{0}^{2\pi}\sqrt{a^{2}\theta^{2}+a^{2}}\,d\theta=a\int_{0}^{2\pi}\sqrt{\theta^{2}+1}\,d\theta.$$ p.60 の公式（$a=1$）より $$=a\cdot\frac{1}{2}\Bigl[\theta\sqrt{\theta^{2}+1}+\log\bigl|\theta+\sqrt{\theta^{2}+1}\bigr|\Bigr]_{0}^{2\pi}=\frac{a}{2}\Bigl\{2\pi\sqrt{1+4\pi^{2}}+\log\bigl(2\pi+\sqrt{1+4\pi^{2}}\bigr)\Bigr\}.$$`,
+    essence: String.raw`極座標公式＋$\int\sqrt{x^{2}+a}$ の公式の合わせ技．公式集（p.60）を使いこなせるかのテスト．`,
+    checklist: ["極座標公式の適用が正しい", "√(θ²+1) の積分公式を正しく使った", "代入・整理が正しい"] },
+  { id: "b34-4", unit: "u34", source: "bank", num: "バンク", difficulty: 3,
+    q: String.raw`サイクロイド $x=a(t-\sin t),\ y=a(1-\cos t)\ (0\leq t\leq 2\pi,\ a>0)$ と $x$ 軸で囲まれた部分の面積を求めよ．`,
+    answerKey: ["3πa^2", "3πa²"], answerDisplay: String.raw`$3\pi a^{2}$`,
+    hint: String.raw`$S=\int y\,dx=\int_{0}^{2\pi}y\dfrac{dx}{dt}\,dt$．`,
+    approach: String.raw`$y\frac{dx}{dt}=a^{2}(1-\cos t)^{2}$ を展開し，$\cos^{2}t=\frac{1+\cos 2t}{2}$ で項別積分．`,
+    solution: String.raw`$$S=\int_{0}^{2\pi}y\,\frac{dx}{dt}\,dt=a^{2}\int_{0}^{2\pi}(1-\cos t)^{2}\,dt=a^{2}\int_{0}^{2\pi}\bigl(1-2\cos t+\cos^{2}t\bigr)\,dt.$$ $\int_{0}^{2\pi}\cos t\,dt=0,\ \int_{0}^{2\pi}\cos^{2}t\,dt=\pi$ であるから $$S=a^{2}(2\pi+\pi)=3\pi a^{2}.$$`,
+    essence: String.raw`パラメーター曲線の面積は $S=\int y\,\frac{dx}{dt}dt$．サイクロイドの面積 $3\pi a^{2}$（円 3 個分）は有名な結果．`,
+    checklist: ["面積のパラメーター表示が正しい", "展開と周期積分の処理が正しい", "結果 3πa²"] }
+);
+​
+// ========== 発展演習（難問 4 題） ==========
+window.DATA.problems.push(
+  { id: "adv-1", unit: "u24", source: "advanced", num: "発展 1", difficulty: 5,
+    q: String.raw`$f(x)$ は $C^{2}$ 級で $f''(a)\neq 0$ とする．平均値の定理 $$f(a+h)=f(a)+hf'(a+\theta h)\quad(0<\theta<1)$$ における $\theta$ について，$\displaystyle\lim_{h\to 0}\theta=\frac{1}{2}$ を示せ．（問題 2.4–7）`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）`,
+    hint: String.raw`$f'(a+\theta h)$ に平均値の定理をもう一度使い，$n=2$ のテーラーの定理と比較せよ．`,
+    approach: String.raw`① $f'(a+\theta h)=f'(a)+\theta h f''(a+\theta'\theta h)$ を代入．② $n=2$ のテーラー：$f(a+h)=f(a)+hf'(a)+\frac{h^{2}}{2}f''(a+\theta'' h)$．③ 2 式を比較して $\theta$ について解き，$h\to 0$．`,
+    solution: String.raw`平均値の定理を $f'$ に適用すると，ある $\theta_{1}\in(0,1)$ に対し $$f'(a+\theta h)=f'(a)+\theta h\,f''(a+\theta_{1}\theta h).$$ これを元の式に代入すると $$f(a+h)=f(a)+hf'(a)+\theta h^{2}f''(a+\theta_{1}\theta h).\tag{1}$$ 一方，$n=2$ のテーラーの定理より，ある $\theta_{2}\in(0,1)$ に対し $$f(a+h)=f(a)+hf'(a)+\frac{h^{2}}{2}f''(a+\theta_{2}h).\tag{2}$$ (1)$-$(2) より $$\theta\,f''(a+\theta_{1}\theta h)=\frac{1}{2}f''(a+\theta_{2}h).$$ $h\to 0$ のとき，$f''$ の連続性より両辺の $f''(\cdots)\to f''(a)\neq 0$．よって $$\lim_{h\to 0}\theta=\frac{f''(a)}{2f''(a)}=\frac{1}{2}.$$`,
+    essence: String.raw`「平均値の定理の $\theta$ は真ん中に寄る」という美しい事実．高次の定理（テーラー）で低次の定理（平均値）の構造を解像度高く見る，という発想を学ぶ．`,
+    checklist: ["f' への平均値の定理の適用が正しい", "n=2 のテーラーの定理を正しく書いた", "2 式の比較と極限操作（f'' の連続性・f''(a)≠0 の使用）が正しい"] },
+  { id: "adv-2", unit: "u32", source: "advanced", num: "発展 2", difficulty: 5,
+    q: String.raw`$I_{n}=\displaystyle\int_{0}^{\pi/4}\tan^{n}x\,dx\ (n\geq 2)$ について．(1) 漸化式 $I_{n}+I_{n-2}=\dfrac{1}{n-1}$ を示せ．(2) $I_{4}$ を求めよ．`,
+    answerKey: ["π/4-2/3"], answerDisplay: String.raw`(2) $I_{4}=\dfrac{\pi}{4}-\dfrac{2}{3}$…ではなく $I_{4}=\dfrac{2}{3}-\dfrac{\pi}{4}$（解説参照）`,
+    hint: String.raw`$\tan^{n}x=\tan^{n-2}x(\sec^{2}x-1)$．$\tan^{n-2}x\sec^{2}x$ は $u=\tan x$ で即積分．`,
+    approach: String.raw`(1) 分解して第 1 項を置換積分．(2) $I_{4}=\frac{1}{3}-I_{2}$，$I_{2}=1-I_{0}=1-\frac{\pi}{4}$．`,
+    solution: String.raw`(1) $$I_{n}=\int_{0}^{\pi/4}\tan^{n-2}x\,(\sec^{2}x-1)\,dx=\int_{0}^{\pi/4}\tan^{n-2}x\sec^{2}x\,dx-I_{n-2}.$$ $u=\tan x$ とおくと第 1 項は $$\int_{0}^{1}u^{n-2}\,du=\frac{1}{n-1}.$$ よって $I_{n}+I_{n-2}=\dfrac{1}{n-1}$．(2) $I_{0}=\dfrac{\pi}{4}$．漸化式（$n=2$）より $I_{2}=1-I_{0}=1-\dfrac{\pi}{4}$．漸化式（$n=4$）より $$I_{4}=\frac{1}{3}-I_{2}=\frac{1}{3}-1+\frac{\pi}{4}=\frac{\pi}{4}-\frac{2}{3}.$$`,
+    essence: String.raw`$\sec^{2}x-1=\tan^{2}x$ による次数下げは $\tan$ 系漸化式の定石．漸化式は「作る・回す・初期値」の 3 ステップで確実に．`,
+    checklist: ["tan²=sec²−1 の分解ができた", "置換積分で 1/(n−1) を得た", "初期値 I₀ から順に正しく回した"] },
+  { id: "adv-3", unit: "u33", source: "advanced", num: "発展 3", difficulty: 5,
+    q: String.raw`(1) $a,b>-1$ のとき $$\int_{0}^{\pi/2}\sin^{a}\theta\cos^{b}\theta\,d\theta=\frac{1}{2}B\Bigl(\frac{a+1}{2},\frac{b+1}{2}\Bigr)$$ を示せ（ヒント：$x=\sin^{2}\theta$）．(2) これを用いて $B\bigl(\frac{1}{2},\frac{1}{2}\bigr)=\pi$ を示せ．（問題 3.3–5 発展）`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）`,
+    hint: String.raw`$x=\sin^{2}\theta$ のとき $dx=2\sin\theta\cos\theta\,d\theta$，$1-x=\cos^{2}\theta$．`,
+    approach: String.raw`$B(p,q)=\int_{0}^{1}x^{p-1}(1-x)^{q-1}dx$ に置換を入れて指数を整理し，$p=\frac{a+1}{2},\ q=\frac{b+1}{2}$ と対応付ける．`,
+    solution: String.raw`(1) $x=\sin^{2}\theta\ (0\leq\theta\leq\frac{\pi}{2})$ とおくと $dx=2\sin\theta\cos\theta\,d\theta$，$1-x=\cos^{2}\theta$．よって $$B(p,q)=\int_{0}^{1}x^{p-1}(1-x)^{q-1}\,dx=\int_{0}^{\pi/2}\sin^{2p-2}\theta\cos^{2q-2}\theta\cdot 2\sin\theta\cos\theta\,d\theta=2\int_{0}^{\pi/2}\sin^{2p-1}\theta\cos^{2q-1}\theta\,d\theta.$$ ここで $2p-1=a,\ 2q-1=b$，すなわち $p=\frac{a+1}{2},\ q=\frac{b+1}{2}$ とおくと $$\int_{0}^{\pi/2}\sin^{a}\theta\cos^{b}\theta\,d\theta=\frac{1}{2}B\Bigl(\frac{a+1}{2},\frac{b+1}{2}\Bigr).$$ $a,b>-1$ は $p,q>0$ に対応し，収束も保証される．(2) $a=b=0$ とすると $$\int_{0}^{\pi/2}d\theta=\frac{\pi}{2}=\frac{1}{2}B\Bigl(\frac{1}{2},\frac{1}{2}\Bigr)$$ より $B\bigl(\frac{1}{2},\frac{1}{2}\bigr)=\pi$．`,
+    essence: String.raw`ベータ関数と三角関数積分の接続は応用必須の橋渡し．ウォリスの公式も $B$ と $\Gamma$ で統一的に書ける．`,
+    checklist: ["置換と dx の変換が正しい", "指数の対応付け（p=(a+1)/2）が正しい", "(2) での特殊化が正しい"] },
+  { id: "adv-4", unit: "u34", source: "advanced", num: "発展 4", difficulty: 5,
+    q: String.raw`区分求積法を用いてつぎの極限を求めよ．$$\lim_{n\to\infty}\frac{1}{n}\sqrt[n]{(n+1)(n+2)\cdots(n+n)}$$`,
+    answerKey: ["4/e"], answerDisplay: String.raw`$\dfrac{4}{e}$`,
+    hint: String.raw`対数をとると $\dfrac{1}{n}\sum_{i=1}^{n}\log\Bigl(1+\dfrac{i}{n}\Bigr)$．`,
+    approach: String.raw`$\log$ をとってリーマン和に直し，$\int_{0}^{1}\log(1+x)dx=2\log 2-1$ を計算して戻す．`,
+    solution: String.raw`与式を $A_{n}$ とおくと $$\log A_{n}=\frac{1}{n}\sum_{i=1}^{n}\log\Bigl(1+\frac{i}{n}\Bigr).$$ これは $f(x)=\log(1+x)$ の $[0,1]$ 上のリーマン和であるから，定理 3.4.2 より $$\lim_{n\to\infty}\log A_{n}=\int_{0}^{1}\log(1+x)\,dx=\Bigl[(1+x)\log(1+x)-(1+x)\Bigr]_{0}^{1}=2\log 2-1.$$ よって $$\lim_{n\to\infty}A_{n}=e^{2\log 2-1}=\frac{4}{e}.$$`,
+    essence: String.raw`「積の形の極限は $\log$ で和に変えて区分求積法」．$\log$ の積分は部分積分（例 10）という 2 章の合わせ技．`,
+    checklist: ["log をとってリーマン和に直した", "log(1+x) の積分が正しい", "指数に戻す処理が正しい"] }
+);
+​
+// ========== 過去問データ（後日追加予定の器） ==========
+// 過去問を受領したら {year, professor, format, problems:[problemId...]} の形でここに追加し，
+// problems 配列には source:"pastexam" の問題を登録する．
+window.DATA.pastExams = [];
+​
+// 旧形式データを StudyDB へ登録
+StudyDB.importLegacy(window.DATA);
+</script>
+<!-- ================================================================ -->
+<!-- ============================================================
+     データブロック：線形代数学 第II章 行列（pp.15–34）
+     追加日: 2026-07-10 ／ 出典: 線形代数学講義［増補版］木田雅成 著・培風館
+============================================================ -->
+<script>
+StudyDB.addSubject({
+  id: "math-linear",
+  name: "線形代数学",
+  textbook: "線形代数学講義［増補版］（木田雅成 著・培風館）",
+  range: "第II章 行列（pp.15–34）"
+});
+​
+StudyDB.addUnits("math-linear", [
+​
+// ---------- §3 行列の定義 ----------
+{
+  id: "l3", no: "§3", title: "行列の定義", pages: "pp.15–18",
+  textbook: [
+    { t: "p", body: String.raw`この章では，行列と，行列の演算を定義し，その基本的な性質を調べる．` },
+    { t: "def", n: "定義 3.1", title: "行列", body: String.raw`数を長方形の形に並べて角括弧 $[\;]$ でくくったものを行列という．` },
+    { t: "ex", n: "例", body: String.raw`例えば $$\begin{bmatrix}1&2&-3&4\\6&-1&3&-2\\5&-6&7&8\end{bmatrix}$$ が行列の例である．横の並びを行とよび，上から順に第 1 行，第 2 行などとよぶ．また縦の並びを列とよび，左から順に第 1 列，第 2 列などとよぶ．上の行列には 3 つの行と 4 つの列がある．$m$ 個の行と $n$ 個の列をもつ行列を $m\times n$ 行列とか，$m$ 行 $n$ 列の行列などとよぶ．上の行列は $3\times 4$ 行列，あるいは 3 行 4 列の行列である．この $m\times n$ を行列のサイズとよぶ．行列はアルファベットの大文字を使って $$A=\begin{bmatrix}5&1&3\\4&6&2\end{bmatrix}$$ のように表す．行列の中に並んでいる数を成分とよぶ．第 $i$ 行の第 $j$ 列にある成分を $(i,j)$ 成分とよぶ．例えば上の $2\times 3$ 行列 $A$ の $(1,2)$ 成分は $1$ で，$(2,1)$ 成分は $4$ である．$(i,j)$ 成分を $a_{ij}$ と表す．` },
+    { t: "p", body: String.raw`これを使うと，一般の $2\times 3$ 行列は $$\begin{bmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{bmatrix}$$ と書かれる．また一般の $m\times n$ 行列は，途中を省略する点々を使って $$\begin{bmatrix}a_{11}&a_{12}&\cdots&a_{1n}\\a_{21}&a_{22}&\cdots&a_{2n}\\\vdots&\vdots&&\vdots\\a_{m1}&a_{m2}&\cdots&a_{mn}\end{bmatrix}$$ のように書く．行列のサイズが前後の関係から明らかなときには，この行列を $(i,j)$ 成分で代表させて $A=[a_{ij}]$ と簡単に書く．行列の成分はたし算，ひき算，かけ算，$0$ でない数によるわり算の四則が自由にできるような数であるとする．以下では成分が実数である場合を主に扱う．` },
+    { t: "def", title: "正方行列，対角成分", body: String.raw`行の個数と列の個数の等しい行列を正方行列という．サイズが $n\times n$ の正方行列を $n$ 次正方行列とよぶ．正方行列の右下がりの対角線上に並んだ成分を対角成分とよぶ．例えば $B=\begin{bmatrix}2&3&4\\-1&1&-2\\5&-5&-3\end{bmatrix}$ は 3 次正方行列で，$B$ の対角成分は上から順に $2,\,1,\,-3$ である．` },
+    { t: "def", title: "行ベクトル，列ベクトル", body: String.raw`$1\times n$ 行列 $$[a_1\ \ a_2\ \ \cdots\ \ a_n]$$ を $n$ 次行ベクトルといい，$m\times 1$ 行列 $$\begin{bmatrix}a_1\\a_2\\\vdots\\a_m\end{bmatrix}$$ を $m$ 次列ベクトルとよぶ．行ベクトルの $(1,i)$ 成分，列ベクトルの $(i,1)$ 成分を単に第 $i$ 成分とよぶ．本書では行ベクトル，列ベクトルを，一般の行列と区別するために，アルファベットの小文字の太文字 $\boldsymbol{a},\boldsymbol{b}$ などで表す．` },
+    { t: "def", title: "単位行列，零行列", body: String.raw`$n$ 次正方行列で対角成分が $1$ で他はすべて $0$ であるような行列を単位行列といい $E_n$ で表す．サイズが明らかなときには $n$ を省略して単に $E$ と書く．$$E=E_n=\begin{bmatrix}1&&O\\&\ddots&\\O&&1\end{bmatrix}$$ ここで $O$（アルファベット大文字のオー）は対角成分以外が $0$ であることの略記法である．すべてを略さないで書くなら，例えば $$E_3=\begin{bmatrix}1&0&0\\0&1&0\\0&0&1\end{bmatrix}.$$ また，すべての成分が $0$ であるような $m\times n$ 行列を $O_{m,n}$ で表し，零行列とよぶ．$$O_{2,3}=\begin{bmatrix}0&0&0\\0&0&0\end{bmatrix}.$$ サイズに混乱が起きないときは単に $O$ と書く．` },
+    { t: "def", title: "転置行列", body: String.raw`$A$ を $m\times n$ 行列とするとき，行と列を入れ換えてできる $n\times m$ 行列を $A$ の転置行列といい $\,{}^t\!A$ で表す．$\,{}^t\!A$ の $(i,j)$ 成分は $A$ の $(j,i)$ 成分である．簡単にわかるように，転置行列の転置行列はもとの行列に一致する．$$\,{}^t({}^t\!A)=A.$$` },
+    { t: "ex", n: "例 3.2", body: String.raw`$A=\begin{bmatrix}0&-1&2\\-3&4&-5\end{bmatrix}$ の転置行列は $\,{}^t\!A=\begin{bmatrix}0&-3\\-1&4\\2&-5\end{bmatrix}$ である．` },
+    { t: "note", n: "補注 3.3", title: "転置の記号", body: String.raw`転置行列を表す記号は $\,{}^t\!A$ 以外に $A^{t},\ {}^{\mathrm{T}}\!A,\ A^{\mathrm{T}}$ などが使われることがある．本書では転置行列は上で定義したようにつねに左上に小文字の $t$ をのせて表す．` },
+    { t: "def", title: "特別な形をした行列", body: String.raw`対角成分以外が $0$ である正方行列を対角行列という．つまり $$\begin{bmatrix}a_{11}&&O\\&\ddots&\\O&&a_{nn}\end{bmatrix}$$ の形の行列が対角行列である．また単位行列も対角行列である．対角成分より下の成分がすべて $0$ であるような正方行列 $$\begin{bmatrix}a_{11}&\cdots&a_{1n}\\&\ddots&\vdots\\O&&a_{nn}\end{bmatrix}$$ を上三角行列，また対角成分より上の成分がすべて $0$ であるような正方行列 $$\begin{bmatrix}a_{11}&&O\\\vdots&\ddots&\\a_{n1}&\cdots&a_{nn}\end{bmatrix}$$ を下三角行列とよぶ．明らかに上三角行列の転置行列は下三角行列で，下三角行列の転置行列は上三角行列である．` }
+  ],
+  aiText: [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`行列とは「数を長方形に並べた表」である．最初に覚える語彙は 2 つだけ：**サイズ** $m\times n$（行の数 $\times$ 列の数）と**成分** $a_{ij}$（第 $i$ 行・第 $j$ 列）．「**行が先，列が後**」という順序さえ体に染み込ませれば，この節の半分は終わりである．` },
+    { t: "point", title: "特別な行列カタログ（名前と形を一対一で）", body: String.raw`・**正方行列**：行数＝列数．右下がりの対角線上が**対角成分**．・**単位行列** $E_n$：対角成分がすべて $1$ で他は $0$（かけ算の「$1$」の役割）．・**零行列** $O$：全成分 $0$（たし算の「$0$」の役割）．・**対角行列**：対角成分以外 $0$．・**上三角／下三角行列**：対角より下／上が $0$．・**行ベクトル**（$1\times n$）と**列ベクトル**（$m\times 1$）．名前を聞いた瞬間に形が浮かぶまで往復しておくこと．` },
+    { t: "point", title: "転置は「行と列の入れ替え」", body: String.raw`$\,{}^t\!A$ はサイズが $m\times n\to n\times m$ に変わり，成分では $(\,{}^t\!A)_{ij}=a_{ji}$（添字が入れ替わる）．2 回転置すると元に戻る：$\,{}^t({}^t\!A)=A$．対角成分は転置で動かない．後の節で出る $\,{}^t(AB)={}^t\!B\,{}^t\!A$（順序が逆になる）への布石として，「転置＝添字の入れ替え」を成分の言葉で言えるようにしておく．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・$(i,j)$ の順序の取り違え（$a_{12}$ と $a_{21}$ は別物）．・「$3\times 4$ 行列」は 3 行 4 列（先に行）．・正方行列以外では転置するとサイズが変わることを忘れる．・零行列 $O$ と数の $0$，単位行列 $E$ と数の $1$ を無意識に同一視して式変形しない（役割は似ているが別物）．` }
+  ]
+},
+​
+// ---------- §4 行列の演算 ----------
+{
+  id: "l4", no: "§4", title: "行列の演算", pages: "pp.19–27",
+  textbook: [
+    { t: "def", title: "2つの行列が等しいこと", body: String.raw`2 つの行列 $A$ と $B$ が等しいのは，そのサイズが等しく，かつすべての対応する成分がそれぞれ等しいときである．$A$ と $B$ が等しいとき $A=B$ と書く．` },
+    { t: "def", title: "行列のたし算とひき算", body: String.raw`$A=[a_{ij}],\ B=[b_{ij}]$ をサイズの等しい行列とする．行列のたし算 $A+B$ をサイズが $A$ および $B$ と同じで，$(i,j)$ 成分が $a_{ij}+b_{ij}$ となる行列として定義する．$$A+B=[a_{ij}+b_{ij}].$$ この行列を $A$ と $B$ の和という．また行列のひき算 $A-B$ は，サイズが $A$ および $B$ と同じで，$(i,j)$ 成分が $a_{ij}-b_{ij}$ となる行列として定義する．$$A-B=[a_{ij}-b_{ij}].$$` },
+    { t: "ex", n: "例", body: String.raw`例えば $$\begin{bmatrix}1&2&3\\3&-4&1\end{bmatrix}+\begin{bmatrix}2&-1&-2\\-1&2&-1\end{bmatrix}=\begin{bmatrix}1+2&2+(-1)&3+(-2)\\3+(-1)&-4+2&1+(-1)\end{bmatrix}=\begin{bmatrix}3&1&1\\2&-2&0\end{bmatrix},$$ $$\begin{bmatrix}1&2&3\\3&-4&1\end{bmatrix}-\begin{bmatrix}2&-1&-2\\-1&2&-1\end{bmatrix}=\begin{bmatrix}1-2&2-(-1)&3-(-2)\\3-(-1)&-4-2&1-(-1)\end{bmatrix}=\begin{bmatrix}-1&3&5\\4&-6&2\end{bmatrix}$$ のように計算すればよい．行列のたし算，ひき算はサイズの等しい行列に対してだけ定義されるので注意しなくてはならない．` },
+    { t: "def", title: "スカラー倍", body: String.raw`通常の数を行列やベクトルと区別するためにスカラーとよぶことがある．$c$ をスカラーとする．$A=[a_{ij}]$ を $m\times n$ 行列とするとき $cA$ は $m\times n$ 行列で，$(i,j)$ 成分が $ca_{ij}$ となるものとして定義する．$$cA=[ca_{ij}].$$ 例えば $$3\begin{bmatrix}2&-1\\1&3\end{bmatrix}=\begin{bmatrix}3\cdot 2&3\cdot(-1)\\3\cdot 1&3\cdot 3\end{bmatrix}=\begin{bmatrix}6&-3\\3&9\end{bmatrix}$$ となる．$A$ と $B$ がサイズの同じ行列のときに $$A-B=A+(-1)B$$ が成り立つ．ここで左辺は行列のひき算，右辺は $A$ と $-1$ 倍の $B$ のたし算である．` },
+    { t: "note", n: "補注 4.1", title: "行列の等式の証明のしかた", body: String.raw`$A-B=A+(-1)B$ のような等式を証明するには，2 つの行列が等しいことの定義にもとづき，① 両辺のサイズが等しいこと，② 両辺の $(i,j)$ 成分が等しいこと，の 2 つを示せばよい．実際，両辺とも $m\times n$ 行列であり，左辺の $(i,j)$ 成分は $a_{ij}-b_{ij}$，右辺の $(i,j)$ 成分は $a_{ij}+(-1)b_{ij}=a_{ij}-b_{ij}$ で一致する．このように定義にもとづいて丁寧に確認することが必要である．以下では一つひとつの式をこのように証明することはしないが，自分でいくつかやってみるとよい．` },
+    { t: "def", title: "和の記号", body: String.raw`行列のかけ算の定義にでてくる和の記号 $\sum$（シグマ）について復習しておく．$n$ 個の数 $a_1,\ldots,a_n$ の和を $$\sum_{i=1}^{n}a_i=a_1+a_2+\cdots+a_n$$ と表す．$i$ が $1$ から $n$ まで動くことに注意する．例えば $\sum_{i=1}^{n}i=1+2+\cdots+n$．$A=[a_{ij}]$ が $m\times n$ 行列のとき，$$\sum_{i=1}^{m}a_{ij}=a_{1j}+a_{2j}+\cdots+a_{mj}$$ は第 $j$ 列の成分の和を表し，$$\sum_{j=1}^{n}a_{ij}=a_{i1}+a_{i2}+\cdots+a_{in}$$ は第 $i$ 行の成分の和を表す．` },
+    { t: "def", title: "行列のかけ算", body: String.raw`$A=[a_{ij}]$ を $m\times n$ 行列，$B=[b_{ij}]$ を $n\times r$ 行列とする．このように $A$ の列の個数と $B$ の行の個数が等しいとき，$A$ と $B$ のかけ算 $AB$ が次のように定義される．$AB$ は $m\times r$ 行列で $(i,j)$ 成分は $$\sum_{k=1}^{n}a_{ik}b_{kj}=a_{i1}b_{1j}+a_{i2}b_{2j}+\cdots+a_{in}b_{nj}$$ である．行列 $AB$ を $A$ と $B$ の積とよぶ．` },
+    { t: "ex", n: "例", body: String.raw`$A=[a_{11}\ \ a_{12}],\quad B=\begin{bmatrix}b_{11}&b_{12}&b_{13}\\b_{21}&b_{22}&b_{23}\end{bmatrix}$ のとき，$A$ は $1\times 2$ 行列，$B$ は $2\times 3$ 行列だから，積 $AB$ が定義できて，それは $1\times 3$ 行列になる．その $(1,2)$ 成分は $$\sum_{k=1}^{2}a_{1k}b_{k2}=a_{11}b_{12}+a_{12}b_{22}$$ になる．すべてを書くと $$AB=[a_{11}b_{11}+a_{12}b_{21}\quad a_{11}b_{12}+a_{12}b_{22}\quad a_{11}b_{13}+a_{12}b_{23}]$$ となる．この場合からもわかるように，$AB$ が定義されても，$BA$ が定義できるとは限らない．` },
+    { t: "thm", title: "行列の演算規則", body: String.raw`行列も通常の数と同じように次にあげる演算の規則をみたす．$A,B,C$ は行列で $a,b$ はスカラーとすると．【和に関して】$$(A+B)+C=A+(B+C)\quad\text{（和の結合法則）}$$ $$A+O=O+A=A,\qquad A-A=O,\qquad A+B=B+A\quad\text{（和の交換法則）}$$ 【積に関して】$$(AB)C=A(BC)\quad\text{（積の結合法則）}\qquad AE=EA=A,\qquad AO=OA=O$$ 【スカラー倍】$$(ab)A=a(bA),\qquad (aA)B=a(AB)=A(aB),\qquad 0A=O,\qquad 1A=A$$ 【分配法則】$$a(A+B)=aA+aB,\qquad (a+b)A=aA+bA,\qquad A(B+C)=AB+AC,\qquad (A+B)C=AC+BC$$ もちろんこれらの等式は各辺の演算が定義されている場合に限って成り立つ．` },
+    { t: "proof", title: "積の結合法則の証明", body: String.raw`行列 $A=[a_{ij}],\ B=[b_{ij}],\ C=[c_{ij}]$ のサイズをそれぞれ $m\times n,\ n\times r,\ r\times s$ とする．このとき積 $AB,\ (AB)C,\ BC,\ A(BC)$ が定義できて，それぞれのサイズは $m\times r,\ m\times s,\ n\times s,\ m\times s$ となる．よって $(AB)C$ と $A(BC)$ のサイズは等しい．次にそれぞれの $(i,j)$ 成分を計算する．$AB$ の $(i,q)$ 成分は $\sum_{p=1}^{n}a_{ip}b_{pq}$ であるから $$(AB)C\ \text{の}\ (i,j)\ \text{成分}=\sum_{q=1}^{r}\Bigl(\sum_{p=1}^{n}a_{ip}b_{pq}\Bigr)c_{qj}=\sum_{q=1}^{r}\sum_{p=1}^{n}a_{ip}b_{pq}c_{qj}.$$ 一方 $$A(BC)\ \text{の}\ (i,j)\ \text{成分}=\sum_{p=1}^{n}a_{ip}\Bigl(\sum_{q=1}^{r}b_{pq}c_{qj}\Bigr)=\sum_{p=1}^{n}\sum_{q=1}^{r}a_{ip}b_{pq}c_{qj}.$$ 和の順序を入れ換えると，$(AB)C$ の $(i,j)$ 成分と $A(BC)$ の $(i,j)$ 成分が等しいことがわかる．` },
+    { t: "warn", title: "数の演算との違い（重要）", body: String.raw`以上の演算規則は普段はそれほど意識する必要はないが，数の演算の規則とは異なる以下の事実には注意を払う必要がある．(i) 2 つの行列 $A,B$ に対して，$AB$ と $BA$ がともに定義できたとしても積の交換法則 $AB=BA$ が成り立つとは限らない．例えば $A=\begin{bmatrix}0&1\\1&0\end{bmatrix},\ B=\begin{bmatrix}2&0\\0&3\end{bmatrix}$ に対して $AB=\begin{bmatrix}0&3\\2&0\end{bmatrix},\ BA=\begin{bmatrix}0&2\\3&0\end{bmatrix}$ だから $AB\neq BA$．$AB=BA$ が成り立つとき，$A$ と $B$ は可換であるという．(ii) $AB=O$ であっても $A=O$ または $B=O$ が成り立つとは限らない．例えば $A=\begin{bmatrix}0&1\\0&0\end{bmatrix},\ B=\begin{bmatrix}1&0\\0&0\end{bmatrix}$ とすれば $AB=O$．このような $A,B$ を零因子という．` },
+    { t: "thm", n: "命題 4.2", title: "転置行列と演算", body: String.raw`転置行列と和と積に関して次の命題が成り立つ．$$\,{}^t(A+B)={}^t\!A+{}^t\!B,\qquad {}^t(AB)={}^t\!B\,{}^t\!A.$$` },
+    { t: "proof", body: String.raw`積の式だけ証明する．$A=[a_{ij}]$ を $m\times n$ 行列，$B=[b_{ij}]$ を $n\times\ell$ 行列とする．このとき $AB$ が定義され，$m\times\ell$ 行列になる．よって $\,{}^t(AB)$ は $\ell\times m$ 行列になる．一方，$\,{}^t\!A$ は $n\times m$ 行列，$\,{}^t\!B$ は $\ell\times n$ 行列になるので，$\,{}^t\!B\,{}^t\!A$ が定義され，$\ell\times m$ 行列になる．よって $\,{}^t(AB)$ と $\,{}^t\!B\,{}^t\!A$ のサイズは等しい．$\,{}^t(AB)$ の $(i,j)$ 成分は $AB$ の $(j,i)$ 成分であるから $$\sum_{k=1}^{n}a_{jk}b_{ki}$$ に等しい．一方，$\,{}^t\!B$ の第 $i$ 行は $[b_{1i}\ \cdots\ b_{ni}]$ で $\,{}^t\!A$ の第 $j$ 列は $a_{j1},\ldots,a_{jn}$ を縦に並べたものとなるので，$\,{}^t\!B\,{}^t\!A$ の $(i,j)$ 成分も $$\sum_{k=1}^{n}a_{jk}b_{ki}$$ になる．` },
+    { t: "def", title: "逆行列，正則行列", body: String.raw`$A$ を $n$ 次正方行列とする．$AB=E_n$ かつ $BA=E_n$ をみたす行列 $B$ が存在するとき，$B$ を $A$ の逆行列という（この 2 条件をまとめて $AB=BA=E_n$ と書く）．$B$ は必然的に $n\times n$ 行列になる．$A$ の逆行列は存在すれば 1 つに決まる．なぜなら $B$ と $C$ がともに $A$ の逆行列だとすると $$B=BE=B(AC)=(BA)C=EC=C$$ が成り立つからである．こうして 1 つに決まる $A$ の逆行列を $A^{-1}$ で表す．逆行列をもつ行列を正則行列という．` },
+    { t: "ex", n: "例 4.3", body: String.raw`$A=\begin{bmatrix}1&2\\5&9\end{bmatrix}$ とする．$B=\begin{bmatrix}-9&2\\5&-1\end{bmatrix}$ は $A$ の逆行列になる（$AB=BA=E_2$ を確かめてみよ）．` },
+    { t: "ex", n: "例 4.4", body: String.raw`$0$ でない数には必ず逆数が存在するが，行列の場合は $A$ が零因子でなくても逆行列があるとは限らない．$A=\begin{bmatrix}1&1\\2&2\end{bmatrix}$ は逆行列をもたない．実際 $$AB=\begin{bmatrix}1&1\\2&2\end{bmatrix}\begin{bmatrix}b_{11}&b_{12}\\b_{21}&b_{22}\end{bmatrix}=\begin{bmatrix}b_{11}+b_{21}&b_{12}+b_{22}\\2(b_{11}+b_{21})&2(b_{12}+b_{22})\end{bmatrix}$$ は第 2 行が第 1 行の 2 倍であるから，$E_2$ に決して等しくならないことが簡単にわかる．` },
+    { t: "thm", n: "命題 4.5", title: "正則行列の性質", body: String.raw`$A,B$ をサイズの等しい正則行列とするとき，$$\text{(i)}\ A^{-1}\ \text{も正則行列で}\ (A^{-1})^{-1}=A.\qquad\text{(ii)}\ \,{}^t\!A\ \text{も正則行列で}\ ({}^t\!A)^{-1}={}^t(A^{-1}).$$ $$\text{(iii)}\ AB\ \text{も正則行列で}\ (AB)^{-1}=B^{-1}A^{-1}.$$` },
+    { t: "proof", body: String.raw`(i) $A$ は正則だから，逆行列 $A^{-1}$ があって $AA^{-1}=A^{-1}A=E$．この式は $A^{-1}$ が正則でその逆行列が $A$ であることも示している．(ii) $AA^{-1}=A^{-1}A=E$ の各辺の転置行列を作ると，命題 4.2 から $$\,{}^t(A^{-1})\,{}^t\!A={}^t\!A\,{}^t(A^{-1})={}^t\!E.$$ $\,{}^t\!E=E$ だから $\,{}^t\!A$ の逆行列が $\,{}^t(A^{-1})$ で与えられることがわかる．(iii) 結合法則を使って計算する．$$(AB)(B^{-1}A^{-1})=A(BB^{-1})A^{-1}=(AE)A^{-1}=AA^{-1}=E.$$ 同様に $$(B^{-1}A^{-1})(AB)=B^{-1}(A^{-1}A)B=B^{-1}(EB)=B^{-1}B=E.$$ 以上から $B^{-1}A^{-1}$ が $AB$ の逆行列であることがわかる．` },
+    { t: "def", title: "行列のべき乗", body: String.raw`$A$ を正方行列とする．自然数 $n$ に対して，結合法則から $A^{n}=\underbrace{A\cdots A}_{n\ \text{個の積}}$ が定義される．また $A$ が正則のときには $A^{-n}=\underbrace{A^{-1}\cdots A^{-1}}_{n\ \text{個の積}}$ と定義する．さらに $A^{0}=E$ と定義する．` }
+  ],
+  aiText: [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`主役は**かけ算の定義**である．「$AB$ の $(i,j)$ 成分＝$A$ の第 $i$ 行と $B$ の第 $j$ 列の内積」．サイズは $(m\times n)(n\times r)=m\times r$ で，「**内側の $n$ が一致したときだけ定義され，外側が残る**」と覚える．計算前に必ずサイズの鎖を確認する習慣をつけるとミスが激減する．` },
+    { t: "point", title: "数と違う 3 つの罠", body: String.raw`① **非可換**：一般に $AB\neq BA$．② **零因子**：$AB=O$ でも $A=O$ とも $B=O$ とも限らない．③ **逆行列のない行列がある**．この 3 点以外（結合・分配など）は数と同じ感覚でよい．だから展開公式は要注意：$(A+B)^{2}=A^{2}+AB+BA+B^{2}$ であり，$2AB$ にまとめられるのは $A,B$ が可換のときだけ．` },
+    { t: "point", title: "逆行列＝割り算の代わり", body: String.raw`2 次の場合は $ad-bc\neq 0$ のとき $$A^{-1}=\frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$$（対角を入れ替え，反対角の符号を反転）．$(AB)^{-1}=B^{-1}A^{-1}$ は「靴下→靴の順に履いたら，脱ぐのは靴→靴下の順」と覚える．$\,{}^t(AB)={}^t\!B\,{}^t\!A$ も同じ「順序反転」型．` },
+    { t: "point", title: "証明の基本フォーム", body: String.raw`行列の等式の証明は「① 両辺のサイズが等しい ② 両辺の $(i,j)$ 成分が等しい」の 2 点確認が基本フォーム（補注 4.1）．成分計算では $\sum$ を使いこなす．積の結合法則の証明（二重和の交換）と命題 4.2 の証明は，このフォームの代表例として自力で再現できるようにしておくと記述試験に強い．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・$AB$ と $BA$ の取り違え（どちらから掛けるかを常に意識）．・$(AB)^{-1}=A^{-1}B^{-1}$ としてしまう（正しくは順序反転）．・$AE=EA=A$ の $E$ のサイズは左右で異なることがある（$A$ が $m\times n$ なら $E_m A=A E_n=A$）．・$\sum$ の添字の動く範囲の取り違え．・「$AB=O$ なら $A=O$ か $B=O$」という数の感覚の持ち込み．` }
+  ]
+},
+​
+// ---------- §5 行列の分割と結合 ----------
+{
+  id: "l5", no: "§5", title: "行列の分割と結合", pages: "pp.27–32",
+  textbook: [
+    { t: "p", body: String.raw`与えられた行列に新たに区切りを入れていくつかの小さな行列に分割すると，計算が簡単になったり，証明の見通しがよくなったりすることがある．ここでは，よくでてくるいくつかの場合に限って解説する．` },
+    { t: "def", title: "行列の分割", body: String.raw`行列 $A$ に縦と横に区切りを入れていくつかに分割することを行列の分割という．例えば縦と横に 1 つずつ区切りを入れて $$A=\begin{bmatrix}A_{11}&A_{12}\\A_{21}&A_{22}\end{bmatrix}$$ としたものが行列の分割の例である．ここで $A_{11},A_{12},A_{21},A_{22}$ は $A$ より小さなサイズの行列で，横に並ぶ行列の組 $A_{11}$ と $A_{12}$，$A_{21}$ と $A_{22}$ はそれぞれ行の数が等しく，縦に並ぶ行列の組 $A_{11}$ と $A_{21}$，$A_{12}$ と $A_{22}$ はそれぞれ列の数が等しい．区切り線は意味がはっきりしているときは書かないことも多い．` },
+    { t: "ex", n: "例 5.1", body: String.raw`$A=\begin{bmatrix}1&2&3\\2&-1&3\\-1&0&1\\0&1&2\end{bmatrix}$ を第 2 列と第 3 列の間，第 3 行と第 4 行の間で分割すると，$$A_{11}=\begin{bmatrix}1&2\\2&-1\\-1&0\end{bmatrix},\quad A_{12}=\begin{bmatrix}3\\3\\1\end{bmatrix},\quad A_{21}=[0\ \ 1],\quad A_{22}=[2]$$ となる．` },
+    { t: "thm", title: "分割を利用した積（ブロック積）", body: String.raw`$A$ を $m\times n$ 行列，$B$ を $n\times\ell$ 行列とするとき，積 $AB$ が定義されるが，$A$ と $B$ の分割を利用して積を計算することを考える．行列の分割 $$A=\begin{bmatrix}A_{11}&A_{12}\\A_{21}&A_{22}\end{bmatrix},\qquad B=\begin{bmatrix}B_{11}&B_{12}\\B_{21}&B_{22}\end{bmatrix}$$ で，$A$ の列の分け方と，$B$ の行の分け方は同じとする．このとき小行列どうしの積 $A_{11}B_{11},\ A_{12}B_{21},\ A_{21}B_{11},\ldots$ などが定義され，次の式が成り立つ．$$AB=\begin{bmatrix}A_{11}&A_{12}\\A_{21}&A_{22}\end{bmatrix}\begin{bmatrix}B_{11}&B_{12}\\B_{21}&B_{22}\end{bmatrix}=\begin{bmatrix}A_{11}B_{11}+A_{12}B_{21}&A_{11}B_{12}+A_{12}B_{22}\\A_{21}B_{11}+A_{22}B_{21}&A_{21}B_{12}+A_{22}B_{22}\end{bmatrix}.$$ この式で，例えば $(1,1)$ 成分の場所にある 2 つの行列 $A_{11}B_{11},\ A_{12}B_{21}$ のサイズは同じで，したがって和が定義できることも注意しておく．ここでは簡単のために 4 つの行列に分割した場合を書いたが，$A$ の列の分け方と $B$ の行の分け方が一致していれば，いくつに分割しても同様の式が成り立つ．` },
+    { t: "ex", n: "例題 5.2", title: "分割を利用した積の計算", body: String.raw`行列の分割を利用して次の行列の積 $AB$ を計算せよ．$$A=\begin{bmatrix}2&0&-1\\0&1&3\\1&1&0\end{bmatrix},\qquad B=\begin{bmatrix}1&2&1&0\\2&-1&0&1\\0&0&2&1\end{bmatrix}$$`, sol: String.raw`$A$ を第 2 列の後ろと第 2 行の後ろで，$B$ を第 2 行の後ろと第 2 列の後ろで分割する．$$AB=\begin{bmatrix}\begin{bmatrix}2&0\\0&1\end{bmatrix}\begin{bmatrix}1&2\\2&-1\end{bmatrix}+\begin{bmatrix}-1\\3\end{bmatrix}[0\ \ 0]&\begin{bmatrix}2&0\\0&1\end{bmatrix}\begin{bmatrix}1&0\\0&1\end{bmatrix}+\begin{bmatrix}-1\\3\end{bmatrix}[2\ \ 1]\\[1mm][1\ \ 1]\begin{bmatrix}1&2\\2&-1\end{bmatrix}+[0][0\ \ 0]&[1\ \ 1]\begin{bmatrix}1&0\\0&1\end{bmatrix}+[0][2\ \ 1]\end{bmatrix}$$ $$=\begin{bmatrix}\begin{bmatrix}2&4\\2&-1\end{bmatrix}+\begin{bmatrix}0&0\\0&0\end{bmatrix}&\begin{bmatrix}2&0\\0&1\end{bmatrix}+\begin{bmatrix}-2&-1\\6&3\end{bmatrix}\\[1mm][3\ \ 1]+[0\ \ 0]&[1\ \ 1]+[0\ \ 0]\end{bmatrix}=\begin{bmatrix}2&4&0&-1\\2&-1&6&4\\3&1&1&1\end{bmatrix}.$$` },
+    { t: "def", title: "行ベクトル分割と列ベクトル分割", body: String.raw`行列の分割の特別な場合として，よく使われる行ベクトル，列ベクトルへの分割を調べる．$A$ を $m\times n$ 行列とする．$A$ の第 1 列から第 $n$ 列の列ベクトルを $\boldsymbol{a}_1,\boldsymbol{a}_2,\ldots,\boldsymbol{a}_n$ とするとき，$A$ を $$A=[\boldsymbol{a}_1\ \ \boldsymbol{a}_2\ \ \cdots\ \ \boldsymbol{a}_n]$$ のように列ベクトルに分割することができる．これを $A$ の列ベクトル分割とよぶ．また，$A$ の第 1 行から第 $m$ 行の行ベクトルを $\boldsymbol{a}_1{}',\ldots,\boldsymbol{a}_m{}'$ とするとき，$A$ を縦に並べた分割を $A$ の行ベクトル分割という．$A$ が $m\times n$ 行列，$B$ が $n\times\ell$ 行列であるとき，$A$ の行ベクトル分割，$B$ の列ベクトル分割 $B=[\boldsymbol{b}_1\ \cdots\ \boldsymbol{b}_\ell]$ に対して，次の式が成り立つ．$$AB=\begin{bmatrix}\boldsymbol{a}_1{}'B\\\vdots\\\boldsymbol{a}_m{}'B\end{bmatrix}=[A\boldsymbol{b}_1\ \ A\boldsymbol{b}_2\ \ \cdots\ \ A\boldsymbol{b}_\ell]=\begin{bmatrix}\boldsymbol{a}_1{}'\boldsymbol{b}_1&\cdots&\boldsymbol{a}_1{}'\boldsymbol{b}_\ell\\\vdots&&\vdots\\\boldsymbol{a}_m{}'\boldsymbol{b}_1&\cdots&\boldsymbol{a}_m{}'\boldsymbol{b}_\ell\end{bmatrix}.$$` },
+    { t: "def", title: "列ベクトル分割と 1 次結合", body: String.raw`$m\times n$ 行列 $A$ の列ベクトル分割 $A=[\boldsymbol{a}_1\ \ \boldsymbol{a}_2\ \ \cdots\ \ \boldsymbol{a}_n]$ と列ベクトル $\boldsymbol{x}=\begin{bmatrix}x_1\\x_2\\\vdots\\x_n\end{bmatrix}$ に対して，$$A\boldsymbol{x}=x_1\boldsymbol{a}_1+x_2\boldsymbol{a}_2+\cdots+x_n\boldsymbol{a}_n$$ が成り立つ．右辺の形の和を $\boldsymbol{a}_1,\ldots,\boldsymbol{a}_n$ の 1 次結合という．特に $A$ として $n$ 次単位行列 $E_n$ をとると，$E_n$ の列ベクトル分割 $E=[\boldsymbol{e}_1\ \ \boldsymbol{e}_2\ \ \cdots\ \ \boldsymbol{e}_n]$ において $$\boldsymbol{e}_1=\begin{bmatrix}1\\0\\\vdots\\0\end{bmatrix},\quad\boldsymbol{e}_2=\begin{bmatrix}0\\1\\\vdots\\0\end{bmatrix},\ \ldots,\ \boldsymbol{e}_n=\begin{bmatrix}0\\0\\\vdots\\1\end{bmatrix}.$$ このとき $E_n\boldsymbol{x}=\boldsymbol{x}$ より $$\boldsymbol{x}=x_1\boldsymbol{e}_1+x_2\boldsymbol{e}_2+\cdots+x_n\boldsymbol{e}_n.$$ この式は任意の $n$ 次列ベクトルが，$\boldsymbol{e}_1,\ldots,\boldsymbol{e}_n$ の 1 次結合で表されることを示している．$n$ 個の列ベクトル $\boldsymbol{e}_1,\ldots,\boldsymbol{e}_n$ を $n$ 次元の基本ベクトルという．` },
+    { t: "def", title: "行列の結合", body: String.raw`行列の分割とは逆にいくつかの行列を結合して新しい行列を作ることができる．よく使うのは $A$ と $B$ の行の個数が同じとき，$A$ と $B$ を並べて $[A\ \ B]$ を作ることである．区切りの線はこの場合も省略することが多い．これを使うと $X_i\ (i=1,\ldots,n)$ をサイズの同じ行列として，$$AX_i=B_i\ (i=1,\ldots,n)\quad\text{であれば}\quad[AX_1\ \cdots\ AX_n]=[B_1\ \cdots\ B_n]\quad\text{だから}\quad A[X_1\ \cdots\ X_n]=[B_1\ \cdots\ B_n]$$ が成り立つ．` }
+  ],
+  aiText: [
+    { t: "h", body: "この節で身につけること" },
+    { t: "p", body: String.raw`ブロック行列は「**行列を成分とする行列**」である．驚くべきことに，積は普通の行列の積とまったく同じ形で計算できる．唯一の条件は「**$A$ の列の切り方と $B$ の行の切り方を揃える**」ことだけである．` },
+    { t: "point", title: "Ax の 2 つの見方（最重要）", body: String.raw`① 成分で見る：$A\boldsymbol{x}$ の第 $i$ 成分＝$A$ の第 $i$ 行と $\boldsymbol{x}$ の内積．② 列で見る：$$A\boldsymbol{x}=x_1\boldsymbol{a}_1+\cdots+x_n\boldsymbol{a}_n$$（列ベクトルの **1 次結合**）．この②の見方はこの先（連立 1 次方程式・1 次独立・像）で主役になるので，今のうちに体に入れておく．基本ベクトル $\boldsymbol{e}_i$ は「第 $i$ 成分だけ 1」．$A\boldsymbol{e}_i=\boldsymbol{a}_i$（$A$ の第 $i$ 列が取り出せる）も頻出．` },
+    { t: "point", title: "ブロック計算のコツ", body: String.raw`$O$ や $E$ を含む分割は計算量が激減する．例：$$\begin{bmatrix}A&O\\O&B\end{bmatrix}\begin{bmatrix}C&O\\O&D\end{bmatrix}=\begin{bmatrix}AC&O\\O&BD\end{bmatrix}$$（対角ブロックはブロックごとに掛ければよい）．べき乗や逆行列の問題（演習 II.10，問 5.2 など）は「ブロックのまま計算して帰納法」が定石である．` },
+    { t: "warn", title: "よくあるミス", body: String.raw`・ブロック積でも**掛ける順序は保つ**（$A_{11}B_{11}$ を $B_{11}A_{11}$ にしない．中身は行列なので非可換）．・$A$ の列の分け方と $B$ の行の分け方が不一致のまま公式を使う．・行ベクトル（横）と列ベクトル（縦）の混同．・$x_1\boldsymbol{a}_1+\cdots$ の係数 $x_i$ と列 $\boldsymbol{a}_i$ の対応のずれ．` }
+  ]
+}
+]);
+​
+StudyDB.addProblems("math-linear", [
+  { id: "lt3-1", unit: "l3", source: "textbook", num: "問3.1", difficulty: 1,
+    q: String.raw`次の 2 つの行列 $A$ と $B$ について以下の問に答えよ．$$A=\begin{bmatrix}1&-1&2\\-2&3&-3\end{bmatrix},\qquad B=\begin{bmatrix}2&3&4\\-1&1&-2\\5&-5&-3\end{bmatrix}$$ (i) それぞれの行列のサイズは何か． (ii) それぞれの行列の $(1,2)$ 成分および $(2,3)$ 成分を答えよ．`,
+    answerKey: [], answerDisplay: String.raw`(i) $A$：$2\times 3$，$B$：$3\times 3$（正方行列） (ii) $A$：$(1,2)$ 成分 $-1$，$(2,3)$ 成分 $-3$／$B$：$(1,2)$ 成分 $3$，$(2,3)$ 成分 $-2$`,
+    hint: String.raw`サイズは「行数 $\times$ 列数」．$(i,j)$ 成分は第 $i$ 行・第 $j$ 列．`,
+    approach: String.raw`行（横）を先に数え，次に列（縦）を数える．成分は「行→列」の順にたどる．`,
+    solution: String.raw`(i) $A$ は 2 つの行と 3 つの列をもつので $2\times 3$ 行列．$B$ は 3 つの行と 3 つの列をもつので $3\times 3$ 行列（3 次正方行列）．(ii) $A$ の $(1,2)$ 成分は第 1 行第 2 列の $-1$，$(2,3)$ 成分は第 2 行第 3 列の $-3$．$B$ の $(1,2)$ 成分は $3$，$(2,3)$ 成分は $-2$．なお $B$ の対角成分は上から $2,1,-3$ である．`,
+    verify: true,
+    essence: String.raw`サイズと成分の読み取りはすべての基礎．「行が先，列が後」を反射で．`,
+    checklist: ["サイズを行×列の順で答えた", "(1,2)成分と(2,1)成分を混同していない", "B が正方行列であることに気づいた"] },
+  { id: "lt3-2", unit: "l3", source: "textbook", num: "問3.3", difficulty: 1,
+    q: String.raw`$(i,j)$ 成分が $(-1)^{i+j}$ である 4 次正方行列を書け．`,
+    answerKey: [], answerDisplay: String.raw`$\begin{bmatrix}1&-1&1&-1\\-1&1&-1&1\\1&-1&1&-1\\-1&1&-1&1\end{bmatrix}$`,
+    hint: String.raw`$i+j$ が偶数なら $+1$，奇数なら $-1$．$(1,1)$ 成分は $(-1)^{2}=1$．`,
+    approach: String.raw`各 $(i,j)$ に対して $i+j$ の偶奇を判定すると市松模様になる．`,
+    solution: String.raw`$(1,1)$ 成分は $(-1)^{1+1}=1$．隣に移るごとに $i+j$ の偶奇が入れ替わるので，符号が交互に並ぶ市松模様になる．$$\begin{bmatrix}1&-1&1&-1\\-1&1&-1&1\\1&-1&1&-1\\-1&1&-1&1\end{bmatrix}$$`,
+    essence: String.raw`「成分を式で与える」記法 $A=[a_{ij}]$ に慣れる練習．行列式の符号でも同じ市松模様が登場する．`,
+    checklist: ["(1,1)成分が +1 になっている", "符号が市松模様になっている", "4×4 のサイズで書けた"] },
+  { id: "lt3-3", unit: "l3", source: "textbook", num: "問3.4", difficulty: 1,
+    q: String.raw`次の行列の転置行列を求めよ．$$A=\begin{bmatrix}2&1\\-1&-2\end{bmatrix},\qquad B=\begin{bmatrix}3&1\\2&4\\0&5\end{bmatrix},\qquad C=[-1\ \ 2\ \ 4\ \ 1]$$`,
+    answerKey: [], answerDisplay: String.raw`$\,{}^t\!A=\begin{bmatrix}2&-1\\1&-2\end{bmatrix},\quad {}^t\!B=\begin{bmatrix}3&2&0\\1&4&5\end{bmatrix},\quad {}^t\!C=\begin{bmatrix}-1\\2\\4\\1\end{bmatrix}$`,
+    hint: String.raw`第 1 行が第 1 列になる．サイズは $m\times n\to n\times m$．`,
+    approach: String.raw`各行を順に列として立て直す．行ベクトルの転置は列ベクトル．`,
+    solution: String.raw`行と列を入れ換える．$A$（$2\times 2$）の転置は $\begin{bmatrix}2&-1\\1&-2\end{bmatrix}$．$B$（$3\times 2$）の転置は $2\times 3$ 行列 $\begin{bmatrix}3&2&0\\1&4&5\end{bmatrix}$．$C$（$1\times 4$ 行ベクトル）の転置は $4\times 1$ 列ベクトル $\begin{bmatrix}-1\\2\\4\\1\end{bmatrix}$．`,
+    essence: String.raw`転置は「対角線で折り返す」．正方でない行列はサイズが変わることを体感する．`,
+    checklist: ["サイズが正しく入れ替わっている", "成分の位置の移し替えが正しい", "行ベクトルの転置を列ベクトルとして書けた"] },
+  { id: "lt4-1", unit: "l4", source: "textbook", num: "問4.1", difficulty: 2,
+    q: String.raw`次の計算をせよ．$$\text{(i)}\ \begin{bmatrix}-2&1\\3&-3\end{bmatrix}+\begin{bmatrix}1&-4\\-4&5\end{bmatrix}\qquad\text{(ii)}\ -2\begin{bmatrix}-3&0&1\\6&-1&7\end{bmatrix}+3\begin{bmatrix}3&-1&0\\0&5&2\end{bmatrix}$$ $$\text{(iii)}\ \frac{1}{2}\begin{bmatrix}2\\3\end{bmatrix}-\begin{bmatrix}3\\4\end{bmatrix}\qquad\text{(iv)}\ 0.3\begin{bmatrix}1&2\\1&4\end{bmatrix}+0.7\begin{bmatrix}1&2\\1&4\end{bmatrix}$$`,
+    answerKey: [], answerDisplay: String.raw`(i) $\begin{bmatrix}-1&-3\\-1&2\end{bmatrix}$ (ii) $\begin{bmatrix}15&-3&-2\\-12&17&-8\end{bmatrix}$ (iii) $\begin{bmatrix}-2\\-5/2\end{bmatrix}$ (iv) $\begin{bmatrix}1&2\\1&4\end{bmatrix}$`,
+    hint: String.raw`すべて成分ごとの計算．(iv) は先に分配法則でまとめると早い．`,
+    approach: String.raw`スカラー倍を先に各成分に掛けてから和・差をとる．(iv) は $(0.3+0.7)A=A$．`,
+    solution: String.raw`(i) 成分ごとに加えて $\begin{bmatrix}-2+1&1-4\\3-4&-3+5\end{bmatrix}=\begin{bmatrix}-1&-3\\-1&2\end{bmatrix}$．(ii) $-2$ 倍と $3$ 倍を先に計算すると $\begin{bmatrix}6&0&-2\\-12&2&-14\end{bmatrix}+\begin{bmatrix}9&-3&0\\0&15&6\end{bmatrix}=\begin{bmatrix}15&-3&-2\\-12&17&-8\end{bmatrix}$．(iii) $\begin{bmatrix}1\\3/2\end{bmatrix}-\begin{bmatrix}3\\4\end{bmatrix}=\begin{bmatrix}-2\\-5/2\end{bmatrix}$．(iv) 分配法則より $(0.3+0.7)\begin{bmatrix}1&2\\1&4\end{bmatrix}=1\cdot\begin{bmatrix}1&2\\1&4\end{bmatrix}=\begin{bmatrix}1&2\\1&4\end{bmatrix}$．`,
+    verify: true,
+    essence: String.raw`和・スカラー倍は「成分ごと」．(iv) のように演算規則（分配法則）で先に整理すると計算が減る．`,
+    checklist: ["スカラー倍を全成分に掛けた", "符号の処理が正しい", "(iv) で分配法則に気づけた（または検算した）"] },
+  { id: "lt4-2", unit: "l4", source: "textbook", num: "問4.3", difficulty: 2,
+    q: String.raw`次の積を計算せよ．$$\text{(i)}\ \begin{bmatrix}3&1\\0&4\end{bmatrix}\begin{bmatrix}2&-1\\5&3\end{bmatrix}\qquad\text{(ii)}\ \begin{bmatrix}-10&5&-6\\-7&2&8\end{bmatrix}\begin{bmatrix}-1\\2\\1\end{bmatrix}\qquad\text{(iii)}\ [5\ \ {-4}\ \ 10]\begin{bmatrix}7&0\\-7&1\\2&-3\end{bmatrix}$$`,
+    answerKey: [], answerDisplay: String.raw`(i) $\begin{bmatrix}11&0\\20&12\end{bmatrix}$ (ii) $\begin{bmatrix}14\\19\end{bmatrix}$ (iii) $[83\ \ {-34}]$`,
+    hint: String.raw`$(i,j)$ 成分＝左の第 $i$ 行と右の第 $j$ 列の内積．サイズは (i) $2\times 2$，(ii) $2\times 1$，(iii) $1\times 2$．`,
+    approach: String.raw`まず積のサイズを確定させ，各成分を内積で埋める．`,
+    solution: String.raw`(i) $(1,1)$ 成分は $3\cdot 2+1\cdot 5=11$，$(1,2)$ は $3\cdot(-1)+1\cdot 3=0$，$(2,1)$ は $0\cdot 2+4\cdot 5=20$，$(2,2)$ は $0\cdot(-1)+4\cdot 3=12$．よって $\begin{bmatrix}11&0\\20&12\end{bmatrix}$．(ii) 第 1 成分：$(-10)(-1)+5\cdot 2+(-6)\cdot 1=14$，第 2 成分：$(-7)(-1)+2\cdot 2+8\cdot 1=19$．よって $\begin{bmatrix}14\\19\end{bmatrix}$．(iii) 第 1 成分：$5\cdot 7+(-4)(-7)+10\cdot 2=35+28+20=83$，第 2 成分：$5\cdot 0+(-4)\cdot 1+10\cdot(-3)=-34$．よって $[83\ \ {-34}]$．`,
+    essence: String.raw`積の計算は「行×列の内積」の反復．先にサイズを書いてから埋めるとミスが減る．`,
+    checklist: ["積のサイズを先に確認した", "各成分の内積計算が正しい", "符号の処理が正しい"] },
+  { id: "lt4-3", unit: "l4", source: "textbook", num: "問4.8", difficulty: 3,
+    q: String.raw`$A=\begin{bmatrix}-1&8\\6&1\end{bmatrix},\ B=\begin{bmatrix}5&-9\\4&3\end{bmatrix}$ に対して，$$AB,\quad BA,\quad {}^t\!A\,{}^t\!B,\quad {}^t\!B\,{}^t\!A$$ を計算せよ．`,
+    answerKey: [], answerDisplay: String.raw`$AB=\begin{bmatrix}27&33\\34&-51\end{bmatrix},\ BA=\begin{bmatrix}-59&31\\14&35\end{bmatrix},\ {}^t\!A\,{}^t\!B=\begin{bmatrix}-59&14\\31&35\end{bmatrix},\ {}^t\!B\,{}^t\!A=\begin{bmatrix}27&34\\33&-51\end{bmatrix}$`,
+    hint: String.raw`4 つ全部を真面目に計算してもよいが，$\,{}^t(AB)={}^t\!B\,{}^t\!A$ を使えば後半 2 つは転置するだけ．`,
+    approach: String.raw`$AB,\ BA$ を計算し，$\,{}^t\!B\,{}^t\!A={}^t(AB)$，$\,{}^t\!A\,{}^t\!B={}^t(BA)$ で検算する．`,
+    solution: String.raw`$AB=\begin{bmatrix}(-1)5+8\cdot 4&(-1)(-9)+8\cdot 3\\6\cdot 5+1\cdot 4&6(-9)+1\cdot 3\end{bmatrix}=\begin{bmatrix}27&33\\34&-51\end{bmatrix}$．$BA=\begin{bmatrix}5(-1)+(-9)6&5\cdot 8+(-9)1\\4(-1)+3\cdot 6&4\cdot 8+3\cdot 1\end{bmatrix}=\begin{bmatrix}-59&31\\14&35\end{bmatrix}$．$\,{}^t\!A=\begin{bmatrix}-1&6\\8&1\end{bmatrix},\ {}^t\!B=\begin{bmatrix}5&4\\-9&3\end{bmatrix}$ より $\,{}^t\!A\,{}^t\!B=\begin{bmatrix}-59&14\\31&35\end{bmatrix}$，$\,{}^t\!B\,{}^t\!A=\begin{bmatrix}27&34\\33&-51\end{bmatrix}$．確かに $\,{}^t\!B\,{}^t\!A={}^t(AB)$，$\,{}^t\!A\,{}^t\!B={}^t(BA)$ が成り立っている．また $AB\neq BA$ である．`,
+    essence: String.raw`$\,{}^t(AB)={}^t\!B\,{}^t\!A$（順序反転）を数値で体験する問題．同時に非可換性 $AB\neq BA$ も確認できる．`,
+    checklist: ["AB, BA の計算が正しい", "転置の取り方が正しい", "t(AB)=tB tA の関係を確認した"] },
+  { id: "lt4-4", unit: "l4", source: "textbook", num: "問4.9", difficulty: 4,
+    q: String.raw`2 次正方行列 $A=\begin{bmatrix}a&b\\c&d\end{bmatrix}$ が正則になるための必要十分条件は $ad-bc\neq 0$ であることを示せ．また，これがみたされるとき，$A$ の逆行列は $$A^{-1}=\frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$$ で与えられることを示せ．`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）$C=\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$ とおくと $AC=CA=(ad-bc)E_2$ が鍵`,
+    hint: String.raw`$C=\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$ とおいて $AC$ と $CA$ を計算してみよ．どちらも $(ad-bc)E_2$ になる．`,
+    approach: String.raw`（十分性）$ad-bc\neq 0$ なら $\frac{1}{ad-bc}C$ が逆行列の定義をみたすことを直接確かめる．（必要性）$ad-bc=0$ のとき $AC=O$ を利用して矛盾を導く．`,
+    solution: String.raw`$C=\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$ とおくと，直接計算により $$AC=\begin{bmatrix}ad-bc&0\\0&ad-bc\end{bmatrix}=(ad-bc)E_2,\qquad CA=(ad-bc)E_2.$$ 【十分性】$ad-bc\neq 0$ のとき $B=\frac{1}{ad-bc}C$ とおけば $AB=BA=E_2$ となり，$A$ は正則で $A^{-1}=\frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$．【必要性】$ad-bc=0$ とすると $AC=O$．もし $A$ が正則なら，左から $A^{-1}$ を掛けて $C=O$，すなわち $a=b=c=d=0$，つまり $A=O$ となる．しかし $O$ は $OB=O\neq E_2$ より正則でないので矛盾．よって $ad-bc=0$ のとき $A$ は正則でない．`,
+    essence: String.raw`$ad-bc$（行列式の先取り）が逆行列の存在を支配する．公式「対角入れ替え，反対角符号反転，$ad-bc$ で割る」は即答できるように．`,
+    checklist: ["AC=CA=(ad−bc)E を計算で確認した", "十分性と必要性の両方を論じた", "必要性の議論で矛盾を明示した"] },
+  { id: "lt4-5", unit: "l4", source: "textbook", num: "問4.12", difficulty: 3,
+    q: String.raw`自然数 $n$ に対して次の行列の $n$ 乗を計算せよ．$$A=\begin{bmatrix}1&0&0\\0&2&0\\0&0&3\end{bmatrix},\quad B=\begin{bmatrix}0&1&3\\0&0&2\\0&0&0\end{bmatrix},\quad C=\begin{bmatrix}0&0&0\\1&0&0\\3&2&0\end{bmatrix}$$ また $A^{-n}$ を計算せよ．`,
+    answerKey: [], answerDisplay: String.raw`$A^{n}=\begin{bmatrix}1&0&0\\0&2^{n}&0\\0&0&3^{n}\end{bmatrix}$，$B^{2}=\begin{bmatrix}0&0&2\\0&0&0\\0&0&0\end{bmatrix}$，$B^{n}=O\ (n\geq 3)$，$C^{2}=\begin{bmatrix}0&0&0\\0&0&0\\2&0&0\end{bmatrix}$，$C^{n}=O\ (n\geq 3)$，$A^{-n}=\begin{bmatrix}1&0&0\\0&2^{-n}&0\\0&0&3^{-n}\end{bmatrix}$`,
+    hint: String.raw`対角行列の積は対角成分どうしの積．$B,C$ は 2 乗，3 乗を実際に計算してみよ．`,
+    approach: String.raw`$A$ は対角行列なので対角成分を $n$ 乗するだけ．$B,C$ は掛けるたびに非零成分が対角から離れていき，3 乗で消える．`,
+    solution: String.raw`対角行列どうしの積は対角成分ごとの積になるので $A^{n}=\mathrm{diag}(1,2^{n},3^{n})$．$B$ は $$B^{2}=\begin{bmatrix}0&0&2\\0&0&0\\0&0&0\end{bmatrix},\qquad B^{3}=B^{2}B=O$$ となるので，$n\geq 3$ で $B^{n}=O$．同様に $$C^{2}=\begin{bmatrix}0&0&0\\0&0&0\\2&0&0\end{bmatrix},\qquad C^{3}=O$$ となり $n\geq 3$ で $C^{n}=O$．また $A$ は対角成分がすべて $0$ でないので正則で $A^{-1}=\mathrm{diag}(1,\tfrac{1}{2},\tfrac{1}{3})$．よって $A^{-n}=\mathrm{diag}(1,2^{-n},3^{-n})$．`,
+    essence: String.raw`対角行列のべき乗は成分ごと．狭義の上（下）三角行列はべき零（掛けるたびに帯が対角から離れる）．どちらも後の固有値論で効いてくる感覚．`,
+    checklist: ["対角行列の n 乗を成分ごとに処理した", "B², B³（C², C³）を実際に計算した", "A⁻¹ の対角成分が逆数になっている"] },
+  { id: "lt4-6", unit: "l4", source: "textbook", num: "演習II.4", difficulty: 2,
+    q: String.raw`$A={}^t\!A$ をみたす行列を対称行列という．$$\begin{bmatrix}1&a&2\\2b-1&0&c\\b&a+2&0\end{bmatrix}$$ が対称行列になるように $a,b,c$ を決めよ．`,
+    answerKey: ["a=3, b=2, c=5", "a=3,b=2,c=5"], answerDisplay: String.raw`$a=3,\ b=2,\ c=5$`,
+    hint: String.raw`対称行列は $(i,j)$ 成分と $(j,i)$ 成分が等しい．対角をはさんで向かい合う成分を比べる．`,
+    approach: String.raw`$(1,2)=(2,1),\ (1,3)=(3,1),\ (2,3)=(3,2)$ の 3 本の方程式を立てる．`,
+    solution: String.raw`対称性の条件は $$a=2b-1,\qquad 2=b,\qquad c=a+2.$$ 2 番目の式から $b=2$．これを 1 番目に代入して $a=3$．さらに $c=a+2=5$．`,
+    verify: true,
+    essence: String.raw`対称行列の定義を「成分の言葉」$(a_{ij}=a_{ji})$ で使う基本練習．対角成分は条件に現れない．`,
+    checklist: ["対称条件を成分で書けた", "3 組の成分をすべて比較した", "連立して解く順序が適切"] },
+  { id: "lt4-7", unit: "l4", source: "textbook", num: "演習II.5", difficulty: 3,
+    q: String.raw`$$\begin{bmatrix}0&4\\1&4\\3&3\end{bmatrix}A=\begin{bmatrix}4&44\\9&57\\18&72\end{bmatrix}$$ をみたす行列 $A$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$A=\begin{bmatrix}5&13\\1&11\end{bmatrix}$`,
+    hint: String.raw`サイズの鎖から $A$ は $2\times 2$．$A=\begin{bmatrix}a&b\\c&d\end{bmatrix}$ とおいて成分を比較．`,
+    approach: String.raw`第 1 行の比較から $c,d$ が即座に求まる（$0\cdot a+4c=4$ など）．次に第 2 行で $a,b$．第 3 行で検算．`,
+    solution: String.raw`$(3\times 2)(2\times 2)=3\times 2$ より $A=\begin{bmatrix}a&b\\c&d\end{bmatrix}$ とおける．積の第 1 行は $[4c\ \ 4d]=[4\ \ 44]$ だから $c=1,\ d=11$．第 2 行は $[a+4c\ \ b+4d]=[9\ \ 57]$ だから $a=5,\ b=13$．第 3 行で検算：$[3a+3c\ \ 3b+3d]=[3\cdot 5+3\cdot 1\ \ 3\cdot 13+3\cdot 11]=[18\ \ 72]$ で一致．よって $A=\begin{bmatrix}5&13\\1&11\end{bmatrix}$．`,
+    verify: true,
+    essence: String.raw`未知行列は「サイズを確定→文字でおく→成分比較」．使わなかった行での検算を忘れない．`,
+    checklist: ["A のサイズを正しく決定した", "成分比較の方程式が正しい", "余った行で検算した"] },
+  { id: "lt4-8", unit: "l4", source: "textbook", num: "演習II.8", difficulty: 3,
+    q: String.raw`任意の正方行列 $A$ に対して $A+{}^t\!A$ は対称行列であることを示せ．また，$A\,{}^t\!A$ が対称行列であることを示せ．`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）命題 4.2 と $\,{}^t({}^t\!A)=A$ を用いる`,
+    hint: String.raw`対称行列の定義は $X={}^t\!X$．転置をとって元に戻ることを確かめればよい．`,
+    approach: String.raw`$\,{}^t(A+{}^t\!A)$ と $\,{}^t(A\,{}^t\!A)$ を命題 4.2（和・積の転置）で展開する．`,
+    solution: String.raw`命題 4.2 と $\,{}^t({}^t\!A)=A$ より $$\,{}^t(A+{}^t\!A)={}^t\!A+{}^t({}^t\!A)={}^t\!A+A=A+{}^t\!A$$ となり，$A+{}^t\!A$ は対称行列である．また $$\,{}^t(A\,{}^t\!A)={}^t({}^t\!A)\,{}^t\!A=A\,{}^t\!A$$ となり（積の転置で順序が逆転することに注意），$A\,{}^t\!A$ も対称行列である．`,
+    essence: String.raw`「対称性の証明＝転置して元に戻ることの確認」．$\,{}^t(AB)={}^t\!B\,{}^t\!A$ の順序反転がちょうどうまく働く型．`,
+    checklist: ["対称の定義（X=tX）を明示した", "和・積の転置公式を正しく使った", "t(tA)=A を使った"] },
+  { id: "lt5-1", unit: "l5", source: "textbook", num: "問5.1", difficulty: 3,
+    q: String.raw`積が定義できるように分割されているとして，次の計算をせよ．$$\text{(i)}\ \begin{bmatrix}A&O\\O&B\end{bmatrix}\begin{bmatrix}C&O\\O&D\end{bmatrix}\qquad\text{(ii)}\ \begin{bmatrix}A&B\\O&C\end{bmatrix}\begin{bmatrix}S&T\\U&V\end{bmatrix}\qquad\text{(iii)}\ \begin{bmatrix}O&E\\E&O\end{bmatrix}\begin{bmatrix}A&B\\C&D\end{bmatrix}$$`,
+    answerKey: [], answerDisplay: String.raw`(i) $\begin{bmatrix}AC&O\\O&BD\end{bmatrix}$ (ii) $\begin{bmatrix}AS+BU&AT+BV\\CU&CV\end{bmatrix}$ (iii) $\begin{bmatrix}C&D\\A&B\end{bmatrix}$`,
+    hint: String.raw`ブロックを数のように思って積の公式を適用．ただし掛ける順序は保つ．`,
+    approach: String.raw`$O$ との積は $O$，$E$ との積はそのまま，を使って消える項を先に見極める．`,
+    solution: String.raw`ブロック積の公式に従って計算する．(i) $\begin{bmatrix}AC+O&O\\O&O+BD\end{bmatrix}=\begin{bmatrix}AC&O\\O&BD\end{bmatrix}$．(ii) $\begin{bmatrix}AS+BU&AT+BV\\OS+CU&OT+CV\end{bmatrix}=\begin{bmatrix}AS+BU&AT+BV\\CU&CV\end{bmatrix}$．(iii) $\begin{bmatrix}OA+EC&OB+ED\\EA+OC&EB+OD\end{bmatrix}=\begin{bmatrix}C&D\\A&B\end{bmatrix}$．左から $\begin{bmatrix}O&E\\E&O\end{bmatrix}$ を掛けるとブロックの行が入れ替わる．`,
+    essence: String.raw`$O$・$E$ 入りのブロック積はほとんどの項が消える．(iii) は「行の交換を行列の積で表せる」ことの頲証で，後の基本変形につながる．`,
+    checklist: ["ブロック積の公式を正しく適用した", "掛ける順序を保った", "O・E の性質で項を正しく消した"] },
+  { id: "lt5-2", unit: "l5", source: "textbook", num: "演習II.9", difficulty: 4,
+    q: String.raw`2 つの上三角行列の積はまた上三角行列であることを示せ．`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）$i>j$ のとき $(AB)_{ij}=\sum_k a_{ik}b_{kj}=0$ を示す`,
+    hint: String.raw`上三角の条件を成分で書くと「$i>k$ なら $a_{ik}=0$」．$i>j$ のとき和の各項が消えることを示せ．`,
+    approach: String.raw`$(AB)_{ij}=\sum_{k=1}^{n}a_{ik}b_{kj}$ で $i>j$ とする．各 $k$ について $k<i$ か $k\geq i>j$ のいずれかであることに注目．`,
+    solution: String.raw`$A=[a_{ij}],\ B=[b_{ij}]$ を $n$ 次上三角行列とする．すなわち $i>k$ のとき $a_{ik}=0$，$k>j$ のとき $b_{kj}=0$．$i>j$ をみたす $(i,j)$ について $$(AB)_{ij}=\sum_{k=1}^{n}a_{ik}b_{kj}$$ を考える．各 $k$ に対して，もし $k<i$ なら $a_{ik}=0$．もし $k\geq i$ なら $k\geq i>j$ より $b_{kj}=0$．いずれの場合も積 $a_{ik}b_{kj}=0$ となるので $(AB)_{ij}=0$．よって $AB$ は対角より下の成分がすべて $0$，すなわち上三角行列である．`,
+    essence: String.raw`「形の保存」の証明は成分計算 $+$ 添字の場合分け．$k$ を境目 $i$ で 2 分する論法は頻出．`,
+    checklist: ["上三角の条件を成分の言葉で書けた", "k の場合分けが過不足ない", "結論（i>j で成分 0）を明示した"] },
+  { id: "lb3-1", unit: "l3", source: "bank", num: "追加演習1", difficulty: 1,
+    q: String.raw`$A=\begin{bmatrix}3&-1&4\\2&0&5\end{bmatrix}$ について，(i) $A$ のサイズ，(ii) $(2,3)$ 成分と $(1,2)$ 成分，(iii) 転置行列 $\,{}^t\!A$ を答えよ．`,
+    answerKey: [], answerDisplay: String.raw`(i) $2\times 3$ (ii) $(2,3)$ 成分 $5$，$(1,2)$ 成分 $-1$ (iii) $\,{}^t\!A=\begin{bmatrix}3&2\\-1&0\\4&5\end{bmatrix}$`,
+    hint: String.raw`行→列の順．転置は行と列の入れ替え．`,
+    approach: String.raw`定義の確認問題．サイズと成分の読み方，転置の作り方をそのまま適用する．`,
+    solution: String.raw`(i) 行が 2 つ，列が 3 つなので $2\times 3$ 行列．(ii) 第 2 行第 3 列の成分は $5$，第 1 行第 2 列の成分は $-1$．(iii) 行と列を入れ替えて $\,{}^t\!A=\begin{bmatrix}3&2\\-1&0\\4&5\end{bmatrix}$（$3\times 2$ 行列）．`,
+    essence: String.raw`サイズ・成分・転置の 3 点セットを一問で確認．`,
+    checklist: ["サイズの順序が正しい", "成分の位置を正しく読めた", "転置のサイズが 3×2 になった"] },
+  { id: "lb3-2", unit: "l3", source: "bank", num: "追加演習2", difficulty: 2,
+    q: String.raw`$\begin{bmatrix}2&x-1&5\\2&0&y\\5&4&1\end{bmatrix}$ が対称行列（$A={}^t\!A$）になるように $x,y$ を定めよ．`,
+    answerKey: ["x=3, y=4", "x=3,y=4"], answerDisplay: String.raw`$x=3,\ y=4$`,
+    hint: String.raw`$(1,2)$ 成分と $(2,1)$ 成分，$(2,3)$ 成分と $(3,2)$ 成分を等しくする．`,
+    approach: String.raw`対角をはさんで向かい合う成分の組をすべて比較する．`,
+    solution: String.raw`対称性の条件は $x-1=2$，$y=4$，$5=5$（$(1,3)$ と $(3,1)$ はすでに一致）．よって $x=3,\ y=4$．`,
+    essence: String.raw`対称条件 $a_{ij}=a_{ji}$ を成分ごとに書き下すだけ．確認漏れ（全ペアのチェック）に注意．`,
+    checklist: ["向かい合う成分をすべて比較した", "方程式を正しく解いた"] },
+  { id: "lb4-1", unit: "l4", source: "bank", num: "追加演習3", difficulty: 1,
+    q: String.raw`次を計算せよ．$$2\begin{bmatrix}1&-2\\0&3\end{bmatrix}-3\begin{bmatrix}2&1\\-1&0\end{bmatrix}$$`,
+    answerKey: [], answerDisplay: String.raw`$\begin{bmatrix}-4&-7\\3&6\end{bmatrix}$`,
+    hint: String.raw`スカラー倍を先に実行してから引く．`,
+    approach: String.raw`成分ごとに $2a_{ij}-3b_{ij}$ を計算する．`,
+    solution: String.raw`$2\begin{bmatrix}1&-2\\0&3\end{bmatrix}=\begin{bmatrix}2&-4\\0&6\end{bmatrix}$，$3\begin{bmatrix}2&1\\-1&0\end{bmatrix}=\begin{bmatrix}6&3\\-3&0\end{bmatrix}$．差をとって $\begin{bmatrix}2-6&-4-3\\0+3&6-0\end{bmatrix}=\begin{bmatrix}-4&-7\\3&6\end{bmatrix}$．`,
+    essence: String.raw`線形演算（スカラー倍と和）の基本ドリル．`,
+    checklist: ["スカラー倍を全成分に掛けた", "引き算の符号が正しい"] },
+  { id: "lb4-2", unit: "l4", source: "bank", num: "追加演習4", difficulty: 2,
+    q: String.raw`$A=\begin{bmatrix}1&2\\3&4\end{bmatrix},\ B=\begin{bmatrix}0&1\\1&0\end{bmatrix}$ に対して $AB$ と $BA$ を計算し，$AB=BA$ が成り立つか判定せよ．`,
+    answerKey: [], answerDisplay: String.raw`$AB=\begin{bmatrix}2&1\\4&3\end{bmatrix},\quad BA=\begin{bmatrix}3&4\\1&2\end{bmatrix}$．$AB\neq BA$（非可換）`,
+    hint: String.raw`$B$ を右から掛けると列の交換，左から掛けると行の交換が起こる．`,
+    approach: String.raw`定義通り計算して比較する．`,
+    solution: String.raw`$AB=\begin{bmatrix}1\cdot 0+2\cdot 1&1\cdot 1+2\cdot 0\\3\cdot 0+4\cdot 1&3\cdot 1+4\cdot 0\end{bmatrix}=\begin{bmatrix}2&1\\4&3\end{bmatrix}$（$A$ の列が入れ替わる）．$BA=\begin{bmatrix}3&4\\1&2\end{bmatrix}$（$A$ の行が入れ替わる）．よって $AB\neq BA$．`,
+    essence: String.raw`行列の積は一般に非可換．「右掛け＝列操作，左掛け＝行操作」の感覚も培う．`,
+    checklist: ["AB と BA の両方を計算した", "非可換であると結論した"] },
+  { id: "lb4-3", unit: "l4", source: "bank", num: "追加演習5", difficulty: 1,
+    q: String.raw`$A$ を $2\times 3$ 行列，$B$ を $3\times 4$ 行列，$C$ を $2\times 2$ 行列とする．次のうち定義できるものをすべて選び，そのサイズを答えよ．$$AB,\quad BA,\quad CA,\quad AC,\quad C^2$$`,
+    answerKey: [], answerDisplay: String.raw`定義できる：$AB$（$2\times 4$），$CA$（$2\times 3$），$C^2$（$2\times 2$）．$BA,\ AC$ は定義できない`,
+    hint: String.raw`$(m\times n)(n\times\ell)$ の形，すなわち「内側のサイズが一致」のときだけ積が定義される．`,
+    approach: String.raw`各積について「左の列数＝右の行数」を確認する．`,
+    solution: String.raw`$AB$：$(2\times 3)(3\times 4)$ で内側が 3 で一致するので定義でき，サイズは $2\times 4$．$BA$：$(3\times 4)(2\times 3)$ は $4\neq 2$ で定義できない．$CA$：$(2\times 2)(2\times 3)$ で定義でき，$2\times 3$．$AC$：$(2\times 3)(2\times 2)$ は $3\neq 2$ で定義できない．$C^2$：$(2\times 2)(2\times 2)$ で定義でき，$2\times 2$．`,
+    essence: String.raw`積の定義域（サイズの鎖）の確認．計算を始める前にサイズ判定をする習慣をつける．`,
+    checklist: ["内側のサイズ一致を確認した", "定義できる積のサイズを正しく答えた"] },
+  { id: "lb4-4", unit: "l4", source: "bank", num: "追加演習6", difficulty: 2,
+    q: String.raw`$A=\begin{bmatrix}1&1\\1&1\end{bmatrix},\ B=\begin{bmatrix}1&-1\\-1&1\end{bmatrix}$ に対して $AB$ を計算せよ．この結果は数の世界と比べて何が特異か述べよ．`,
+    answerKey: [], answerDisplay: String.raw`$AB=O$．$A\neq O,\ B\neq O$ なのに積が零行列（零因子の存在）`,
+    hint: String.raw`各成分を計算するとすべて打ち消し合う．`,
+    approach: String.raw`定義通り計算し，数の性質「$xy=0\Rightarrow x=0$ または $y=0$」と対比する．`,
+    solution: String.raw`$AB=\begin{bmatrix}1\cdot 1+1\cdot(-1)&1\cdot(-1)+1\cdot 1\\1\cdot 1+1\cdot(-1)&1\cdot(-1)+1\cdot 1\end{bmatrix}=\begin{bmatrix}0&0\\0&0\end{bmatrix}=O.$$ 数では $xy=0$ なら $x=0$ か $y=0$ だが，行列では $A\neq O$ かつ $B\neq O$ でも $AB=O$ となりうる．このような行列を零因子という．したがって行列の等式では「両辺を $A$ で割る」操作は一般にできない．`,
+    essence: String.raw`零因子の存在は行列の世界の大きな特徴．簡約（割る操作）は正則行列でしかできない．`,
+    checklist: ["AB=O を正しく計算した", "零因子の意味を説明した"] },
+  { id: "lb4-5", unit: "l4", source: "bank", num: "追加演習7", difficulty: 2,
+    q: String.raw`$A=\begin{bmatrix}2&5\\1&3\end{bmatrix}$ の逆行列を求め，$AA^{-1}=E$ を確かめよ．`,
+    answerKey: [], answerDisplay: String.raw`$A^{-1}=\begin{bmatrix}3&-5\\-1&2\end{bmatrix}$`,
+    hint: String.raw`$ad-bc=2\cdot 3-5\cdot 1=1$．2 次の逆行列の公式を使う．`,
+    approach: String.raw`公式 $A^{-1}=\frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$ に当てはめる．`,
+    solution: String.raw`$ad-bc=6-5=1\neq 0$ より $A$ は正則で $$A^{-1}=\frac{1}{1}\begin{bmatrix}3&-5\\-1&2\end{bmatrix}=\begin{bmatrix}3&-5\\-1&2\end{bmatrix}.$$ 検算：$AA^{-1}=\begin{bmatrix}2\cdot 3+5(-1)&2(-5)+5\cdot 2\\1\cdot 3+3(-1)&1(-5)+3\cdot 2\end{bmatrix}=\begin{bmatrix}1&0\\0&1\end{bmatrix}=E$．`,
+    essence: String.raw`2 次の逆行列公式の運用．$ad-bc=1$ のときは割る手間がなく検算も楽．`,
+    checklist: ["ad−bc を先に計算した", "公式の符号・配置が正しい", "AA⁻¹=E を検算した"] },
+  { id: "lb4-6", unit: "l4", source: "bank", num: "追加演習8", difficulty: 3,
+    q: String.raw`正則行列 $A,B$ の逆行列が $A^{-1}=\begin{bmatrix}1&1\\0&1\end{bmatrix},\ B^{-1}=\begin{bmatrix}2&0\\1&1\end{bmatrix}$ であるとき，$(AB)^{-1}$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$(AB)^{-1}=B^{-1}A^{-1}=\begin{bmatrix}2&2\\1&2\end{bmatrix}$`,
+    hint: String.raw`命題 4.5：$(AB)^{-1}=B^{-1}A^{-1}$（順序が逆転）．`,
+    approach: String.raw`$A$ や $B$ を復元する必要はない．公式に従い $B^{-1}A^{-1}$ を計算するだけ．`,
+    solution: String.raw`$(AB)^{-1}=B^{-1}A^{-1}=\begin{bmatrix}2&0\\1&1\end{bmatrix}\begin{bmatrix}1&1\\0&1\end{bmatrix}=\begin{bmatrix}2\cdot 1+0\cdot 0&2\cdot 1+0\cdot 1\\1\cdot 1+1\cdot 0&1\cdot 1+1\cdot 1\end{bmatrix}=\begin{bmatrix}2&2\\1&2\end{bmatrix}.$$ 順序を間違えて $A^{-1}B^{-1}=\begin{bmatrix}3&1\\1&1\end{bmatrix}$ としないこと．`,
+    essence: String.raw`「靴下と靴の法則」：先に履いたものを後に脱ぐ．$(AB)^{-1}=B^{-1}A^{-1}$ の順序反転は転置と同じパターン．`,
+    checklist: ["順序を逆転させて B⁻¹A⁻¹ を計算した", "積の計算が正しい"] },
+  { id: "lb4-7", unit: "l4", source: "bank", num: "追加演習9", difficulty: 3,
+    q: String.raw`$A=\begin{bmatrix}1&1\\0&1\end{bmatrix}$ に対して $A^{n}$（$n$ は自然数）を推測し，数学的帰納法で証明せよ．`,
+    answerKey: [], answerDisplay: String.raw`$A^{n}=\begin{bmatrix}1&n\\0&1\end{bmatrix}$`,
+    hint: String.raw`$A^{2},A^{3}$ を計算すると $(1,2)$ 成分だけが $2,3,\ldots$ と増えていく．`,
+    approach: String.raw`実験（$n=2,3$）→推測→帰納法（$A^{k+1}=A^{k}A$ を計算）の 3 ステップ．`,
+    solution: String.raw`$A^{2}=\begin{bmatrix}1&2\\0&1\end{bmatrix}$，$A^{3}=\begin{bmatrix}1&3\\0&1\end{bmatrix}$ より $A^{n}=\begin{bmatrix}1&n\\0&1\end{bmatrix}$ と推測する．【証明】$n=1$ は明らか．$n=k$ で成立すると仮定すると $$A^{k+1}=A^{k}A=\begin{bmatrix}1&k\\0&1\end{bmatrix}\begin{bmatrix}1&1\\0&1\end{bmatrix}=\begin{bmatrix}1&k+1\\0&1\end{bmatrix}$$ となり $n=k+1$ でも成立．よってすべての自然数 $n$ で $A^{n}=\begin{bmatrix}1&n\\0&1\end{bmatrix}$．`,
+    essence: String.raw`べき乗の問題は「小さく実験→推測→帰納法」が鉄板．この形の行列は定期試験でも頻出．`,
+    checklist: ["小さい n で実験して推測した", "帰納法の 2 ステップを明示した", "行列の積の計算が正しい"] },
+  { id: "lb5-1", unit: "l5", source: "bank", num: "追加演習10", difficulty: 2,
+    q: String.raw`$A=\begin{bmatrix}1&0&2\\0&1&1\end{bmatrix}$ の列ベクトル分割を $A=[\boldsymbol{a}_1\ \boldsymbol{a}_2\ \boldsymbol{a}_3]$ とする．$\boldsymbol{x}=\begin{bmatrix}2\\-1\\3\end{bmatrix}$ に対して $A\boldsymbol{x}$ を列ベクトルの 1 次結合で表し，その値を計算せよ．`,
+    answerKey: [], answerDisplay: String.raw`$A\boldsymbol{x}=2\boldsymbol{a}_1-\boldsymbol{a}_2+3\boldsymbol{a}_3=\begin{bmatrix}8\\2\end{bmatrix}$`,
+    hint: String.raw`$A\boldsymbol{x}=x_1\boldsymbol{a}_1+x_2\boldsymbol{a}_2+x_3\boldsymbol{a}_3$．係数は $\boldsymbol{x}$ の成分．`,
+    approach: String.raw`各列ベクトルを書き出し，成分を係数とする 1 次結合を作る．`,
+    solution: String.raw`$\boldsymbol{a}_1=\begin{bmatrix}1\\0\end{bmatrix},\ \boldsymbol{a}_2=\begin{bmatrix}0\\1\end{bmatrix},\ \boldsymbol{a}_3=\begin{bmatrix}2\\1\end{bmatrix}$ より $$A\boldsymbol{x}=2\boldsymbol{a}_1+(-1)\boldsymbol{a}_2+3\boldsymbol{a}_3=2\begin{bmatrix}1\\0\end{bmatrix}-\begin{bmatrix}0\\1\end{bmatrix}+3\begin{bmatrix}2\\1\end{bmatrix}=\begin{bmatrix}2-0+6\\0-1+3\end{bmatrix}=\begin{bmatrix}8\\2\end{bmatrix}.$$ 普通の積の計算ともちろん一致する．`,
+    essence: String.raw`$A\boldsymbol{x}$＝「列の 1 次結合」の見方を手を動かして確認．連立 1 次方程式論の土台になる．`,
+    checklist: ["列ベクトルを正しく取り出した", "係数と列の対応が正しい", "普通の積と一致することを確認した"] },
+  { id: "lb5-2", unit: "l5", source: "bank", num: "追加演習11", difficulty: 3,
+    q: String.raw`$E$ を $n$ 次単位行列，$A,B$ を $n$ 次正方行列とする．ブロック積を用いて $$\begin{bmatrix}E&A\\O&E\end{bmatrix}\begin{bmatrix}E&B\\O&E\end{bmatrix}$$ を計算せよ．またこの結果から $\begin{bmatrix}E&A\\O&E\end{bmatrix}$ の逆行列を推定せよ．`,
+    answerKey: [], answerDisplay: String.raw`$\begin{bmatrix}E&A+B\\O&E\end{bmatrix}$．逆行列は $B=-A$ として $\begin{bmatrix}E&-A\\O&E\end{bmatrix}$`,
+    hint: String.raw`ブロック積の公式で $O$ と $E$ の性質を使う．積が $E_{2n}$ になる $B$ を探せ．`,
+    approach: String.raw`ブロックごとに計算すると $(1,2)$ ブロックだけが $A+B$ になる．`,
+    solution: String.raw`ブロック積の公式より $$\begin{bmatrix}E\cdot E+A\cdot O&E\cdot B+A\cdot E\\O\cdot E+E\cdot O&O\cdot B+E\cdot E\end{bmatrix}=\begin{bmatrix}E&A+B\\O&E\end{bmatrix}.$$ 特に $B=-A$ とすれば積は $\begin{bmatrix}E&O\\O&E\end{bmatrix}=E_{2n}$ となり，逆の順序の積も同様に $E_{2n}$．よって $$\begin{bmatrix}E&A\\O&E\end{bmatrix}^{-1}=\begin{bmatrix}E&-A\\O&E\end{bmatrix}.$$`,
+    essence: String.raw`ブロック計算で逆行列が「見える」例．成分計算では $2n$ 次の逆行列など手が出ないが，ブロックなら一瞬．`,
+    checklist: ["ブロック積の 4 ブロックをすべて計算した", "B=−A の置き換えに気づいた", "両側からの積が E になることを確認した"] },
+  { id: "ladv-1", unit: "l4", source: "advanced", num: "発展1（演習II.13）", difficulty: 5,
+    q: String.raw`$n$ 次正方行列 $A=[a_{ij}]$ の対角成分の和 $\mathrm{tr}\,A=a_{11}+a_{22}+\cdots+a_{nn}$ を $A$ のトレースという．(1) $\mathrm{tr}(cA)=c\,\mathrm{tr}\,A$（$c$ は数），$\mathrm{tr}(A+B)=\mathrm{tr}\,A+\mathrm{tr}\,B$ を示せ．(2) $\mathrm{tr}(AB)=\mathrm{tr}(BA)$ を示せ．(3) $AB-BA=E_n$ をみたす $n$ 次正方行列 $A,B$ は存在しないことを示せ．`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）(2) は両辺とも $\sum_i\sum_k a_{ik}b_{ki}$．(3) は両辺のトレースを比較（$0\neq n$）`,
+    hint: String.raw`(2) $(AB)_{ii}=\sum_k a_{ik}b_{ki}$ を $i$ について足し，和の順序を交換せよ．(3) トレースは線形で $\mathrm{tr}(AB)=\mathrm{tr}(BA)$ を使うと左辺のトレースは？`,
+    approach: String.raw`(1) は成分の定義から直接．(2) は二重和の順序交換．(3) は「両辺にトレースを取る」という一手で矛盾を導く．`,
+    solution: String.raw`(1) $cA$ の対角成分は $ca_{ii}$ なので $\mathrm{tr}(cA)=\sum_i ca_{ii}=c\,\mathrm{tr}\,A$．$A+B$ の対角成分は $a_{ii}+b_{ii}$ なので $\mathrm{tr}(A+B)=\mathrm{tr}\,A+\mathrm{tr}\,B$．(2) $$\mathrm{tr}(AB)=\sum_{i=1}^{n}(AB)_{ii}=\sum_{i=1}^{n}\sum_{k=1}^{n}a_{ik}b_{ki}=\sum_{k=1}^{n}\sum_{i=1}^{n}b_{ki}a_{ik}=\sum_{k=1}^{n}(BA)_{kk}=\mathrm{tr}(BA).$$ (3) もし $AB-BA=E_n$ をみたす $A,B$ が存在するとする．両辺のトレースを取ると，(1)(2) より左辺は $$\mathrm{tr}(AB-BA)=\mathrm{tr}(AB)-\mathrm{tr}(BA)=0$$ である一方，右辺は $\mathrm{tr}\,E_n=n\geq 1$．$0\neq n$ で矛盾．よってそのような $A,B$ は存在しない．`,
+    essence: String.raw`トレースは「非可換性の度合いを測る不変量」．不変量を両辺に適用して矛盾を導くのは大学数学の典型手法．量子力学の正準交換関係が有限次元で実現不可能な理由でもある．`,
+    checklist: ["トレースの線形性を成分で示した", "二重和の交換を正しく行った", "(3) で両辺のトレースを比較し矛盾を明示した"] },
+  { id: "ladv-2", unit: "l4", source: "advanced", num: "発展2（演習II.14）", difficulty: 5,
+    q: String.raw`すべての 2 次正方行列と可換な 2 次正方行列 $A$ は，スカラー行列 $cE_2$（$c$ は数）に限ることを示せ．`,
+    answerKey: [], answerDisplay: String.raw`（証明問題）$E_{12}=\begin{bmatrix}0&1\\0&0\end{bmatrix},\ E_{21}=\begin{bmatrix}0&0\\1&0\end{bmatrix}$ との可換性から成分を絞る`,
+    hint: String.raw`すべてと可換なら，特に選んだ行列とも可換．成分の少ない $E_{12},E_{21}$ で試せ．`,
+    approach: String.raw`$A=\begin{bmatrix}a&b\\c&d\end{bmatrix}$ とおき，$AE_{12}=E_{12}A$ と $AE_{21}=E_{21}A$ を成分比較する．`,
+    solution: String.raw`$A=\begin{bmatrix}a&b\\c&d\end{bmatrix}$ とおく．$E_{12}=\begin{bmatrix}0&1\\0&0\end{bmatrix}$ との積は $$AE_{12}=\begin{bmatrix}0&a\\0&c\end{bmatrix},\qquad E_{12}A=\begin{bmatrix}c&d\\0&0\end{bmatrix}.$$ 可換性から $c=0,\ a=d$．同様に $E_{21}=\begin{bmatrix}0&0\\1&0\end{bmatrix}$ との可換性から $$AE_{21}=\begin{bmatrix}b&0\\d&0\end{bmatrix}=E_{21}A=\begin{bmatrix}0&0\\a&b\end{bmatrix}$$ より $b=0,\ d=a$．よって $A=\begin{bmatrix}a&0\\0&a\end{bmatrix}=aE_2$．逆にスカラー行列 $cE_2$ は任意の $X$ に対し $(cE)X=cX=X(cE)$ となり可換．したがって求める行列はスカラー行列に限る．`,
+    essence: String.raw`「全部と可換⇒特別なものと可換」と弱めて情報を引き出す手法．行列単位 $E_{ij}$ はこの種の議論の定番のテスター．結果は「中心（center）はスカラー」という代数学の重要事実．`,
+    checklist: ["テスト行列を自分で選んだ", "成分比較で a=d, b=c=0 を導いた", "逆向き（スカラー行列は可換）も確認した"] },
+  { id: "ladv-3", unit: "l4", source: "advanced", num: "発展3（演習II.15）", difficulty: 5,
+    q: String.raw`$n$ 次正方行列 $A$ がある自然数 $m$ に対して $A^{m}=O$ をみたすとき，$A$ をべき零行列という．(1) $A$ がべき零行列ならば $A$ は正則でないことを示せ．(2) $A$ がべき零行列のとき，$E-A$ および $E+A$ は正則であることを示し，それぞれの逆行列を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`(2) $(E-A)^{-1}=E+A+A^{2}+\cdots+A^{m-1}$，$(E+A)^{-1}=E-A+A^{2}-\cdots+(-1)^{m-1}A^{m-1}$`,
+    hint: String.raw`(1) 正則と仮定して $A^{m}=O$ の両辺に $(A^{-1})^{m}$ を掛けよ．(2) 等比数列の和の公式 $1/(1-x)=1+x+x^{2}+\cdots$ を思い出せ．$A^{m}=O$ なら和は有限で打ち切れる．`,
+    approach: String.raw`(2) $(E-A)(E+A+\cdots+A^{m-1})$ を展開すると途中の項がすべて打ち消し合い（望遠鏡和），$E-A^{m}=E$ が残る．`,
+    solution: String.raw`(1) $A$ が正則と仮定する．$A^{m}=O$ の両辺に左から $(A^{-1})^{m}$ を掛けると $E=(A^{-1})^{m}O=O$ となり矛盾（$E\neq O$）．よって $A$ は正則でない．(2) $B=E+A+A^{2}+\cdots+A^{m-1}$ とおく．$$(E-A)B=(E+A+\cdots+A^{m-1})-(A+A^{2}+\cdots+A^{m})=E-A^{m}=E.$$ 同様に $B(E-A)=E$．よって $E-A$ は正則で $(E-A)^{-1}=E+A+A^{2}+\cdots+A^{m-1}$．また $-A$ も $(-A)^{m}=(-1)^{m}A^{m}=O$ よりべき零なので，上の結果の $A$ を $-A$ に換えて $$(E+A)^{-1}=E-A+A^{2}-\cdots+(-1)^{m-1}A^{m-1}.$$`,
+    essence: String.raw`幾何級数 $\frac{1}{1-x}=1+x+x^{2}+\cdots$ の行列版．べき零性のおかげで無限和が有限和で打ち切れる．「数の公式を行列に輸入する」発想は今後（指数関数 $e^{A}$ など）も繰り返し登場する．`,
+    checklist: ["(1) で背理法の構造を明示した", "望遠鏡和の打ち消しを正しく書いた", "両側からの積が E になることに触れた", "E+A への応用（A→−A）ができた"] },
+  { id: "ladv-4", unit: "l5", source: "advanced", num: "発展4（演習II.10）", difficulty: 4,
+    q: String.raw`$E_m,\ E_n$ をそれぞれ $m$ 次，$n$ 次の単位行列，$A$ を $m\times n$ 行列とする．自然数 $k$ に対して $$\begin{bmatrix}E_m&A\\O&E_n\end{bmatrix}^{k}$$ を求めよ．`,
+    answerKey: [], answerDisplay: String.raw`$\begin{bmatrix}E_m&kA\\O&E_n\end{bmatrix}$`,
+    hint: String.raw`$k=2,3$ をブロック積で計算して規則を見つけ，帰納法で仕上げよ．`,
+    approach: String.raw`ブロック積で 2 乗を計算すると $(1,2)$ ブロックが $2A$ になる．以下同様に $kA$ と推測し，帰納法で確認．`,
+    solution: String.raw`$P=\begin{bmatrix}E_m&A\\O&E_n\end{bmatrix}$ とおく．ブロック積で $$P^{2}=\begin{bmatrix}E_m E_m+AO&E_m A+AE_n\\OE_m+E_n O&OA+E_n E_n\end{bmatrix}=\begin{bmatrix}E_m&2A\\O&E_n\end{bmatrix}.$$ そこで $P^{k}=\begin{bmatrix}E_m&kA\\O&E_n\end{bmatrix}$ と推測する．【帰納法】$k=1$ は明らか．$k$ で成立するなら $$P^{k+1}=P^{k}P=\begin{bmatrix}E_m&kA\\O&E_n\end{bmatrix}\begin{bmatrix}E_m&A\\O&E_n\end{bmatrix}=\begin{bmatrix}E_m&A+kA\\O&E_n\end{bmatrix}=\begin{bmatrix}E_m&(k+1)A\\O&E_n\end{bmatrix}$$ となり $k+1$ でも成立．よってすべての自然数 $k$ に対し $P^{k}=\begin{bmatrix}E_m&kA\\O&E_n\end{bmatrix}$．`,
+    essence: String.raw`lb4-7（$2\times 2$ の場合）のブロック版．「ブロックを数のように扱って実験→推測→帰納法」という定石の流れがそのまま通用する．`,
+    checklist: ["ブロック積で 2 乗を正しく計算した", "推測を帰納法で証明した", "サイズ（E_m, E_n, A の形）を意識した"] }
+]);
+</script>
+​
+<!-- 📥 新しいデータブロック（スクリプトブロック）は【この行の上】に追加する -->
+<!--    例：StudyDB.addSubject({id:"phys-mech",name:"力学",textbook:"…",range:"…"}); -->
+<!--        StudyDB.addUnits("math-calc",[…]); StudyDB.addProblems("math-calc",[…]); -->
+<!-- ================================================================ -->
+<script>
+(function(){
+"use strict";
+var CUR = (function(){
+  var subs = StudyDB.list();
+  var id = subs.length ? subs[0].id : null;
+  try{ var s = localStorage.getItem("studyapp-current-subject"); if(s && StudyDB.get(s)) id = s; }catch(e){}
+  return id;
+})();
+var D = StudyDB.get(CUR);
+var KEY, store;
+function loadStore(){
+  KEY = "studyapp-" + D.subject.id + "-v1";
+  try{ store = JSON.parse(localStorage.getItem(KEY)) || {marks:{},tests:[]}; }catch(e){ store = {marks:{},tests:[]}; }
+  if(!store.marks) store.marks = {};
+  if(!store.tests) store.tests = [];
+}
+loadStore();
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+function switchSubject(id){
+  if(!StudyDB.get(id) || id===D.subject.id) return;
+  D = StudyDB.get(id);
+  try{ localStorage.setItem("studyapp-current-subject", id); }catch(e){}
+  loadStore();
+  state = { screen: "home" };
+  updateHeader();
+  render();
+  window.scrollTo(0,0);
+}
+​
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;"); }
+function el(tag, cls, html){ var e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
+function math(node){ if(window.renderMathInElement){ try{ renderMathInElement(node,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false}); }catch(e){} } }
+function unitById(id){ return D.units.filter(function(u){return u.id===id;})[0]; }
+function probsOf(unitId, source){ return D.problems.filter(function(p){ return (!unitId||p.unit===unitId) && (!source||p.source===source); }); }
+function stars(n){ var s=""; for(var i=1;i<=5;i++) s += (i<=n ? "★" : "☆"); return s; }
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+​
+function normAns(s){
+  s = String(s||"");
+  try{ s = s.normalize("NFKC"); }catch(e){}
+  s = s.toLowerCase();
+  s = s.replace(/\s+/g,"");
+  s = s.replace(/，/g,",").replace(/[．。]/g,".");
+  s = s.replace(/pi/g,"π");
+  s = s.replace(/sqrt\(/g,"√(");
+  s = s.replace(/[×*]/g,"");
+  s = s.replace(/\+c$/,"");
+  return s;
+}
+function judge(p, input){
+  if(!p.answerKey || !p.answerKey.length) return null;
+  var n = normAns(input);
+  if(!n) return false;
+  for(var i=0;i<p.answerKey.length;i++){ if(normAns(p.answerKey[i])===n) return true; }
+  return false;
+}
+var SRC_LABEL = {textbook:"教科書 章末問題", bank:"AI問題バンク", advanced:"発展演習", pastexam:"過去問"};
+var BLK = {def:"定義", thm:"定理", ex:"例", note:"補足", proof:"証明", point:"ポイント", warn:"よくあるミス", table:"公式表", fig:"図"};
+​
+function renderBlocks(blocks){
+  var wrap = el("div");
+  (blocks||[]).forEach(function(b){
+    if(b.t==="h"){ wrap.appendChild(el("h3",null,esc(b.body))); return; }
+    if(b.t==="p"){ wrap.appendChild(el("p",null,b.body)); return; }
+    var box = el("div","blk-box blk-"+b.t);
+    var label = (BLK[b.t]||b.t) + (b.n? "　"+b.n : "") + (b.title? "："+b.title : "");
+    box.appendChild(el("div","blk-label", esc(label) + (b.verify? ' <span class="verifybadge">⚠ OCR要確認</span>' : "")));
+    box.appendChild(el("div",null,b.body));
+    if(b.sol){
+      var d = el("details","blk-sol");
+      d.innerHTML = "<summary>【解】を表示</summary><div></div>";
+      d.lastChild.innerHTML = b.sol;
+      d.addEventListener("toggle",function(){ if(d.open) math(d); });
+      box.appendChild(d);
+    }
+    wrap.appendChild(box);
+  });
+  return wrap;
+}
+​
+function problemCard(p){
+  var card = el("div","card");
+  var marks = [["o","○ できた"],["tri","△ あやしい"],["x","× できなかった"]];
+  var mkChar = {o:"○",tri:"△",x:"×"};
+  var head = el("div","row");
+  head.innerHTML = '<span class="badge">'+esc(SRC_LABEL[p.source]||p.source)+'</span>'
+    + '<span class="muted">'+esc(p.num||p.id)+'</span>'
+    + '<span class="diff">'+stars(p.difficulty)+'</span>'
+    + (p.verify? '<span class="verifybadge">⚠ OCR要確認</span>' : "")
+    + '<span class="grow"></span>'
+    + '<span class="mark-state">'+(mkChar[store.marks[p.id]]||"")+'</span>';
+  card.appendChild(head);
+  card.appendChild(el("div","prob-q", p.q));
+  var ans = el("div","answer-row row");
+  if(p.answerKey && p.answerKey.length){
+    var inp = document.createElement("input"); inp.type="text"; inp.placeholder="答えを入力（例：1/3，π/4，log|x| など）"; inp.className="grow";
+    var jbtn = el("button","btn small","判定");
+    var res = el("span","judge","");
+    jbtn.onclick = function(){ var ok = judge(p, inp.value); res.className = "judge "+(ok?"ok":"ng"); res.textContent = ok? "⭕ 正解！" : "❌ 不正解"; };
+    inp.addEventListener("keydown",function(ev){ if(ev.key==="Enter") jbtn.onclick(); });
+    ans.appendChild(inp); ans.appendChild(jbtn); ans.appendChild(res);
+  } else {
+    ans.appendChild(el("span","muted","✍️ 記述式：紙に解答を書いてから，解答・解説とチェックリストで自己採点しよう"));
+  }
+  card.appendChild(ans);
+  var stages = [["💡 ヒント",p.hint],["🧭 方針",p.approach],["📖 解答・解説",(p.answerDisplay? "<div>答："+p.answerDisplay+"</div><hr class='sep'>" : "")+(p.solution||"")],["✨ 本質",p.essence]];
+  var btnRow = el("div","row stage-btns");
+  var stageWrap = el("div");
+  stages.forEach(function(st){
+    if(!st[1]) return;
+    var b = el("button","btn small",st[0]);
+    var dv = el("div","stage"); dv.style.display="none"; dv.innerHTML = st[1];
+    b.onclick = function(){ var vis = dv.style.display!=="none"; dv.style.display = vis? "none" : "block"; if(!vis) math(dv); };
+    btnRow.appendChild(b); stageWrap.appendChild(dv);
+  });
+  card.appendChild(btnRow); card.appendChild(stageWrap);
+  if(p.checklist && p.checklist.length){
+    var d = el("details","checklist");
+    d.innerHTML = '<summary>☑ 記述自己採点チェックリスト</summary><div>'+p.checklist.map(function(c){ return '<label><input type="checkbox"> '+esc(c)+'</label>'; }).join("")+'</div>';
+    card.appendChild(d);
+  }
+  var sm = el("div","selfmark row");
+  sm.appendChild(el("span","muted","自己評価："));
+  marks.forEach(function(m){
+    var b = el("button","btn small"+(store.marks[p.id]===m[0]? " primary" : ""), m[1]);
+    b.onclick = function(){
+      store.marks[p.id] = m[0]; save();
+      var bs = sm.querySelectorAll("button");
+      for(var i=0;i<bs.length;i++){ bs[i].className = "btn small"+(marks[i][0]===m[0]? " primary" : ""); }
+      head.querySelector(".mark-state").textContent = mkChar[m[0]];
+    };
+    sm.appendChild(b);
+  });
+  card.appendChild(sm);
+  math(card);
+  return card;
+}
+​
+// ---------- 画面 ----------
+var state = { screen: "home" };
+​
+function screenHome(app){
+  var subs = StudyDB.list();
+  if(subs.length>1){
+    var sw = el("div","card");
+    sw.innerHTML = '<h3 style="margin-top:0">📚 教科書を選ぶ</h3>';
+    var rr = el("div","row");
+    subs.forEach(function(sj){
+      var b = el("button","opt"+(sj.id===D.subject.id? " on":""), esc(sj.name));
+      b.onclick = function(){ switchSubject(sj.id); };
+      rr.appendChild(b);
+    });
+    sw.appendChild(rr);
+    app.appendChild(sw);
+  }
+  var s = el("div","card");
+  s.innerHTML = '<h2 style="margin-top:0">'+esc(D.subject.name)+'</h2>'
+    + '<div class="muted">'+esc(D.subject.textbook)+'</div>'
+    + '<div class="muted">試験範囲：'+esc(D.subject.range)+'</div>';
+  app.appendChild(s);
+  var total = D.problems.length, o=0, tri=0, x=0;
+  D.problems.forEach(function(p){ var m=store.marks[p.id]; if(m==="o")o++; else if(m==="tri")tri++; else if(m==="x")x++; });
+  var pct = total? Math.round(o/total*100) : 0;
+  var pc = el("div","card");
+  pc.innerHTML = '<h3 style="margin-top:0">学習の進み具合</h3>'
+    + '<div class="progressbar"><div style="width:'+pct+'%"></div></div>'
+    + '<div class="muted" style="margin-top:6px">○ '+o+'　△ '+tri+'　× '+x+'　／ 全 '+total+' 問（達成率 '+pct+'%）</div>';
+  app.appendChild(pc);
+  var uc = el("div","card");
+  uc.innerHTML = '<h3 style="margin-top:0">単元一覧</h3>';
+  D.units.forEach(function(u){
+    var r = el("div","row clickable");
+    r.style.padding = "6px 0";
+    r.innerHTML = '<span class="badge">'+esc(u.no)+'</span><span>'+esc(u.title)+'</span><span class="muted">'+esc(u.pages)+'</span><span class="grow"></span><span class="muted">'+probsOf(u.id).length+'問</span>';
+    r.onclick = function(){ state.tbUnit = u.id; go("textbook"); };
+    uc.appendChild(r);
+  });
+  app.appendChild(uc);
+  var hc = el("div","card");
+  hc.innerHTML = '<h3 style="margin-top:0">擬似定期テストの記録</h3>';
+  if(!store.tests.length){ hc.appendChild(el("div","muted","まだ受験記録がない．「📝 擬似定期テスト」から挑戦しよう．")); }
+  else store.tests.slice(-5).reverse().forEach(function(t){
+    hc.appendChild(el("div","muted", esc(t.date)+"　"+esc(t.units)+"　"+t.score+" / "+t.max+" 問正解"));
+  });
+  app.appendChild(hc);
+}
+​
+function screenTextbook(app){
+  if(!state.tbUnit) state.tbUnit = D.units[0].id;
+  if(!state.tbTab) state.tbTab = "ai";
+  var bar = el("div","row");
+  D.units.forEach(function(u){
+    var b = el("button","opt"+(state.tbUnit===u.id? " on":""), esc(u.no));
+    b.onclick = function(){ state.tbUnit = u.id; render(); };
+    bar.appendChild(b);
+  });
+  app.appendChild(bar);
+  var u = unitById(state.tbUnit);
+  app.appendChild(el("h2", null, esc(u.no+" "+u.title)+' <span class="muted">'+esc(u.pages)+'</span>'));
+  var tabs = el("div","tabs");
+  [["ai","🤖 AI再編テキスト"],["tb","📘 教科書原文"]].forEach(function(tb){
+    var b = el("button","opt"+(state.tbTab===tb[0]? " on":""), tb[1]);
+    b.onclick = function(){ state.tbTab = tb[0]; render(); };
+    tabs.appendChild(b);
+  });
+  app.appendChild(tabs);
+  app.appendChild(renderBlocks(state.tbTab==="ai"? u.aiText : u.textbook));
+  var pr = el("button","btn primary","この単元を演習する ✏️");
+  pr.onclick = function(){ state.prUnit = u.id; go("practice"); };
+  app.appendChild(pr);
+}
+​
+function screenPractice(app){
+  var f = el("div","card");
+  f.innerHTML = '<h3 style="margin-top:0">✏️ 演習</h3>';
+  var r1 = el("div","row");
+  r1.appendChild(el("span","muted","単元："));
+  [["","すべて"]].concat(D.units.map(function(u){ return [u.id, u.no]; })).forEach(function(o){
+    var b = el("button","opt"+((state.prUnit||"")===o[0]? " on":""), esc(o[1]));
+    b.onclick = function(){ state.prUnit = o[0]; render(); };
+    r1.appendChild(b);
+  });
+  f.appendChild(r1);
+  var r2 = el("div","row"); r2.style.marginTop = "6px";
+  r2.appendChild(el("span","muted","出題元："));
+  [["","すべて"],["textbook","教科書 章末問題"],["bank","AI問題バンク"]].forEach(function(o){
+    var b = el("button","opt"+((state.prSrc||"")===o[0]? " on":""), o[1]);
+    b.onclick = function(){ state.prSrc = o[0]; render(); };
+    r2.appendChild(b);
+  });
+  f.appendChild(r2);
+  var r3 = el("div","row"); r3.style.marginTop = "6px";
+  r3.appendChild(el("span","muted","難易度："));
+  [[0,"すべて"],[1,"★"],[2,"★★"],[3,"★★★"],[4,"★★★★"],[5,"★★★★★"]].forEach(function(o){
+    var b = el("button","opt"+((state.prDiff||0)===o[0]? " on":""), o[1]);
+    b.onclick = function(){ state.prDiff = o[0]; render(); };
+    r3.appendChild(b);
+  });
+  f.appendChild(r3);
+  var r4 = el("div","row"); r4.style.marginTop = "6px";
+  var rb = el("button","opt"+(state.prReview? " on":""),"🔁 復習モード（△・×の問題のみ）");
+  rb.onclick = function(){ state.prReview = !state.prReview; render(); };
+  r4.appendChild(rb);
+  f.appendChild(r4);
+  app.appendChild(f);
+  var list = D.problems.filter(function(p){
+    if(p.source==="advanced") return false;
+    if(state.prUnit && p.unit!==state.prUnit) return false;
+    if(state.prSrc && p.source!==state.prSrc) return false;
+    if(state.prDiff && p.difficulty!==state.prDiff) return false;
+    if(state.prReview){ var m = store.marks[p.id]; if(m!=="tri" && m!=="x") return false; }
+    return true;
+  });
+  app.appendChild(el("div","muted", list.length+" 問"));
+  list.forEach(function(p){ app.appendChild(problemCard(p)); });
+}
+​
+function genTest(unitIds, n){
+  var pool = D.problems.filter(function(p){ return unitIds.indexOf(p.unit)>=0 && (p.source==="textbook"||p.source==="bank"); });
+  var basic = shuffle(pool.filter(function(p){ return p.difficulty<=2; }));
+  var std = shuffle(pool.filter(function(p){ return p.difficulty===3; }));
+  var adv = shuffle(pool.filter(function(p){ return p.difficulty>=4; }));
+  var nb = Math.round(n*0.3), ns = Math.round(n*0.4);
+  var na = n - nb - ns;
+  var picked = basic.slice(0,nb).concat(std.slice(0,ns), adv.slice(0,na));
+  if(picked.length<n){
+    var rest = shuffle(pool.filter(function(p){ return picked.indexOf(p)<0; }));
+    picked = picked.concat(rest.slice(0, n-picked.length));
+  }
+  return picked.sort(function(a,b){ return a.difficulty-b.difficulty; });
+}
+​
+function computeScore(){
+  var T = state.test, sc = 0;
+  T.problems.forEach(function(p){
+    if(p.answerKey && p.answerKey.length){ if(judge(p, T.inputs[p.id]||"")) sc++; }
+    else if(T.manual[p.id]) sc++;
+  });
+  return sc;
+}
+​
+function screenTest(app){
+  if(state.test){ renderTestRun(app); return; }
+  var c = el("div","card");
+  c.innerHTML = '<h3 style="margin-top:0">📝 擬似定期テスト</h3><div class="muted">出題範囲の単元を選んで，本番形式の演習をしよう（基礎30%：標準40%：応用30%）．</div>';
+  if(!state.testUnits) state.testUnits = D.units.map(function(u){ return u.id; });
+  var r = el("div","row"); r.style.marginTop = "8px";
+  D.units.forEach(function(u){
+    var on = state.testUnits.indexOf(u.id)>=0;
+    var b = el("button","opt"+(on? " on":""), esc(u.no+" "+u.title));
+    b.onclick = function(){
+      var i = state.testUnits.indexOf(u.id);
+      if(i>=0) state.testUnits.splice(i,1); else state.testUnits.push(u.id);
+      render();
+    };
+    r.appendChild(b);
+  });
+  c.appendChild(r);
+  var r2 = el("div","row"); r2.style.marginTop = "8px";
+  r2.appendChild(el("span","muted","問題数："));
+  [5,8,10,12].forEach(function(n){
+    var b = el("button","opt"+((state.testN||8)===n? " on":""), n+"問");
+    b.onclick = function(){ state.testN = n; render(); };
+    r2.appendChild(b);
+  });
+  c.appendChild(r2);
+  var gbtn = el("button","btn primary","テストを生成する 🎲"); gbtn.style.marginTop = "10px";
+  gbtn.onclick = function(){
+    if(!state.testUnits.length){ alert("単元を1つ以上選んでください"); return; }
+    var probs = genTest(state.testUnits, state.testN||8);
+    if(!probs.length){ alert("該当する問題がありません"); return; }
+    state.test = { problems: probs, done:false, manual:{}, inputs:{}, recIndex:-1 };
+    render();
+  };
+  c.appendChild(gbtn);
+  app.appendChild(c);
+}
+​
+function renderTestRun(app){
+  var T = state.test;
+  var head = el("div","card");
+  head.innerHTML = '<h3 style="margin-top:0">📝 擬似定期テスト（全 '+T.problems.length+' 問）</h3><div class="muted">解き終えたら一番下の「採点する」を押そう．記述式は採点後に解答を見て自己採点でチェック．</div>';
+  var quit = el("button","btn small","テストを終了して戻る");
+  quit.onclick = function(){ state.test = null; render(); };
+  head.appendChild(quit);
+  app.appendChild(head);
+  if(T.done){
+    var sc = computeScore(), max = T.problems.length;
+    var pct = Math.round(sc/max*100);
+    var verdict = pct>=80? "🎉 合格レベル！この調子！" : pct>=60? "🙂 あと一歩！間違えた問題を復習モードで潰そう．" : "📚 要復習．教科書タブのAI再編テキストに戻ろう．";
+    var scCard = el("div","card");
+    scCard.innerHTML = '<div class="score-big">'+sc+' / '+max+'</div><div style="text-align:center">'+verdict+'</div>';
+    app.appendChild(scCard);
+  }
+  T.problems.forEach(function(p, i){
+    var card = el("div","card");
+    card.innerHTML = '<div class="row"><span class="badge">第'+(i+1)+'問</span><span class="diff">'+stars(p.difficulty)+'</span><span class="muted">'+esc(SRC_LABEL[p.source]||"")+'</span>'+(p.verify? '<span class="verifybadge">⚠ OCR要確認</span>':'')+'</div><div class="prob-q">'+p.q+'</div>';
+    if(p.answerKey && p.answerKey.length){
+      var inp = document.createElement("input"); inp.type="text"; inp.placeholder="答えを入力"; inp.className="grow";
+      inp.value = T.inputs[p.id]||"";
+      inp.oninput = function(){ T.inputs[p.id] = inp.value; };
+      var arow = el("div","answer-row row"); arow.appendChild(inp); card.appendChild(arow);
+      if(T.done){
+        var ok = judge(p, T.inputs[p.id]||"");
+        card.appendChild(el("div","judge "+(ok? "ok":"ng"), ok? "⭕ 正解" : "❌ 不正解"));
+      }
+    } else {
+      card.appendChild(el("div","muted","✍️ 記述式：紙に解答を書こう"));
+      if(T.done){
+        var lb = el("label",null,'<input type="checkbox"'+(T.manual[p.id]? " checked":"")+'> 解答と照らして正解できた（自己採点）');
+        lb.querySelector("input").onchange = function(ev){
+          T.manual[p.id] = ev.target.checked;
+          if(T.recIndex>=0){ store.tests[T.recIndex].score = computeScore(); save(); }
+          render();
+        };
+        card.appendChild(lb);
+      }
+    }
+    if(T.done){
+      var d = el("details");
+      d.innerHTML = '<summary class="clickable" style="color:var(--blue)">📖 解答・解説を見る</summary>';
+      var dv = el("div","stage", (p.answerDisplay? "<div>答："+p.answerDisplay+"</div><hr class='sep'>":"")+(p.solution||""));
+      d.appendChild(dv);
+      d.addEventListener("toggle",function(){ if(d.open) math(d); });
+      card.appendChild(d);
+      if(p.checklist && p.checklist.length){
+        var cd = el("details","checklist");
+        cd.innerHTML = '<summary>☑ 記述自己採点チェックリスト</summary><div>'+p.checklist.map(function(c){ return '<label><input type="checkbox"> '+esc(c)+'</label>'; }).join("")+'</div>';
+        card.appendChild(cd);
+      }
+    }
+    math(card);
+    app.appendChild(card);
+  });
+  var foot = el("div","card");
+  if(!T.done){
+    var gr = el("button","btn primary","採点する ✅");
+    gr.onclick = function(){
+      T.done = true;
+      var sc = computeScore();
+      var unitNos = state.testUnits.map(function(uid){ var u=unitById(uid); return u? u.no : uid; }).join("・");
+      store.tests.push({ date: new Date().toLocaleDateString("ja-JP"), units: unitNos, score: sc, max: T.problems.length });
+      T.recIndex = store.tests.length-1;
+      save();
+      render();
+      window.scrollTo(0,0);
+    };
+    foot.appendChild(gr);
+  } else {
+    var again = el("button","btn primary","もう一度新しいテストを生成 🎲");
+    again.onclick = function(){ state.test = null; render(); };
+    foot.appendChild(again);
+  }
+  app.appendChild(foot);
+}
+​
+function screenAdvanced(app){
+  app.appendChild(el("h2",null,"🔥 発展演習（難問4題）"));
+  app.appendChild(el("div","muted","標準を超えた難問だけを厳選．1問30分粘る価値がある．"));
+  probsOf(null,"advanced").forEach(function(p){ app.appendChild(problemCard(p)); });
+}
+​
+function screenPastexam(app){
+  app.appendChild(el("h2",null,"🎯 過去問対策"));
+  if(!D.pastExams.length){
+    var c = el("div","card");
+    c.innerHTML = '<p>まだ過去問データが登録されていない．</p><p class="muted">教授の過去問（年度・出題形式・問題）を送ってもらえれば，その形式に沿った「特別対策問題」をここに追加できる．年度・教授名・形式ごとに裏側のデータに保存される仕組みになっている．</p>';
+    app.appendChild(c);
+  } else {
+    D.pastExams.forEach(function(e){
+      var c = el("div","card");
+      c.innerHTML = '<h3 style="margin-top:0">'+esc(e.year)+'年度　'+esc(e.professor)+'</h3><div class="muted">'+esc(e.format)+'</div>';
+      (e.problems||[]).forEach(function(pid){
+        var p = D.problems.filter(function(q){ return q.id===pid; })[0];
+        if(p) c.appendChild(problemCard(p));
+      });
+      app.appendChild(c);
+    });
+  }
+}
+​
+// ---------- ルーター ----------
+var SCREENS = { home:screenHome, textbook:screenTextbook, practice:screenPractice, test:screenTest, advanced:screenAdvanced, pastexam:screenPastexam };
+function go(s){ state.screen = s; render(); window.scrollTo(0,0); }
+function render(){
+  var app = document.getElementById("app");
+  app.innerHTML = "";
+  var btns = document.querySelectorAll("#nav button");
+  for(var i=0;i<btns.length;i++){ btns[i].classList.toggle("active", btns[i].getAttribute("data-screen")===state.screen); }
+  (SCREENS[state.screen]||screenHome)(app);
+  math(app);
+}
+function updateHeader(){ document.getElementById("hd-sub").textContent = D.subject.name+"｜"+D.subject.textbook+"｜"+D.subject.range; }
+function boot(){
+  updateHeader();
+  var btns = document.querySelectorAll("#nav button");
+  for(var i=0;i<btns.length;i++){ (function(b){ b.onclick = function(){ go(b.getAttribute("data-screen")); }; })(btns[i]); }
+  render();
+  var tries = 0;
+  var iv = setInterval(function(){
+    tries++;
+    if(window.renderMathInElement){ math(document.getElementById("app")); clearInterval(iv); }
+    else if(tries>40) clearInterval(iv);
+  }, 250);
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+</script>
+</body>
+</html>
+​
