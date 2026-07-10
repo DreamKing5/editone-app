@@ -149,24 +149,34 @@
   let items = []; // { id, img, url, rot }
   let seq = 0;
 
-  fileInput.addEventListener('change', (e) => {
-    const files = Array.from(e.target.files || []);
-    files.forEach((f) => {
-      if (!f.type.startsWith('image/')) return;
+  fileInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files || []).filter((f) => f.type.startsWith('image/'));
+    fileInput.value = '';
+    if (!files.length) return;
+
+    // 全部の読み込み完了を待ってから、選択した順番どおりにまとめて追加する
+    showStatus('写真を読み込み中…');
+    const loaded = await Promise.all(files.map((f) => loadImage(f)));
+    let failed = 0;
+    loaded.forEach((r) => {
+      if (r) { items.push({ id: ++seq, img: r.img, url: r.url, rot: 0 }); }
+      else { failed++; }
+    });
+    render();
+    if (failed) { showStatus('読み込めない画像が ' + failed + ' 枚ありました'); }
+    else { showStatus(files.length + ' 枚追加しました'); }
+  });
+
+  // 1枚の画像の読み込みをPromiseにする（順番を保証するため）
+  function loadImage(f) {
+    return new Promise((resolve) => {
       const url = URL.createObjectURL(f);
       const img = new Image();
-      img.onload = () => {
-        items.push({ id: ++seq, img, url, rot: 0 });
-        render();
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        showStatus('読み込めない画像がありました');
-      };
+      img.onload = () => resolve({ img, url });
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
       img.src = url;
     });
-    fileInput.value = '';
-  });
+  }
 
   function render() {
     grid.innerHTML = '';
