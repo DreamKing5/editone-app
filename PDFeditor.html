@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写真PDF結合ツール</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --text: #2C2C2B;
+    --sub: #7D7A75;
+    --bg: #F9F8F7;
+    --surface: #FFFFFF;
+    --border: #E6E5E3;
+    --accent: #2783DE;
+    --accent-soft: #E5F2FC;
+    --red: #E56458;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  h1 { font-size: 18px; margin: 0; }
+  header p { margin: 2px 0 0; font-size: 13px; color: var(--sub); }
+  main { max-width: 720px; margin: 0 auto; padding: 16px 16px 120px; }
+  .add-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 52px;
+    border: 1.5px dashed var(--accent);
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+  .hint { font-size: 13px; color: var(--sub); text-align: center; margin: 12px 0; }
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #F0EFED;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .thumb img { max-width: 92%; max-height: 92%; transition: transform .2s; }
+  .badge {
+    position: absolute; top: 6px; left: 6px;
+    background: rgba(44, 44, 43, .7); color: #fff;
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+  }
+  .rotmark {
+    position: absolute; right: 6px; bottom: 6px;
+    background: var(--accent); color: #fff;
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+  }
+  .controls { display: flex; border-top: 1px solid var(--border); }
+  .controls button {
+    flex: 1; min-height: 44px;
+    border: none; background: none;
+    font-size: 16px; color: var(--sub); cursor: pointer;
+  }
+  .controls button:disabled { opacity: .3; cursor: default; }
+  .controls button.del { color: var(--red); }
+  .controls button:not(:last-child) { border-right: 1px solid var(--border); }
+  .empty { text-align: center; color: var(--sub); padding: 48px 0; font-size: 14px; }
+  footer {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 8px;
+  }
+  footer input {
+    flex: 1; min-width: 0; min-height: 48px;
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 0 12px; font-size: 16px;
+  }
+  footer button {
+    min-height: 48px; padding: 0 20px;
+    border: none; border-radius: 8px;
+    background: var(--accent); color: #fff;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  footer button:disabled { background: #B9D6F2; cursor: default; }
+  #status {
+    position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+    background: rgba(44, 44, 43, .85); color: #fff;
+    font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    display: none; z-index: 20; white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>📄 写真PDF結合ツール</h1>
+  <p>写真を追加 → タップで回転 → 1つのPDFに結合</p>
+</header>
+
+<main>
+  <label class="add-btn">
+    ＋ 写真を追加
+    <input type="file" id="fileInput" accept="image/*" multiple hidden>
+  </label>
+  <p class="hint">サムネイルをタップすると 90° ずつ回転します</p>
+  <div id="grid"></div>
+  <div class="empty" id="empty">写真がまだありません</div>
+</main>
+
+<footer>
+  <input id="fileName" placeholder="ファイル名（省略可）" autocomplete="off">
+  <button id="makePdf" type="button" disabled>PDFを作成（0枚）</button>
+</footer>
+<div id="status" role="status"></div>
+
+<script>
+  const { jsPDF } = window.jspdf;
+  const fileInput = document.getElementById('fileInput');
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const makeBtn = document.getElementById('makePdf');
+  const fileName = document.getElementById('fileName');
+  const statusEl = document.getElementById('status');
+
+  let items = []; // { id, img, url, rot }
+  let seq = 0;
+
+  fileInput.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach((f) => {
+      if (!f.type.startsWith('image/')) return;
+      const url = URL.createObjectURL(f);
+      const img = new Image();
+      img.onload = () => {
+        items.push({ id: ++seq, img, url, rot: 0 });
+        render();
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        showStatus('読み込めない画像がありました');
+      };
+      img.src = url;
+    });
+    fileInput.value = '';
+  });
+
+  function render() {
+    grid.innerHTML = '';
+    items.forEach((it, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+
+      const img = document.createElement('img');
+      img.src = it.url;
+      img.alt = (i + 1) + '枚目の写真';
+      img.style.transform = 'rotate(' + it.rot + 'deg)';
+      thumb.appendChild(img);
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = (i + 1) + ' / ' + items.length;
+      thumb.appendChild(badge);
+
+      if (it.rot !== 0) {
+        const rm = document.createElement('span');
+        rm.className = 'rotmark';
+        rm.textContent = it.rot + '°';
+        thumb.appendChild(rm);
+      }
+
+      // ワンタップで90°回転
+      thumb.addEventListener('click', () => {
+        it.rot = (it.rot + 90) % 360;
+        render();
+      });
+
+      const controls = document.createElement('div');
+      controls.className = 'controls';
+      controls.appendChild(ctrlBtn('◀', '前へ移動', () => move(i, -1), i === 0));
+      controls.appendChild(ctrlBtn('▶', '後ろへ移動', () => move(i, 1), i === items.length - 1));
+      const del = ctrlBtn('✕', '削除', () => remove(i), false);
+      del.classList.add('del');
+      controls.appendChild(del);
+
+      card.appendChild(thumb);
+      card.appendChild(controls);
+      grid.appendChild(card);
+    });
+
+    empty.style.display = items.length ? 'none' : 'block';
+    makeBtn.disabled = items.length === 0;
+    makeBtn.textContent = 'PDFを作成（' + items.length + '枚）';
+  }
+
+  function ctrlBtn(label, aria, fn, disabled) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    b.setAttribute('aria-label', aria);
+    b.disabled = disabled;
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  function move(i, d) {
+    const j = i + d;
+    if (j < 0 || j >= items.length) return;
+    [items[i], items[j]] = [items[j], items[i]];
+    render();
+  }
+
+  function remove(i) {
+    URL.revokeObjectURL(items[i].url);
+    items.splice(i, 1);
+    render();
+  }
+
+  function showStatus(msg) {
+    statusEl.textContent = msg;
+    statusEl.style.display = 'block';
+    clearTimeout(showStatus.t);
+    showStatus.t = setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
+  }
+
+  // 回転を反映したキャンバスを作る（長辺は最大2000pxに縮小してメモリ節約）
+  function rotatedCanvas(it) {
+    const MAX = 2000;
+    let w = it.img.naturalWidth;
+    let h = it.img.naturalHeight;
+    const s = Math.min(1, MAX / Math.max(w, h));
+    w = Math.round(w * s);
+    h = Math.round(h * s);
+
+    const c = document.createElement('canvas');
+    if (it.rot % 180 === 0) { c.width = w; c.height = h; }
+    else { c.width = h; c.height = w; }
+
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.translate(c.width / 2, c.height / 2);
+    ctx.rotate(it.rot * Math.PI / 180);
+    ctx.drawImage(it.img, -w / 2, -h / 2, w, h);
+    return c;
+  }
+
+  makeBtn.addEventListener('click', async () => {
+    if (!items.length) return;
+    makeBtn.disabled = true;
+    try {
+      let doc = null;
+      for (let i = 0; i < items.length; i++) {
+        showStatus('変換中… ' + (i + 1) + ' / ' + items.length);
+        await new Promise((r) => setTimeout(r, 20)); // UI更新のための小休止
+
+        const c = rotatedCanvas(items[i]);
+        const data = c.toDataURL('image/jpeg', 0.85);
+        const orient = c.width > c.height ? 'l' : 'p'; // 横長なら横向きページ
+
+        if (!doc) {
+          doc = new jsPDF({ orientation: orient, unit: 'mm', format: 'a4' });
+        } else {
+          doc.addPage('a4', orient);
+        }
+
+        const pw = doc.internal.pageSize.getWidth();
+        const ph = doc.internal.pageSize.getHeight();
+        const m = 8; // 余白(mm)
+        const k = Math.min((pw - m * 2) / c.width, (ph - m * 2) / c.height);
+        const w = c.width * k;
+        const h = c.height * k;
+        doc.addImage(data, 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
+      }
+      const name = (fileName.value.trim() || 'photos') + '.pdf';
+      doc.save(name);
+      showStatus('PDFを保存しました');
+    } catch (err) {
+      console.error(err);
+      showStatus('エラー: PDFを作成できませんでした');
+    } finally {
+      makeBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
